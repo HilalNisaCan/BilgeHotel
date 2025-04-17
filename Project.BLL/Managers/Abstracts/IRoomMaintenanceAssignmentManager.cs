@@ -1,0 +1,36 @@
+﻿using Project.BLL.DtoClasses;
+using Project.Entities.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Project.BLL.Managers.Abstracts
+{
+    /// <summary>
+    /// Oda bakım işlemlerinin personele atanmasıyla ilgili iş akışlarını tanımlar.
+    /// </summary>
+    public interface IRoomMaintenanceAssignmentManager : IManager<RoomMaintenanceAssignmentDto, RoomMaintenanceAssignment>
+    {
+        /// <summary>
+        /// Belirli bir bakım işlemini ilgili çalışana atar.
+        /// </summary>
+        Task<bool> AssignMaintenanceAsync(int maintenanceId, int employeeId);
+
+        /// <summary>
+        /// Atanmış bir bakım işlemini iptal eder.
+        /// </summary>
+        Task<bool> RemoveMaintenanceAssignmentAsync(int assignmentId);
+
+        /// <summary>
+        /// Belirli bir odaya ait tüm bakım atamalarını getirir.
+        /// </summary>
+        Task<List<RoomMaintenanceAssignmentDto>> GetRoomMaintenanceAssignmentsAsync(int roomId);
+
+        /// <summary>
+        /// Bakım atamasını tamamlanmış olarak işaretler.
+        /// </summary>
+        Task<bool> CompleteMaintenanceAsync(int assignmentId);
+    }
+}

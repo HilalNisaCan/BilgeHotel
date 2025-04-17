@@ -1,0 +1,143 @@
+﻿@model UpdateEmployeeRequest
+@{
+    ViewData["Title"] = "Çalışan Güncelle";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-warning text-dark py-3 rounded-top-4">
+            <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Çalışan Güncelle</h5>
+        </div>
+
+        <div class="card-body bg-white">
+            <form asp-action="Edit" method="post" class="row gy-3">
+                <input type="hidden" asp-for="Id" />
+
+                <!-- Ad -->
+                <div class="col-md-6">
+                    <label asp-for="FirstName" class="form-label">Ad</label>
+                    <input asp-for="FirstName" class="form-control" />
+                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                </div>
+
+                <!-- Soyad -->
+                <div class="col-md-6">
+                    <label asp-for="LastName" class="form-label">Soyad</label>
+                    <input asp-for="LastName" class="form-control" />
+                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                </div>
+
+                <!-- TC Kimlik -->
+                <div class="col-md-6">
+                    <label asp-for="IdentityNumber" class="form-label">TC Kimlik No</label>
+                    <input asp-for="IdentityNumber" class="form-control" />
+                    <span asp-validation-for="IdentityNumber" class="text-danger small"></span>
+                </div>
+
+                <!-- Telefon -->
+                <div class="col-md-6">
+                    <label asp-for="PhoneNumber" class="form-label">Telefon</label>
+                    <input asp-for="PhoneNumber" class="form-control" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
+
+                <!-- E-posta -->
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label">E-Posta</label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <!-- Pozisyon -->
+                <div class="col-md-6">
+                    <label asp-for="Position" class="form-label">Pozisyon</label>
+                    <input asp-for="Position" class="form-control" />
+                    <span asp-validation-for="Position" class="text-danger small"></span>
+                </div>
+
+                <!-- Maaş Türü -->
+                <div class="col-md-6">
+                    <label asp-for="SalaryType" class="form-label">Maaş Türü</label>
+                    <select asp-for="SalaryType" class="form-select">
+                        <option value="Hourly">Saatlik</option>
+                        <option value="Monthly">Aylık</option>
+                    </select>
+                </div>
+
+                <!-- Saatlik Ücret -->
+                <div class="col-md-6">
+                    <label asp-for="HourlyWage" class="form-label">Saatlik Ücret</label>
+                    <input asp-for="HourlyWage" class="form-control" />
+                    <span asp-validation-for="HourlyWage" class="text-danger small"></span>
+                </div>
+
+                <!-- Aylık Maaş -->
+                <div class="col-md-6">
+                    <label asp-for="MonthlySalary" class="form-label">Aylık Maaş</label>
+                    <input asp-for="MonthlySalary" class="form-control" />
+                    <span asp-validation-for="MonthlySalary" class="text-danger small"></span>
+                </div>
+
+                <!-- İzin Günü -->
+                <div class="col-md-6">
+                    <label asp-for="DayOff" class="form-label">İzin Günü</label>
+                    <select asp-for="DayOff" class="form-select">
+                        <option value="">-- Seçiniz --</option>
+                        <option value="Pazartesi">Pazartesi</option>
+                        <option value="Salı">Salı</option>
+                        <option value="Çarşamba">Çarşamba</option>
+                        <option value="Perşembe">Perşembe</option>
+                        <option value="Cuma">Cuma</option>
+                        <option value="Cumartesi">Cumartesi</option>
+                        <option value="Pazar">Pazar</option>
+                    </select>
+                </div>
+
+                <!-- Vardiya Başlangıç -->
+                <div class="col-md-6">
+                    <label asp-for="ShiftStart" class="form-label">Vardiya Başlangıç</label>
+                    <input asp-for="ShiftStart" class="form-control" type="time" />
+                </div>
+
+                <!-- Vardiya Bitiş -->
+                <div class="col-md-6">
+                    <label asp-for="ShiftEnd" class="form-label">Vardiya Bitiş</label>
+                    <input asp-for="ShiftEnd" class="form-control" type="time" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Aktiflik Durumu</label>
+                    <div class="form-check">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                        <label class="form-check-label" for="IsActive">Bu çalışan aktif olsun</label>
+                    </div>
+                </div>
+
+                <!-- Ek Mesai -->
+                <div class="col-md-6">
+                    <div class="form-check mt-4">
+                        <input asp-for="HasExtraShift" class="form-check-input" type="checkbox" id="hasExtraShift" />
+                        <label class="form-check-label" for="hasExtraShift">
+                            Ek Mesai
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Butonlar -->
+                <div class="col-12 text-end mt-3">
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-sm me-2">
+                        <i class="fas fa-arrow-left me-1"></i>Geri Dön
+                    </a>
+                    <button type="submit" class="btn btn-success btn-sm">
+                        <i class="fas fa-save me-1"></i>Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

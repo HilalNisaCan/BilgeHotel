@@ -1,0 +1,57 @@
+﻿@model EmployeeDetailVm
+@{
+    ViewData["Title"] = "Çalışan Detayı";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="card border-0 shadow rounded-4">
+        <div class="card-header bg-primary text-white py-3 rounded-top-4">
+            <h5 class="mb-0"><i class="fas fa-id-badge me-2"></i>Çalışan Detayı</h5>
+        </div>
+        <div class="card-body bg-white">
+            <dl class="row">
+                <dt class="col-sm-3">Ad Soyad</dt>
+                <dd class="col-sm-9">@Model.FullName</dd>
+
+                <dt class="col-sm-3">Pozisyon</dt>
+                <dd class="col-sm-9">@Model.PositionName</dd>
+
+                <dt class="col-sm-3">Maaş Türü</dt>
+                <dd class="col-sm-9">@Model.SalaryType</dd>
+
+                @if (Model.SalaryType == "Hourly")
+                {
+                    <dt class="col-sm-3">Saatlik Ücret</dt>
+                    <dd class="col-sm-9">@Model.HourlyWage ₺</dd>
+                }
+                else
+                {
+                    <dt class="col-sm-3">Aylık Maaş</dt>
+                    <dd class="col-sm-9">@Model.MonthlySalary ₺</dd>
+                }
+                <dt class="col-sm-3">Telefon</dt>
+                <dd class="col-sm-9">@Model.PhoneNumber</dd>
+
+                <dt class="col-sm-3">İzin Günü</dt>
+                <dd class="col-sm-9">@Model.WeeklyOffDay</dd>
+
+                <dt class="col-sm-3">Vardiya</dt>
+                <dd class="col-sm-9">
+                    @Model.ShiftStartTime?.ToString(@"hh\:mm") - @Model.ShiftEndTime?.ToString(@"hh\:mm")
+                </dd>
+
+                @if (!string.IsNullOrEmpty(Model.Address))
+                {
+                    <dt class="col-sm-3">Adres</dt>
+                    <dd class="col-sm-9">@Model.Address</dd>
+                }
+            </dl>
+        </div>
+        <div class="card-footer bg-light text-end rounded-bottom-4">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Geri Dön
+            </a>
+        </div>
+    </div>
+</div>

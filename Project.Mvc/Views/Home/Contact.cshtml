@@ -1,0 +1,53 @@
+﻿@{
+    ViewData["Title"] = "İletişim";
+    Layout = "_Layout";
+}
+
+<section class="contact-section spad py-5">
+    <div class="container">
+        <div class="section-title text-center mb-5">
+            <h2>Bize Ulaşın</h2>
+            <p class="text-muted">Sorularınız,şikayetleriniz ve rezervasyon talepleriniz için bize yazabilirsiniz.</p>
+        </div>
+
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-success text-center">
+                @TempData["Message"]
+            </div>
+        }
+
+        <div class="row">
+            <!-- 📝 İletişim Formu -->
+            <div class="col-lg-6">
+                <form method="post" asp-action="Contact" asp-controller="Home" class="contact-form">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <input type="text" name="fullName" class="form-control" placeholder="Adınız Soyadınız" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <input type="email" name="email" class="form-control" placeholder="E-posta" required />
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <textarea name="message" rows="5" class="form-control" placeholder="Mesajınız" required></textarea>
+                        </div>
+                        <div class="col-md-12 text-end">
+                            <button type="submit" class="btn btn-primary">Gönder</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 📍 İletişim Bilgileri -->
+            <div class="col-lg-6">
+                <div class="contact-info mt-4">
+                    <p><i class="fa fa-map-marker me-2 text-primary"></i> Sahil Caddesi No:42, Antalya / Türkiye</p>
+                    <p><i class="fa fa-phone me-2 text-primary"></i> +90 (242) 123 45 67</p>
+                    <p><i class="fa fa-envelope me-2 text-primary"></i> info@bilgehotel.com</p>
+                    <p><i class="fa fa-clock me-2 text-primary"></i> Her Gün: 08:00 - 23:00</p>
+                    <p><i class="fa fa-globe me-2 text-primary"></i> www.bilgehotel.com</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

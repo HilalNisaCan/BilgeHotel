@@ -1,0 +1,64 @@
+﻿@model RoomAdminResponseModel
+
+
+@{
+    ViewData["Title"] = $"Oda Detay – {Model.RoomNumber}";
+}
+
+<div class="container mt-4">
+    <h3 class="mb-4 text-center">Oda @Model.RoomNumber – @Model.RoomType</h3>
+
+    <div class="row">
+        <!-- Sol tarafta görseller (carousel) -->
+        <div class="col-md-6">
+            <div id="roomCarousel" class="carousel slide mb-3" data-bs-ride="carousel">
+                <div class="carousel-inner rounded-3 shadow">
+                    @for (int i = 0; i < Model.ImageGallery.Count; i++)
+                    {
+                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                            <img src="~/img/Room/@Model.ImageGallery[i]" class="d-block w-100" style="height: 300px; object-fit: cover;" />
+                        </div>
+                    }
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#roomCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#roomCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Sağ tarafta oda bilgileri -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Oda Bilgileri</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Oda No:</strong> @Model.RoomNumber</li>
+                        <li class="list-group-item"><strong>Kat:</strong> @Model.FloorNumber</li>
+                        <li class="list-group-item">
+                            <strong>Durum:</strong>
+                            <span class="badge bg-@(
+                                Model.RoomStatus == RoomStatus.Available ? "success" :
+                                Model.RoomStatus == RoomStatus.Occupied ? "danger" :
+                                Model.RoomStatus == RoomStatus.Cleaning ? "warning" :
+                                Model.RoomStatus == RoomStatus.Maintenance ? "info" : "secondary"
+                            )">
+                                @Model.RoomStatus
+                            </span>
+                        </li>
+                        <li class="list-group-item"><strong>Fiyat:</strong> @Model.Price ₺</li>
+                        <li class="list-group-item"><strong>Minibar:</strong> @(Model.HasMinibar ? "Var" : "Yok")</li>
+                        <li class="list-group-item"><strong>Klima:</strong> @(Model.HasHairDryer ? "Var" : "Yok")</li>
+                        <li class="list-group-item"><strong>TV:</strong> @(Model.HasTV ? "Var" : "Yok")</li>
+                        <li class="list-group-item"><strong>Wi-Fi:</strong> @(Model.HasWiFi ? "Var" : "Yok")</li>
+                        <li class="list-group-item"><strong>Saç Kurutma:</strong> @(Model.HasHairDryer ? "Var" : "Yok")</li>
+                        <li class="list-group-item"><strong>Balkon:</strong> @(Model.HasBalcony ? "Var" : "Yok")</li>
+                        <li class="list-group-item"><strong>Açıklama:</strong> @Model.Description</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

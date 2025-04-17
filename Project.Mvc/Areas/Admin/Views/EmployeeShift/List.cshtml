@@ -1,0 +1,154 @@
+﻿@model List<EmployeeShiftResponseVm>
+
+@{
+    ViewData["Title"] = "Vardiya Listesi";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-primary fw-bold mb-0">
+            <i class="fas fa-calendar-alt me-2"></i>Vardiya Listesi
+        </h3>
+        <a asp-action="Create" class="btn btn-success btn-sm fw-semibold">
+            <i class="fas fa-plus-circle me-1"></i>Yeni Vardiya Ekle
+        </a>
+    </div>
+
+    <!-- 🔍 FILTRE FORMU BURAYA EKLENİYOR -->
+    <form method="get" class="mb-3 d-flex align-items-center gap-3">
+        <label class="form-label fw-semibold mb-0">Tarihe göre filtrele:</label>
+        <input type="date" name="date" class="form-control form-control-sm" style="width: 200px;"
+               value="@ViewBag.FilterDate" />
+        <button type="submit" class="btn btn-primary btn-sm">
+            <i class="fas fa-filter me-1"></i> Filtrele
+        </button>
+        <a asp-action="List" class="btn btn-secondary btn-sm">
+            <i class="fas fa-times me-1"></i> Temizle
+        </a>
+    </form>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="table-responsive shadow rounded-4">
+            <table class="table table-bordered table-hover align-middle text-center">
+                <thead class="text-white" style="background: linear-gradient(90deg, #3f51b5, #6c63ff);">
+                    <tr>
+                        <th>Tarih</th>
+                        <th>Vardiya</th>
+                        <th>Süre</th>
+                        <th>Fazla Mesai</th>
+                        <th>Çalışanlar</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var shift in Model)
+                    {
+                        <tr>
+                            <td>@shift.ShiftDate.ToString("dd.MM.yyyy")</td>
+                            <td>@shift.ShiftHours</td>
+                            <td>@($"{shift.TotalHours:0.##}") saat</td>
+                            <td>
+                                <span class="badge @(shift.HasOvertime ? "bg-danger" : "bg-secondary")">
+                                    <i class="fas @(shift.HasOvertime ? "fa-exclamation-circle" : "fa-minus-circle") me-1"></i>
+                                    @(shift.HasOvertime ? "Var" : "Yok")
+                                </span>
+                            </td>
+                            <td class="text-start">
+                                @if (shift.AssignedEmployeesFullNames != null && shift.AssignedEmployeesFullNames.Any())
+                                {
+                                    <div class="d-flex flex-wrap">
+                                        @foreach (var emp in shift.AssignedEmployeesFullNames)
+                                        {
+                                            <span class="badge-employee" title="@emp">@emp</span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-danger">Atama Yok</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a asp-action="Edit" asp-route-id="@shift.Id"
+                                       class="btn btn-outline-primary btn-action"
+                                       title="Düzenle">
+                                        <i class="fas fa-pen me-1"></i> Düzenle
+                                    </a>
+
+                                    <form asp-action="Delete" asp-route-id="@shift.Id" method="post" class="d-inline"
+                                          onsubmit="return confirm('Bu vardiyayı silmek istediğinize emin misiniz?');">
+                                        <button type="submit" class="btn btn-outline-danger btn-action" title="Sil">
+                                            <i class="fas fa-trash me-1"></i> Sil
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning text-center mt-4">Tanımlı vardiya bulunamadı.</div>
+    }
+</div>
+
+<style>
+    .badge-employee {
+        background-color: #e0f7fa;
+        color: #00796b;
+        border-radius: 12px;
+        padding: 4px 10px;
+        margin: 2px 4px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: inline-block;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    .btn-group .btn {
+        min-width: 36px;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #3f51b5;
+        color: white;
+        border-color: #3f51b5;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #f44336;
+        color: white;
+        border-color: #f44336;
+    }
+
+    .btn-action {
+        padding: 8px 14px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border-radius: 10px;
+        min-width: 100px;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #3f51b5;
+        color: white;
+        border-color: #3f51b5;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #f44336;
+        color: white;
+        border-color: #f44336;
+    }
+</style>

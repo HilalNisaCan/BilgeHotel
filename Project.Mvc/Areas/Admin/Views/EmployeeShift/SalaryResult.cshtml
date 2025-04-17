@@ -1,0 +1,54 @@
+﻿@model EmployeeSalaryResultVm
+
+@{
+    ViewData["Title"] = "Maaş Sonucu";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4 bg-white">
+                <div class="card-header bg-info text-white rounded-top-4 py-3 text-center">
+                    <h4 class="mb-0"><i class="fas fa-calculator me-2"></i>Maaş Hesaplama Sonucu</h4>
+                </div>
+                <div class="card-body">
+                    <dl class="row fs-6">
+                        <dt class="col-sm-4">Çalışan Adı</dt>
+                        <dd class="col-sm-8">@Model.EmployeeFullName</dd>
+
+                        <dt class="col-sm-4">Yıl</dt>
+                        <dd class="col-sm-8">@Model.Year</dd>
+
+                        <dt class="col-sm-4">Ay</dt>
+                        <dd class="col-sm-8">@Model.Month</dd>
+
+                        <dt class="col-sm-4">Toplam Çalışma Saati</dt>
+                        <dd class="col-sm-8">@Model.TotalWorkedHours saat</dd>
+
+                        <dt class="col-sm-4">Fazla Mesai</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.OvertimeHours > 0)
+                            {
+                                <span class="badge bg-warning text-dark">@Model.OvertimeHours saat</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Yok</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">Hesaplanan Maaş</dt>
+                        <dd class="col-sm-8 fw-bold text-success">
+                            @Model.SalaryAmount.ToString("C", new System.Globalization.CultureInfo("tr-TR"))
+                        </dd>
+                    </dl>
+                </div>
+                <div class="card-footer bg-light text-end rounded-bottom-4">
+                    <a asp-action="Salary" class="btn btn-secondary btn-sm">Yeni Hesaplama Yap</a>
+                    <a asp-action="Index" class="btn btn-outline-info btn-sm">Vardiya Paneli</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

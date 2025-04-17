@@ -1,0 +1,77 @@
+﻿@model List<EmployeeShiftOvertimeListVm>
+
+@{
+    ViewData["Title"] = "Fazla Mesai Listesi";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="card shadow border-0 rounded-4">
+        <div class="card-header rounded-top-4 py-3 text-white"
+             style="background: linear-gradient(90deg, #3f51b5, #6c63ff);">
+            <h4 class="mb-0"><i class="fas fa-hourglass-half me-2"></i>Fazla Mesai Sonuçları</h4>
+        </div>
+
+        <div class="card-body bg-white rounded-bottom-4">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Ad Soyad</th>
+                                <th>Tarih</th>
+                                <th>Vardiya Saati</th>
+                                <th>Çalışılan Süre</th>
+                                <th>Fazla Mesai</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@item.FirstName @item.LastName</td>
+                                    <td>@item.AssignedDate.ToString("dd.MM.yyyy")</td>
+                                    <td>
+                                        <span class="badge bg-primary-subtle text-dark fw-semibold">
+                                            @item.ShiftTime
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="@(item.WorkedHours > 8 ? "text-success fw-bold" : "text-muted")">
+                                            @item.WorkedHours.ToString("0.##") saat
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (item.OvertimeHours > 0)
+                                        {
+                                            <span class="badge bg-warning text-dark fw-bold">
+                                                @item.OvertimeHours.ToString("0.##") saat
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Yok</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info text-center fw-semibold shadow-sm rounded-3">
+                    <i class="fas fa-info-circle me-2"></i> Bu haftaya ait fazla mesai kaydı bulunamadı.
+                </div>
+            }
+
+            <div class="text-end mt-3">
+                <a asp-action="Overtime" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i> Geri Dön
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

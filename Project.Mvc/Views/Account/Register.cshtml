@@ -1,0 +1,94 @@
+﻿@model RegisterViewModel
+@{
+    ViewData["Title"] = "Kayıt Ol";
+}
+
+<section class="register-section d-flex align-items-center justify-content-center">
+    <div class="container">
+        <div class="register-card shadow-lg p-4 rounded mx-auto" style="max-width: 500px;">
+            <h3 class="text-center mb-4 text-white fw-bold">
+                <i class="bi bi-person-plus me-2"></i> Kayıt Ol
+            </h3>
+
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert alert-success text-center">@TempData["Message"]</div>
+            }
+
+            <form asp-action="Register" method="post">
+                <div class="form-floating mb-3">
+                    <input asp-for="FirstName" class="form-control" placeholder="Ad" />
+                    <label asp-for="FirstName">Ad</label>
+                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="LastName" class="form-control" placeholder="Soyad" />
+                    <label asp-for="LastName">Soyad</label>
+                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="PhoneNumber" class="form-control" placeholder="Telefon" />
+                    <label asp-for="PhoneNumber">Telefon</label>
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Email" class="form-control" placeholder="Email" />
+                    <label asp-for="Email">E-Posta</label>
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="IdentityNumber" class="form-control" placeholder="T.C. Kimlik No" />
+                    <label asp-for="IdentityNumber">T.C. Kimlik No</label>
+                    <span asp-validation-for="IdentityNumber" class="text-danger small"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="BirthDate" type="date" class="form-control" placeholder="Doğum Tarihi" />
+                    <label asp-for="BirthDate">Doğum Tarihi</label>
+                    <span asp-validation-for="BirthDate" class="text-danger small"></span>
+                </div>
+
+
+                <div class="form-floating mb-3">
+                    <input asp-for="Password" type="password" class="form-control" placeholder="Şifre" />
+                    <label asp-for="Password">Şifre</label>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Şifre Tekrar" />
+                    <label asp-for="ConfirmPassword">Şifre Tekrar</label>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="btn btn-gradient w-100">Kayıt Ol</button>
+
+                <div class="text-center mt-3">
+                    <a href="/Account/Login" class="text-white text-decoration-none">Zaten hesabınız var mı? Giriş yap</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+    <style>
+        .register-section {
+            min-height: 100vh;
+            background: linear-gradient(to right top, #4a00e0, #8e2de2);
+            padding: 5rem 1rem;
+        }
+
+        .register-card {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+        }
+
+        .btn-gradient {
+            background: linear-gradient(to right, #4a00e0, #8e2de2);
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+}

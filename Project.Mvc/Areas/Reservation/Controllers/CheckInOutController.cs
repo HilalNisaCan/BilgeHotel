@@ -1,0 +1,178 @@
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Project.BLL.Managers.Abstracts;
+using Project.Entities.Enums;
+using Project.MvcUI.Areas.Reservation.Models.PageVm;
+using Microsoft.EntityFrameworkCore;
+using Project.MvcUI.Areas.Reservation.Models.PureVm.ResponseModel.ExtraExpense;
+using Project.BLL.DtoClasses;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Project.BLL.Managers.Concretes;
+using Microsoft.AspNetCore.Authorization;
+
+
+namespace Project.MvcUI.Areas.Reservation.Controllers
+{
+    [Area("Reservation")]
+    public class CheckInOutController : Controller
+    {
+        private readonly IReservationManager _reservationManager;
+        private readonly IExtraExpenseManager _extraExpenseManager;
+        private readonly IProductManager _productManager;
+        private readonly IMapper _mapper;
+
+        public CheckInOutController(IReservationManager reservationManager, IExtraExpenseManager extraExpenseManager, IMapper mapper, IProductManager productManager)
+        {
+            _reservationManager = reservationManager;
+            _extraExpenseManager = extraExpenseManager;
+            _mapper = mapper;
+            _productManager = productManager;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            DateTime today = DateTime.Today;
+
+            // Sadece bugünkü aktif giriş ve çıkış rezervasyonları
+            var allReservations = await _reservationManager.GetAllWithIncludeAsync(
+                x => (x.StartDate.Date == today || x.EndDate.Date == today) &&
+                     x.ReservationStatus != ReservationStatus.Completed,
+                q => q.Include(x => x.Customer).ThenInclude(c => c.User)
+                      .Include(x => x.Room)
+            );
+
+            var vm = _mapper.Map<List<ReservationCheckInOutModel>>(allReservations);
+            return View(vm);
+        }
+
+        [HttpGet("Complete")]
+        public async Task<IActionResult> Complete(int reservationId)
+        {
+            var reservation = await _reservationManager.GetWithIncludeAsync(reservationId);
+
+            if (reservation == null) return NotFound();
+
+            var vm = _mapper.Map<CheckOutDetailModel>(reservation);
+
+            // Her şey dahil DEĞİLSE, ekstra harcamaları getir
+            if (reservation.Package != ReservationPackage.AllInclusive)
+            {
+                var expenses = await _extraExpenseManager.GetExpensesByReservationAsync(reservationId);
+                vm.ExtraExpenses = _mapper.Map<List<ExtraExpenseModel>>(expenses);
+            }
+
+            return View(vm);
+        }
+
+        [HttpPost("Complete")]
+        public async Task<IActionResult> CompleteConfirmed(int reservationId)
+        {
+            try
+            {
+                await _reservationManager.CompleteReservationAsync(reservationId);
+
+                TempData["Success"] = "✅ Çıkış işlemi başarıyla tamamlandı.";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Çıkış işlemi hatası: {ex.Message}");
+                TempData["Error"] = "Bir hata oluştu. Lütfen tekrar deneyin.";
+                return RedirectToAction("Complete", new { reservationId });
+            }
+        }
+
+        [HttpGet("AddExpense")]
+        public IActionResult AddExpense(int reservationId)
+        {
+            var categories = Enum.GetValues(typeof(ProductCategory))
+           .Cast<ProductCategory>()
+           .Select(c => new SelectListItem
+           {
+            Value = ((int)c).ToString(),
+            Text = c.ToString()
+          }).ToList();
+
+            var model = new AddExtraExpenseModel
+            {
+                ReservationId = reservationId,
+                CategoryList = categories
+            };
+
+            return View(model);
+        }
+
+        [HttpPost("AddExpense")]
+        public async Task<IActionResult> AddExpense(AddExtraExpenseModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                // ✅ Kategori listesi yeniden yüklenmeli
+                model.CategoryList = Enum.GetValues(typeof(ProductCategory))
+                    .Cast<ProductCategory>()
+                    .Select(c => new SelectListItem
+                    {
+                        Value = ((int)c).ToString(),
+                        Text = c.ToString()
+                    }).ToList();
+
+                return View(model);
+            }
+
+            // ✅ Ürün bilgisi çekiliyor
+            ProductDto product = await _productManager.GetByIdAsync(model.ProductId);
+            if (product == null)
+            {
+                ModelState.AddModelError("", "Ürün bulunamadı.");
+                return View(model);
+            }
+
+            // ✅ İlgili rezervasyon üzerinden müşteri ID’si alınır
+            ReservationDto reservation = await _reservationManager.GetWithIncludeAsync(model.ReservationId);
+            if (reservation == null)
+            {
+                ModelState.AddModelError("", "Rezervasyon bulunamadı.");
+                return View(model);
+            }
+
+            int customerId = reservation.CustomerId;
+            decimal total = product.Price * model.Quantity;
+
+            // ✅ DTO hazırlanıyor
+            ExtraExpenseDto dto = new ExtraExpenseDto
+            {
+                CustomerId = customerId,
+                ReservationId = model.ReservationId,
+                ProductId = model.ProductId,
+                Quantity = model.Quantity,
+                UnitPrice = product.Price,
+                Description = product.Name,
+                ExpenseDate = model.ExpenseDate
+            };
+
+            // ✅ Veritabanına kaydediliyor
+            await _extraExpenseManager.AddAsync(dto);
+
+            // ✅ Log ve geri dönüş
+            Console.WriteLine($"🧾 Ekstra Harcama Eklendi → MüşteriId: {customerId}, Ürün: {product.Name}, Tutar: {total}");
+
+            TempData["Success"] = "Ekstra harcama başarıyla eklendi.";
+            return RedirectToAction("Complete", new { reservationId = model.ReservationId });
+        }
+
+        [HttpGet("api/product/byCategory/{category}")]
+        public async Task<IActionResult> GetProductsByCategory(int category)
+        {
+            var products = await _productManager.GetByCategoryAsync((ProductCategory)category);
+            var simplified = products.Select(p => new
+            {
+                id = p.Id,
+                name = p.Name,
+                unitPrice = p.Price,
+            });
+
+            return Ok(simplified);
+        }
+    }
+}

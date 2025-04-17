@@ -1,0 +1,53 @@
+﻿@model RoomTypePricePageVm
+
+@{
+    ViewData["Title"] = "Oda Tipi Fiyatları";
+}
+
+<div class="container py-4">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold text-white py-3 rounded" style="background: linear-gradient(to right, #6a11cb, #2575fc);">
+            Oda Tipi Fiyatları
+        </h2>
+    </div>
+
+   
+    <!-- Fiyat listesi -->
+    <table class="table table-bordered table-hover align-middle shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Oda Tipi</th>
+                <th>Fiyat (₺)</th>
+                <th class="text-center">İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.RoomTypePrices != null && Model.RoomTypePrices.Any())
+            {
+                int count = 1;
+                foreach (var item in Model.RoomTypePrices)
+                {
+                    <tr>
+                        <td>@count</td>
+                        <td><span class="badge bg-primary">@item.RoomType</span></td>
+                        <td>@item.PricePerNight.ToString("C2")</td>
+                        <td class="text-center">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">Düzenle</a> <!-- Güncellendi -->
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Bu fiyatı silmek istediğinize emin misiniz?');">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Sil</button>
+                            </form>
+                        </td>
+                    </tr>
+                    count++;
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4" class="text-center text-muted">Hiç fiyat bilgisi eklenmemiş.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,92 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">12.5k</h5>
+                <p class="card-text">Toplam Kullanıcı</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">1,234</h5>
+                <p class="card-text">Yeni Rezervasyon</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-danger shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">$6,540</h5>
+                <p class="card-text">Toplam Gelir</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">3,855</h5>
+                <p class="card-text">Aktif Oturum</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header fw-bold">Ziyaretçi Grafiği</div>
+            <div class="card-body">
+                <canvas id="visitorsChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header fw-bold">Son Siparişler</div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">#12345 <span class="badge bg-warning">Bekliyor</span></li>
+                    <li class="list-group-item d-flex justify-content-between">#12346 <span class="badge bg-success">Tamamlandı</span></li>
+                    <li class="list-group-item d-flex justify-content-between">#12347 <span class="badge bg-danger">İptal</span></li>
+                    <li class="list-group-item d-flex justify-content-between">#12348 <span class="badge bg-info">İşleniyor</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('visitorsChart');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
+                datasets: [{
+                    label: 'Ziyaretçiler',
+                    data: [120, 190, 300, 250, 220, 310, 400],
+                    borderWidth: 2,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+}

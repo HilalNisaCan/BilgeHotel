@@ -1,0 +1,112 @@
+﻿@model List<CustomerReportDto>
+
+@{
+    ViewData["Title"] = "Müşteri Raporları";
+    decimal toplamHarcama = Model.Sum(x => x.TotalSpent);
+    decimal ortalamaHarcama = Model.Any() ? Model.Average(x => x.TotalSpent) : 0;
+    double ortalamaPuan = Model.Any() ? Model.Average(x => x.LoyaltyPoints) : 0;
+}
+
+<div class="container py-4">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold py-3 rounded text-white" style="background: linear-gradient(to right, #6a11cb, #2575fc); box-shadow: 0 0 15px rgba(106,17,203,0.5);">
+            📊 Müşteri Raporları
+        </h2>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="row mb-4 text-white">
+        <div class="col-md-3 mb-3">
+            <div class="card shadow" style="background: linear-gradient(135deg, #4e54c8, #8f94fb);">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Toplam Müşteri</h6>
+                    <h3>@Model.Count()</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow" style="background: linear-gradient(135deg, #00b09b, #96c93d);">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Toplam Harcama</h6>
+                    <h3>@toplamHarcama.ToString("C2")</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow" style="background: linear-gradient(135deg, #f7971e, #ffd200);">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Ort. Harcama</h6>
+                    <h3>@ortalamaHarcama.ToString("C2")</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow" style="background: linear-gradient(135deg, #1e3c72, #2a5298);">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Ort. Sadakat</h6>
+                    <h3>@ortalamaPuan.ToString("F1")</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Butonları -->
+    <div class="mb-3 d-flex gap-2">
+        <a asp-action="ExportToExcel" class="btn btn-outline-success">
+            <i class="bi bi-file-earmark-excel-fill me-1"></i> Excel İndir
+        </a>
+        <a asp-action="ExportToPdf" class="btn btn-outline-danger">
+            <i class="bi bi-file-earmark-pdf-fill me-1"></i> PDF İndir
+        </a>
+    </div>
+
+    <!-- Tablo -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle shadow-sm">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>#</th>
+                    <th>Ad Soyad</th>
+                    <th>TC Kimlik</th>
+                    <th>Telefon</th>
+                    <th>Rezervasyon</th>
+                    <th>Harcama</th>
+                    <th>Puan</th>
+                    <th>Kampanya</th>
+                    <th>Son Rezervasyon</th>
+                    <th>Detay</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    int count = 1;
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center">@count</td>
+                            <td>@item.FullName</td>
+                            <td>@item.IdentityNumber</td>
+                            <td>@item.PhoneNumber</td>
+                            <td class="text-center">@item.TotalReservationCount</td>
+                            <td>@item.TotalSpent.ToString("C2")</td>
+                            <td><span class="badge bg-primary">@item.LoyaltyPoints</span></td>
+                            <td><span class="badge bg-warning text-dark">@item.CampaignUsageCount</span></td>
+                            <td>@item.LastReservationDate?.ToString("dd.MM.yyyy") ?? "Yok"</td>
+                            <td class="text-center">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Detay</a>
+                            </td>
+                        </tr>
+                        count++;
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="10" class="text-center">Hiç müşteri raporu bulunamadı.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

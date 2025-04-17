@@ -1,0 +1,85 @@
+﻿@model List<RoomAdminResponseModel>
+
+@{
+    ViewData["Title"] = "Tüm Odalar – Yönetici Paneli";
+}
+<form asp-action="Index" method="get" class="mb-4">
+    <div class="row">
+        <div class="col-md-4">
+            <label for="roomType">Oda Tipi</label>
+            <select name="RoomType" id="roomType" class="form-control">
+                <option value="">Tüm Oda Tipleri</option>
+                <option value="Single">Tek Kişilik</option>
+                <option value="DoubleBed">İki Kişilik</option>
+                <option value="TwinBed">İki Kişilik (Çift Yatak)</option>
+                <option value="Triple">Üç Kişilik</option>
+                <option value="Quad">Dört Kişilik</option>
+                <option value="KingSuite">Kral Dairesi</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label for="roomStatus">Durum</label>
+            <select name="RoomStatus" id="roomStatus" class="form-control">
+                <option value="">Tüm Durumlar</option>
+                <option value="Available">Müsait</option>
+                <option value="Occupied">Dolu</option>
+                <option value="Cleaning">Temizlikte</option>
+                <option value="Maintenance">Bakımda</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label for="minPrice">Min Fiyat</label>
+            <input type="number" name="MinPrice" id="minPrice" class="form-control" placeholder="Min Fiyat" />
+        </div>
+
+        <div class="col-md-4 mt-3">
+            <label for="maxPrice">Max Fiyat</label>
+            <input type="number" name="MaxPrice" id="maxPrice" class="form-control" placeholder="Max Fiyat" />
+        </div>
+
+        <div class="col-md-4 mt-3">
+            <button type="submit" class="btn btn-primary mt-4">Filtrele</button>
+        </div>
+    </div>
+</form>
+
+<h4 class="text-center mb-4">Tüm Odalar</h4>
+
+<div class="row">
+    @foreach (var room in Model)
+    {
+        var statusColor = room.RoomStatus.ToString() switch
+        {
+            "Available" => "success",
+            "Occupied" => "danger",
+            "Cleaning" => "warning",
+            "Maintenance" => "info",
+            _ => "secondary"
+        };
+
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <img src="~/img/Room/@room.ImagePath" class="card-img-top rounded-top" style="height: 140px; object-fit: cover;" alt="Oda Görseli" />
+
+                <div class="card-body p-3">
+                    <h6 class="fw-semibold mb-1">Oda @room.RoomNumber – @room.RoomType</h6>
+
+                    <p class="mb-2" style="font-size: 0.9rem;">
+                        <span class="text-muted">Kat:</span> @room.FloorNumber <br />
+                        <span class="text-muted">Durum:</span>
+                        <span class="badge bg-@statusColor">@room.RoomStatus</span><br />
+                        <span class="text-muted">Fiyat:</span> <strong>@room.Price ₺</strong>
+                    </p>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="@Url.Action("Details", "Room", new { area = "Admin", id = room.Id })" class="btn btn-outline-primary btn-sm">Detay</a>
+                        <a href="@Url.Action("Edit", "Room", new { area = "Admin", id = room.Id })" class="btn btn-outline-warning btn-sm">Güncelle</a>
+                        <a href="@Url.Action("Delete", "Room", new { area = "Admin", id = room.Id })" class="btn btn-outline-danger btn-sm">Sil</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,149 @@
+﻿@model ReservationPaymentPageVm
+@{
+    ViewData["Title"] = "Ödeme Yap";
+}
+
+<section class="payment-section">
+    <div class="container animate-fade-in">
+        <div class="card payment-card shadow-lg">
+            <div class="row g-0">
+                <!-- SOL: Görsel / Bilgi -->
+                <div class="col-md-6 gradient-left text-white d-flex flex-column justify-content-center align-items-center p-5 rounded-start">
+                    <h2 class="fw-bold">Sahte Banka</h2>
+                    <p class="text-center">Rezervasyonunuzu tamamlamak için güvenli ödeme ekranındasınız.</p>
+                    <img src="~/img/CreditCard/creditcart.jpg" class="img-fluid mt-4 rounded shadow-sm" style="max-width: 250px;" />
+                </div>
+
+                <!-- SAĞ: Ödeme Formu -->
+                <div class="col-md-6 p-5">
+                    <h4 class="fw-bold text-center mb-4 text-primary">
+                        <i class="bi bi-credit-card-2-front-fill me-2"></i> Ödeme Bilgileri
+                    </h4>
+
+                    @if (TempData["Message"] != null)
+                    {
+                        <div class="alert alert-success alert-animated text-center mt-4">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            @TempData["Message"]
+                            <br />
+                            <span class="text-muted small">5 saniye içinde anasayfaya yönlendiriliyorsunuz...</span>
+                        </div>
+
+                        <script>
+                            setTimeout(function () {
+                                window.location.href = "/";
+                            }, 5000); // ⏱️ 5 saniye
+                        </script>
+                    }
+
+                    <form asp-action="Pay" method="post">
+                        <input type="hidden" asp-for="ReservationId" />
+                        <input type="hidden" asp-for="TotalPrice" />
+                        <input type="hidden" asp-for="PaymentRequest.ShoppingPrice" value="@Model.TotalPrice" />
+
+                        <div class="mb-3">
+                            <label asp-for="PaymentRequest.CardUserName" class="form-label">Kart Üzerindeki İsim</label>
+                            <input asp-for="PaymentRequest.CardUserName" class="form-control" placeholder="Ad Soyad" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PaymentRequest.CardNumber" class="form-label">Kart Numarası</label>
+                            <input asp-for="PaymentRequest.CardNumber" class="form-control" placeholder="1111 2222 3333 4444" />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="PaymentRequest.ExpiryMonth" class="form-label">Ay</label>
+                                <input asp-for="PaymentRequest.ExpiryMonth" class="form-control" placeholder="MM" />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="PaymentRequest.ExpiryYear" class="form-label">Yıl</label>
+                                <input asp-for="PaymentRequest.ExpiryYear" class="form-control" placeholder="YYYY" />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="PaymentRequest.CVV" class="form-label">CVV</label>
+                                <input asp-for="PaymentRequest.CVV" class="form-control" placeholder="123" />
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-3">
+                            <button type="submit" class="btn btn-gradient">
+                                <i class="bi bi-check-circle me-1"></i> Ödemeyi Tamamla
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+    <style>
+        .payment-section {
+            background-color: #f7f8fc;
+            padding: 60px 0;
+        }
+
+        .payment-card {
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .gradient-left {
+            background: linear-gradient(135deg, #5f2c82, #49a09d);
+        }
+
+        .btn-gradient {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            font-weight: 600;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 12px;
+            transition: all 0.3s ease-in-out;
+        }
+
+            .btn-gradient:hover {
+                filter: brightness(1.1);
+                transform: scale(1.02);
+            }
+
+        .animate-fade-in {
+            animation: fadeIn 0.9s ease-in-out;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+          .alert-animated {
+            animation: bounceFadeIn 1s ease-in-out;
+            font-size: 1.1rem;
+            font-weight: 500;
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
+        }
+
+        @@keyframes bounceFadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            50% {
+                transform: scale(1.03);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+}

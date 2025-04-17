@@ -1,0 +1,99 @@
+﻿@model EmployeeCreateVm
+
+@{
+    ViewData["Title"] = "Yeni Çalışan Ekle";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+<div class="container mt-4">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-primary text-white rounded-top-4 py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Yeni Çalışan Ekle</h5>
+        </div>
+
+        <div class="card-body bg-white rounded-bottom-4">
+            <form asp-action="Create" method="post" class="row g-4">
+
+                @* AD - SOYAD *@
+                <div class="col-md-6">
+                    <label asp-for="FirstName" class="form-label">Ad</label>
+                    <input asp-for="FirstName" class="form-control" />
+                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="LastName" class="form-label">Soyad</label>
+                    <input asp-for="LastName" class="form-control" />
+                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                </div>
+
+                @* T.C. Kimlik & Telefon *@
+                <div class="col-md-6">
+                    <label asp-for="IdentityNumber" class="form-label">TC Kimlik No</label>
+                    <input asp-for="IdentityNumber" class="form-control" />
+                    <span asp-validation-for="IdentityNumber" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="PhoneNumber" class="form-label">Telefon</label>
+                    <input asp-for="PhoneNumber" class="form-control" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
+
+                @* E-Mail & Adres *@
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label">E-Posta</label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Address" class="form-label">Adres</label>
+                    <input asp-for="Address" class="form-control" />
+                    <span asp-validation-for="Address" class="text-danger small"></span>
+                </div>
+
+                @* Pozisyon & Maaş Türü *@
+                <div class="col-md-6">
+                    <label asp-for="PositionName" class="form-label">Pozisyon</label>
+                    <select asp-for="PositionName" asp-items="ViewBag.Positions" class="form-select"></select>
+                    <span asp-validation-for="PositionName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="SalaryType" class="form-label">Maaş Türü</label>
+                    <select asp-for="SalaryType" asp-items="ViewBag.SalaryTypes" class="form-select"></select>
+                    <span asp-validation-for="SalaryType" class="text-danger small"></span>
+                </div>
+
+                @* Saatlik Ücret *@
+                <div class="col-md-6">
+                    <label asp-for="HourlyWage" class="form-label">Saatlik Ücret</label>
+                    <input asp-for="HourlyWage" class="form-control" />
+                    <span asp-validation-for="HourlyWage" class="text-danger small"></span>
+                </div>
+
+                @* İzin Günü *@
+                <div class="col-md-6">
+                    <label asp-for="WeeklyOffDay" class="form-label">İzin Günü</label>
+                    <select asp-for="WeeklyOffDay" class="form-select">
+                        <option value="">-- Gün Seçiniz --</option>
+                        <option>Pazartesi</option>
+                        <option>Salı</option>
+                        <option>Çarşamba</option>
+                        <option>Perşembe</option>
+                        <option>Cuma</option>
+                        <option>Cumartesi</option>
+                        <option>Pazar</option>
+                    </select>
+                    <span asp-validation-for="WeeklyOffDay" class="text-danger small"></span>
+                </div>
+
+                @* BUTONLAR *@
+                <div class="col-12 text-end mt-3">
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-sm me-2">
+                        <i class="fas fa-arrow-left me-1"></i>Geri Dön
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-check me-1"></i>Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

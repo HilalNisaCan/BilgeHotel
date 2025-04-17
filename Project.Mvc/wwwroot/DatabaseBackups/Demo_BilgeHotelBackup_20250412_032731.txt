@@ -1,0 +1,4 @@
+Bu, BilgeHotel için DEMO yedek dosyasıdır.
+
+Tarih: 12.04.2025 03:27:31
+Yedek başarılı gibi görünmesi için oluşturulmuştur.

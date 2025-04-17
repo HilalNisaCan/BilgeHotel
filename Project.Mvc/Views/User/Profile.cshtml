@@ -1,0 +1,244 @@
+﻿@model UserProfilePageVm
+
+@{
+    ViewData["Title"] = "Profilim";
+}
+
+<div class="container py-5" style="background: linear-gradient(to bottom right, #f7f7ff, #e0eafc); border-radius: 20px;">
+    <div class="card shadow-lg p-4 rounded-4 bg-white">
+        <div class="col-xl-10">
+            <div class="card shadow-lg border-0 rounded-5 overflow-hidden">
+                <div class="row g-0">
+                    
+                    <!-- SOL PROFİL KARTI -->
+                    <div class="col-md-4 bg-gradient text-white d-flex flex-column align-items-center justify-content-center p-4"
+                         style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                        <img src="@Model.Profile.ProfileImagePath ?? "/img/default-profile.png"" 
+                             class="rounded-circle border border-white shadow mb-3" width="140" height="140" />
+                        <h4 class="fw-bold">@Model.Profile.FirstName @Model.Profile.LastName</h4>
+                        <p class="mb-1"><i class="bi bi-telephone"></i> @Model.Profile.PhoneNumber</p>
+                        <p class="mb-1"><i class="bi bi-geo-alt"></i> @Model.Profile.City ?? "-"</p>
+                        <p><i class="bi bi-calendar"></i> @(Model.Profile.BirthDate?.ToShortDateString() ?? "-")</p>
+                    </div>
+
+                    <!-- SAĞ PROFİL + REZERVASYON -->
+                    <div class="col-md-8 bg-white p-4">
+                        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                            <li class="nav-item me-2" role="presentation">
+                                <button class="nav-link active" id="pills-profile-tab" data-bs-toggle="pill"
+                                        data-bs-target="#pills-profile" type="button" role="tab">👤 Profil Güncelle</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="pills-history-tab" data-bs-toggle="pill"
+                                        data-bs-target="#pills-history" type="button" role="tab">📒 Geçmiş Rezervasyonlar</button>
+                            </li>
+                        </ul>
+                        @if (TempData["Message"] != null)
+                        {
+                            <div class="alert alert-success text-center">@TempData["Message"]</div>
+                        }
+                        <div class="tab-content" id="pills-tabContent">
+                            <!-- PROFİL FORMU -->
+                            <div class="tab-pane fade show active" id="pills-profile" role="tabpanel">
+                                <form asp-action="UpdateProfile" method="post">
+                                    <input type="hidden" asp-for="Profile.UserId" />
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label>Ad</label>
+                                            <input asp-for="Profile.FirstName" class="form-control" />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Soyad</label>
+                                            <input asp-for="Profile.LastName" class="form-control" />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Telefon</label>
+                                            <input asp-for="Profile.PhoneNumber" class="form-control" />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Adres</label>
+                                            <input asp-for="Profile.Address" class="form-control" />
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Şehir</label>
+                                            <input asp-for="Profile.City" class="form-control" />
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Ülke</label>
+                                            <input asp-for="Profile.Country" class="form-control" />
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Uyruk</label>
+                                            <input asp-for="Profile.Nationality" class="form-control" />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Cinsiyet</label>
+                                            <select asp-for="Profile.Gender" class="form-select">
+                                                <option value="">Seçiniz</option>
+                                                <option value="Kadın">Kadın</option>
+                                                <option value="Erkek">Erkek</option>
+                                                <option value="Belirtmek istemiyorum">Belirtmek istemiyorum</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>T.C. Kimlik No</label>
+                                            <input asp-for="Profile.IdentityNumber" class="form-control" />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Doğum Tarihi</label>
+                                            <input name="Profile.BirthDate" type="date" class="form-control"
+                                                   value="@(Model.Profile.BirthDate?.ToString("yyyy-MM-dd") ?? "")" />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Profil Resmi (Yol)</label>
+                                            <input asp-for="Profile.ProfileImagePath" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="text-end mt-4">
+                                        <button type="submit" class="btn btn-gradient">Kaydet</button>
+                                    </div>
+                                </form>
+                            </div>
+
+
+                            <!-- REZERVASYON -->
+                            <div class="tab-pane fade" id="pills-history" role="tabpanel">
+
+                                @* 🔽 BURAYA EKLEYECEKSİN *@
+                                @if (Model.CurrentReservation != null)
+                                {
+                                    <div class="alert alert-success shadow-sm mb-4">
+                                        <h5 class="fw-bold mb-2">✅ Şu Anki Aktif Rezervasyonunuz</h5>
+                                        <ul class="mb-0">
+                                            <li><strong>Oda:</strong> @Model.CurrentReservation.Room?.RoomType</li>
+                                            <li><strong>Giriş:</strong> @Model.CurrentReservation.StartDate.ToShortDateString()</li>
+                                            <li><strong>Çıkış:</strong> @Model.CurrentReservation.EndDate.ToShortDateString()</li>
+                                            <li><strong>Fiyat:</strong> @Model.CurrentReservation.TotalPrice ₺</li>
+                                            <li><strong>Paket:</strong> @Model.CurrentReservation.Package</li>
+                                            <li><strong>Durum:</strong> @Model.CurrentReservation.Status</li>
+                                        </ul>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-warning shadow-sm mb-4">
+                                        <i class="bi bi-info-circle me-1"></i> Henüz onaylanmış bir rezervasyonunuz bulunmamaktadır.
+                                    </div>
+                                }
+
+
+                                <h5 class="fw-bold mb-3">📅 Rezervasyon Geçmişi</h5>
+                                @if (Model.PastReservations != null && Model.PastReservations.Any())
+                                {
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered align-middle">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Oda Tipi</th>
+                                                    <th>Giriş</th>
+                                                    <th>Çıkış</th>
+                                                    <th>Fiyat</th>
+                                                    <th>Paket</th>
+                                                    <th>Durum</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var item in Model.PastReservations)
+                                                {
+                                                    <tr>
+                                                        <td>@item.Room?.RoomType</td>
+                                                        <td>@item.StartDate.ToShortDateString()</td>
+                                                        <td>@item.EndDate.ToShortDateString()</td>
+                                                        <td>@item.TotalPrice ₺</td>
+                                                        <td>@item.Package</td>
+                                                        <td>@item.Status</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-info">Henüz rezervasyon yapılmamış.</div>
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Styles {
+    <style>
+        .btn-gradient {
+            background: linear-gradient(to right, #f7971e, #ffd200);
+            color: white;
+            font-weight: 600;
+            padding: 10px 30px;
+            border-radius: 12px;
+            border: none;
+            transition: 0.3s ease;
+        }
+
+        .btn-gradient:hover {
+            opacity: 0.9;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-pills .nav-link.active {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: #fff;
+            font-weight: bold;
+            border-radius: 10px;
+        }
+
+        .nav-pills .nav-link {
+            color: #6a11cb;
+            font-weight: 500;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+        }
+
+        img.rounded-circle {
+            object-fit: cover;
+            border: 3px solid #fff;
+        }
+
+        label {
+            font-weight: 500;
+        }
+
+        .alert-info {
+            background: linear-gradient(to right, #e0eafc, #cfdef3);
+            border: none;
+            color: #333;
+            font-weight: 500;
+        }
+
+        @@media (max-width: 768px) {
+            .col-md-4 {
+                margin-bottom: 2rem;
+            }
+        }
+
+        .alert-success {
+            background: linear-gradient(to right, #d4fc79, #96e6a1);
+            border: none;
+            color: #1a4d2e;
+            font-weight: 500;
+        }
+
+        .alert-warning {
+            background: linear-gradient(to right, #fbd786, #f7797d);
+            border: none;
+            color: #5a1e00;
+            font-weight: 500;
+        }
+    </style>
+}

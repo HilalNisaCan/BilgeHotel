@@ -1,0 +1,60 @@
+﻿
+
+@model ReservationPageVm
+
+@{
+    ViewData["Title"] = "Rezervasyon Yap";
+}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-warning text-dark fw-bold">
+                        Yeni Rezervasyon Oluştur
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Create" method="post">
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label asp-for="ReservationForm.CheckIn" class="form-label">Giriş Tarihi</label>
+                                    <input asp-for="ReservationForm.CheckIn" type="date" class="form-control" />
+                                </div>
+                                <div class="col">
+                                    <label asp-for="ReservationForm.CheckOut" class="form-label">Çıkış Tarihi</label>
+                                    <input asp-for="ReservationForm.CheckOut" type="date" class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="ReservationForm.GuestCount" class="form-label">Kişi Sayısı</label>
+                                <input asp-for="ReservationForm.GuestCount" type="number" class="form-control" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="ReservationForm.Package" class="form-label">Paket Türü</label>
+                                <select asp-for="ReservationForm.Package" class="form-select">
+                                    <option value="0">Tam Pansiyon</option>
+                                    <option value="1">Her Şey Dahil</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="ReservationForm.RoomId" class="form-label">Oda Seçimi</label>
+                                <select asp-for="ReservationForm.RoomId" class="form-select">
+                                    @foreach (var room in Model.AvailableRooms)
+                                    {
+                                        <option value="@room.Id">@room.RoomName - @room.PricePerNight ₺</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-success w-100">Rezervasyonu Oluştur</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

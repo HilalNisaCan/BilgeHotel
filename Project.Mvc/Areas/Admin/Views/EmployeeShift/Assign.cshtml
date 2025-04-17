@@ -1,0 +1,95 @@
+﻿@model EmployeeShiftAssignmentCreateVm
+
+@{
+    ViewData["Title"] = "Vardiya Atama";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    var hasEmployees = ViewBag.Employees is IEnumerable<SelectListItem> employees && employees.Any();
+    var hasShifts = ViewBag.Shifts is IEnumerable<SelectListItem> shifts && shifts.Any();
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show fw-bold" role="alert">
+        <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show fw-bold" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+    </div>
+}
+
+
+<div class="container mt-4">
+    <div class="card border-0 shadow rounded-4">
+        <div class="card-header bg-gradient text-white py-3 rounded-top-4 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-user-clock me-2"></i>Vardiya Atama</h5>
+            <a asp-action="Index" class="btn btn-light btn-sm fw-semibold text-primary">
+                <i class="fas fa-arrow-left me-1"></i>Geri Dön
+            </a>
+        </div>
+
+        <div class="card-body bg-white rounded-bottom-4">
+            @if (!hasEmployees || !hasShifts)
+            {
+                <div class="alert alert-warning fw-bold text-center">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Çalışan veya vardiya listesi eksik. Lütfen önce kayıtları tamamlayın.
+                </div>
+            }
+            else
+            {
+                <form asp-action="Assign" method="post" class="row g-4">
+
+                    <div class="col-md-6">
+                        <label asp-for="EmployeeId" class="form-label fw-semibold">Çalışan</label>
+                        <select asp-for="EmployeeId" asp-items="ViewBag.Employees" class="form-select shadow-sm border-primary"></select>
+                        <span asp-validation-for="EmployeeId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="EmployeeShiftId" class="form-label fw-semibold">Vardiya</label>
+                        <select asp-for="EmployeeShiftId" asp-items="ViewBag.Shifts" class="form-select shadow-sm border-primary"></select>
+                        <span asp-validation-for="EmployeeShiftId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="AssignedDate" class="form-label fw-semibold">Tarih</label>
+                        <input asp-for="AssignedDate" type="date" class="form-control shadow-sm border-primary" />
+                        <span asp-validation-for="AssignedDate" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Description" class="form-label fw-semibold">Açıklama</label>
+                        <input asp-for="Description" class="form-control shadow-sm" placeholder="(İsteğe bağlı)" />
+                    </div>
+
+                    <div class="col-12 text-end mt-2">
+                        <button type="submit" class="btn btn-gradient btn-sm fw-bold">
+                            <i class="fas fa-check-circle me-1"></i>Vardiyayı Ata
+                        </button>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+<style>
+    .bg-gradient {
+        background: linear-gradient(135deg, #3f51b5, #6c63ff);
+    }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #6c63ff, #3f51b5);
+        color: white;
+        border: none;
+    }
+
+        .btn-gradient:hover {
+            background: linear-gradient(135deg, #3f51b5, #6c63ff);
+            color: white;
+        }
+</style>

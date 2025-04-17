@@ -1,0 +1,126 @@
+﻿@model RoomResponseModel
+
+@{
+    ViewData["Title"] = "Oda Detayı";
+}
+
+<section class="container py-5">
+    <div class="row g-4">
+
+        <!-- Oda Galerisi -->
+        <div class="col-md-6">
+            <div id="roomCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner rounded shadow">
+                    @for (int i = 0; i < Model.ImageGallery.Count; i++)
+                    {
+                        var image = Model.ImageGallery[i];
+                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                            <img src="~/img/Room/@image" class="d-block w-100" style="object-fit: cover; height: 400px;" alt="Oda Görseli" />
+                        </div>
+                    }
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#roomCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#roomCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Oda Bilgileri -->
+        <div class="col-md-6">
+            <h2 class="fw-bold mb-3">@Model.RoomType.ToString()</h2>
+            <p class="text-muted mb-2">@Model.Description</p>
+            <p><strong>Kat:</strong> @Model.FloorNumber</p>
+            <p><strong>Kapasite:</strong> @Model.Capacity Kişi</p>
+            <p><strong>Fiyat:</strong> @Model.PricePerNight ₺ / Gece</p>
+
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                @if (Model.HasBalcony)
+                {
+                    <span class="badge bg-secondary"><i class="bi bi-sun"></i> Balkon</span>
+                }
+                @if (Model.HasMinibar)
+                {
+                    <span class="badge bg-secondary"><i class="bi bi-cup-straw"></i> Minibar</span>
+                }
+                @if (Model.HasTV)
+                {
+                    <span class="badge bg-secondary"><i class="bi bi-tv"></i> TV</span>
+                }
+                @if (Model.HasHairDryer)
+                {
+                    <span class="badge bg-secondary"><i class="bi bi-wind"></i> Saç Kurutma</span>
+                }
+                @if (Model.HasWiFi)
+                {
+                    <span class="badge bg-secondary"><i class="bi bi-wifi"></i> Wi-Fi</span>
+                }
+            </div>
+
+            <!-- İndirim -->
+            @{
+                var now = DateTime.Now;
+                var reservationDate = now.AddMonths(-1).AddDays(-1); // test için
+                string indirim = "";
+
+                if (reservationDate <= now.AddMonths(-3))
+                {
+                    indirim = "%23 Erken Rezervasyon İndirimi!";
+                }
+                else if (reservationDate <= now.AddMonths(-1))
+                {
+                    indirim = (Model.RoomType == RoomType.KingSuite || Model.RoomType == RoomType.Quad)
+                    ? "%18 Erken Rezervasyon İndirimi!"
+                    : "%16 Erken Rezervasyon İndirimi!";
+                }
+            }
+            @if (!string.IsNullOrEmpty(indirim))
+            {
+                <div class="alert alert-success"><strong>@indirim</strong> Şimdi rezerve et, kazançlı çık!</div>
+            }
+
+            <a class="btn btn-primary" asp-controller="Reservation" asp-action="CreateByRoomType" asp-route-roomType="@Model.RoomType"> Rezervasyon</a>
+            
+        </div>
+    </div>
+
+    <!-- 💬 Kullanıcı Yorumları -->
+    <hr class="my-5" />
+    <div class="row">
+        <div class="col-12">
+            <h4 class="fw-bold mb-4">Kullanıcı Yorumları</h4>
+
+            @if (Model.Reviews != null && Model.Reviews.Any())
+            {
+                foreach (var review in Model.Reviews)
+                {
+                    <div class="border rounded p-3 mb-3 bg-light shadow-sm">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <strong>@review.CustomerName</strong>
+                            <span class="badge bg-warning text-dark">Puan: @review.Rating / 5</span>
+                        </div>
+                        <p class="mb-1 mt-2">@review.Comment</p>
+                        <small class="text-muted">@review.CreatedDate.ToShortDateString()</small>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="alert alert-info">Yorumlar geçici olarak kapandı en yakın zamanda görüşmek üzere.</div>
+            }
+        </div>
+    </div>
+</section>
+
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <script>
+        const myCarouselElement = document.querySelector('#roomCarousel');
+        new bootstrap.Carousel(myCarouselElement);
+    </script>
+}

@@ -1,0 +1,232 @@
+﻿@model ReservationRequestModel
+@{
+    ViewData["Title"] = "Rezervasyon Yap";
+    Layout = "_Layout";
+}
+ 
+     
+
+<section class="reservation-section py-5">
+    <div class="container">
+        <div class="text-center text-white mb-5">
+            <h2 class="fw-bold display-5"><i class="bi bi-calendar-heart-fill me-2"></i>Rezervasyon Yap</h2>
+            <p class="lead">Unutulmaz bir tatil için şimdi yerinizi ayırtın!</p>
+        </div>
+
+        @if (TempData["LoginWarning"] != null)
+        {
+            <div class="alert alert-warning text-center fw-bold">@TempData["LoginWarning"]</div>
+        }
+
+        @if (ViewBag.IsAvailable != null && !(bool)ViewBag.IsAvailable)
+        {
+            <div class="alert alert-danger text-center">Bu tarihlerde oda bulunamadı!</div>
+        }
+
+        <div class="alert alert-info text-dark shadow-sm">
+            <strong>Erken Rezervasyon İndirimleri:</strong>
+            <ul class="mb-0 mt-2 ps-3 small">
+                <li><strong>Her Şey Dahil</strong>: 30 gün önceden → %18</li>
+                <li><strong>Tam Pansiyon</strong>: 30 gün önceden → %16</li>
+                <li><strong>Tüm Paketler</strong>: 90 gün önceden → %23</li>
+            </ul>
+        </div>
+
+        <div class="card reservation-card mx-auto animate__animated animate__fadeInUp">
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    @* Hidden *@
+                    <input type="hidden" asp-for="RoomId" />
+                    <input type="hidden" asp-for="PricePerNight" />
+                    <input type="hidden" asp-for="Duration" />
+                    <input type="hidden" asp-for="DiscountRate" />
+                    <input type="hidden" asp-for="TotalPrice" />
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Oda Tipi</label>
+                            <select name="RoomType" id="RoomType" class="form-select">
+                                @Html.Raw(string.Join(Environment.NewLine,
+                                         Enum.GetValues(typeof(RoomType)).Cast<RoomType>().Select(type =>
+                                         {
+                                             var isSelected = type.ToString() == Model.RoomType ? "selected=\"selected\"" : "";
+                                             return $"<option value=\"{type}\" {isSelected}>{type}</option>";
+                                         })))
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Package" class="form-label">Paket Türü</label>
+                            <select asp-for="Package" class="form-select" id="Package">
+                                <option value="Fullboard">Tam Pansiyon</option>
+                                <option value="AllInclusive">Her Şey Dahil</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="CheckIn" class="form-label">Giriş Tarihi</label>
+                            <input asp-for="CheckIn" type="date" class="form-control" id="CheckIn" value="@Model.CheckIn.ToString("yyyy-MM-dd")" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="CheckOut" class="form-label">Çıkış Tarihi</label>
+                            <input asp-for="CheckOut" type="date" class="form-control" id="CheckOut" value="@Model.CheckOut.ToString("yyyy-MM-dd")" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="GuestCount" class="form-label">Kişi Sayısı</label>
+                            <input asp-for="GuestCount" type="number" min="1" max="10" class="form-control" id="GuestCount" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label">Ad Soyad</label>
+                            <input asp-for="FullName" class="form-control" placeholder="Ad Soyad" />
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Email" class="form-label">E-Posta</label>
+                            <input asp-for="Email" class="form-control" placeholder="example@mail.com" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="IdentityNumber">T.C. Kimlik No</label>
+                            <input asp-for="IdentityNumber" class="form-control" />
+                            <span asp-validation-for="IdentityNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Toplam Gün</label>
+                            <input type="text" class="form-control text-center bg-light" id="DurationDisplay" readonly />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">İndirim</label>
+                            <input type="text" class="form-control text-center bg-light text-success" id="DiscountDisplay" readonly />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Toplam Tutar</label>
+                            <input type="text" class="form-control text-center bg-warning-subtle fw-bold fs-5" id="TotalDisplay" readonly />
+                        </div>
+                    </div>
+
+                   
+
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill">
+                            <i class="bi bi-credit-card me-2"></i> Rezervasyonu Tamamla
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+@section Scripts {
+    <script>
+        async function getRoomPrice(roomType) {
+            try {
+                const response = await fetch(`http://localhost:5126/api/RoomTypePrice/price/${roomType}`);
+                if (!response.ok) {
+                    console.error("❌ Fiyat bulunamadı:", response.status);
+                    return 0;
+                }
+                const data = await response.json();
+                return data.price || 0;
+            } catch (err) {
+                console.error("🔥 API fetch hatası:", err);
+                return 0;
+            }
+        }
+        async function updatePrices() {
+            const roomType = document.getElementById("RoomType").value;
+            const packageType = document.getElementById("Package").value;
+            const checkIn = new Date(document.getElementById("CheckIn").value);
+            const checkOut = new Date(document.getElementById("CheckOut").value);
+            const guestCount = parseInt(document.getElementById("GuestCount").value || "1");
+            const priceInput = document.querySelector("input[name='PricePerNight']");
+
+            const duration = (checkOut - checkIn) / (1000 * 60 * 60 * 24);
+            if (duration <= 0 || isNaN(duration)) return;
+
+            const pricePerNight = await getRoomPrice(roomType);
+            priceInput.value = pricePerNight;
+
+            const daysBefore = (checkIn - new Date()) / (1000 * 60 * 60 * 24);
+
+            let discountRate = 0;
+            if (daysBefore >= 90) discountRate = 23;
+            else if (daysBefore >= 30) {
+                if (packageType === 'AllInclusive') discountRate = 18;
+                else if (packageType === 'Fullboard') discountRate = 16;
+            }
+
+            const total = pricePerNight * duration * (1 - discountRate / 100);
+
+            // 🧪 Debug logları:
+            console.log("🎯 Oda Tipi:", roomType);
+            console.log("🗓️ Giriş:", checkIn);
+            console.log("🗓️ Çıkış:", checkOut);
+            console.log("🕒 Gün:", duration);
+            console.log("💸 Gecelik:", pricePerNight);
+            console.log("🔻 İndirim:", discountRate);
+            console.log("💰 Tutar:", total);
+
+            // UI'ya yazalım
+            document.getElementById("DiscountDisplay").value = `%${discountRate}`;
+            document.getElementById("TotalDisplay").value = total.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' });
+            document.getElementById("DurationDisplay").value = `${duration} gece`;
+
+            document.querySelector("input[name='DiscountRate']").value = discountRate;
+            document.querySelector("input[name='Duration']").value = duration;
+            document.querySelector("input[name='TotalPrice']").value = total.toFixed(2);
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            updatePrices(); // sayfa açıldığında bir kere
+
+            ["RoomType", "Package", "CheckIn", "CheckOut", "GuestCount"].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    ["change", "input"].forEach(evt => {
+                        el.addEventListener(evt, () => {
+                            setTimeout(updatePrices, 50);
+                        });
+                    });
+                }
+            });
+        });
+    </script>
+
+    <style>
+    .reservation-section {
+        background: linear-gradient(to right top, #667eea, #764ba2, #e29587);
+        min-height: 100vh;
+    }
+
+    .reservation-card {
+        background: white;
+        border-radius: 1.5rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        max-width: 850px;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #8e2de2;
+        box-shadow: 0 0 0 0.2rem rgba(142, 45, 226, 0.25);
+    }
+
+    .btn-primary {
+        background: linear-gradient(to right, #6a11cb, #2575fc);
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background: linear-gradient(to right, #2575fc, #6a11cb);
+        }
+
+    label {
+        font-weight: 500;
+    }
+}

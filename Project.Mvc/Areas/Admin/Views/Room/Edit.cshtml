@@ -1,0 +1,75 @@
+﻿@model RoomUpdateVm
+
+
+@{
+    ViewData["Title"] = "Odayı Güncelle";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Oda Güncelle</h2>
+
+    <form asp-area="Admin" asp-controller="Room" asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="RoomNumber" class="form-label">Oda Numarası</label>
+                    <input asp-for="RoomNumber" class="form-control" type="number" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="FloorNumber" class="form-label">Kat Numarası</label>
+                    <input asp-for="FloorNumber" class="form-control" type="number" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Status" class="form-label">Durum</label>
+                    <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<RoomStatus>()">
+                        <option value="">Seçiniz</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label">Açıklama</label>
+                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input asp-for="HasMinibar" class="form-check-input" />
+                    <label asp-for="HasMinibar" class="form-check-label">Minibar</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="HasHairDryer" class="form-check-input" />
+                    <label asp-for="HasHairDryer" class="form-check-label">Saç Kurutma Makinesi</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="HasAirConditioning" class="form-check-input" />
+                    <label asp-for="HasAirConditioning" class="form-check-label">Klima</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="HasTV" class="form-check-input" />
+                    <label asp-for="HasTV" class="form-check-label">TV</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="HasWiFi" class="form-check-input" />
+                    <label asp-for="HasWiFi" class="form-check-label">Wi-Fi</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="HasBalcony" class="form-check-input" />
+                    <label asp-for="HasBalcony" class="form-check-label">Balkon</label>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success mt-4">Kaydet</button>
+        <a asp-action="Index" class="btn btn-secondary mt-4 ms-2">İptal</a>
+    </form>
+</div>

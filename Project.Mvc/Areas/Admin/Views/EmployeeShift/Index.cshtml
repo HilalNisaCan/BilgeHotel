@@ -1,0 +1,67 @@
+﻿@{
+    ViewData["Title"] = "Vardiya Yönetimi";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold text-primary">Vardiya Yönetimi Paneli</h2>
+        <p class="text-muted">Çalışan vardiyalarını, atamaları ve mesai bilgilerini buradan yönetin.</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Kart 1: Vardiya Listesi -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 bg-gradient bg-primary text-white h-100">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
+                    <i class="fas fa-calendar-alt fa-2x mb-3"></i>
+                    <h5 class="card-title">Vardiyalar</h5>
+                    <p class="card-text">Tanımlı vardiyaları görüntüleyin veya yenisini ekleyin.</p>
+                    <a asp-action="List" class="btn btn-light btn-sm fw-bold">Vardiya Listesi</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kart 2: Vardiya Atamaları -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 bg-gradient bg-success text-white h-100">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
+                    <i class="fas fa-user-clock fa-2x mb-3"></i>
+                    <h5 class="card-title">Vardiya Atamaları</h5>
+                    <p class="card-text">Çalışanlara vardiya ataması yapın ve atamaları yönetin.</p>
+                    <a asp-controller="EmployeeShift" asp-action="Assign" class="btn btn-light btn-sm fw-bold">Atamaları Yönet</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kart 3: Fazla Mesai -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 bg-gradient text-white h-100">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
+                    <i class="fas fa-stopwatch fa-2x mb-3"></i>
+                    <h5 class="card-title">Mesai Hesapla</h5>
+                    <p class="card-text">Çalışanların fazla mesai saatlerini haftalık bazda görüntüleyin.</p>
+                    <a asp-action="Overtime" asp-controller="EmployeeShift" class="btn btn-light btn-sm fw-bold">Mesai hesapla</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kart 4: Maaş Hesaplama -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 bg-gradient bg-info text-white h-100">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
+                    <i class="fas fa-money-bill-wave fa-2x mb-3"></i>
+                    <h5 class="card-title">Maaş Hesaplama</h5>
+                    <p class="card-text">Fazla mesai dahil net maaşları hesaplayın ve görüntüleyin.</p>
+                    <a asp-action="Salary" class="btn btn-light btn-sm fw-bold" title="Fazla mesai dahil maaşları hesapla">Maaş Hesapla</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient {
+        background: linear-gradient(135deg, #3f51b5, #6c63ff);
+    }
+</style>

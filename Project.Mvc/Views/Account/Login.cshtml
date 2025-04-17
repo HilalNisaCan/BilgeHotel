@@ -1,0 +1,80 @@
+﻿@model LoginViewModel
+
+@{
+    ViewData["Title"] = "Giriş Yap";
+}
+
+<section class="login-section d-flex align-items-center justify-content-center">
+    <div class="container">
+        <div class="login-card shadow-lg p-4 rounded mx-auto" style="max-width: 450px;">
+            <h3 class="text-center mb-4 text-white fw-bold">
+                <i class="bi bi-person-lock me-2"></i> Giriş Yap
+            </h3>
+
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert alert-success text-center">@TempData["Message"]</div>
+            }
+
+
+            <form asp-controller="Account" asp-action="Login" method="post">
+                <div class="form-floating mb-3">
+                    <input asp-for="Email" class="form-control" placeholder="name@example.com" required />
+                    <label asp-for="Email">E-posta</label>
+                    <span class="text-danger small" asp-validation-for="Email"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="Password" type="password" class="form-control" placeholder="••••••" required />
+                    <label asp-for="Password">Şifre</label>
+                    <span class="text-danger small" asp-validation-for="Password"></span>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input asp-for="RememberMe" class="form-check-input" />
+                    <label asp-for="RememberMe" class="form-check-label">Beni Hatırla</label>
+                </div>
+
+                <button type="submit" class="btn btn-gradient w-100 mb-3">Giriş Yap</button>
+
+                <div class="text-center">
+                    <a href="/Account/ForgotPassword" class="text-light text-decoration-none">Şifremi Unuttum?</a>
+                    <span class="text-light mx-2">|</span>
+                    <a href="/Account/Register" class="text-light text-decoration-none">Hesabınız yok mu? Kayıt Ol</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+    <style>
+        .login-section {
+            min-height: 100vh;
+            background: linear-gradient(to right top, #5f4d93, #7f7fd5, #91eae4);
+            padding: 4rem 1rem;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+        }
+
+        .btn-gradient {
+            background: linear-gradient(to right, #8e2de2, #4a00e0);
+            color: white;
+            font-weight: bold;
+            border-radius: 10px;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        // For form validation if needed
+        document.addEventListener('DOMContentLoaded', function () {
+            // Optional custom scripts
+        });
+    </script>
+}

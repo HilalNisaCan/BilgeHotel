@@ -1,0 +1,52 @@
+﻿@{
+    ViewData["Title"] = "Sistem Bilgileri";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="text-end mb-3">
+    <a asp-action="ExportToPdf" class="btn btn-outline-secondary fw-bold me-2">
+        <i class="bi bi-file-earmark-pdf me-1"></i> PDF olarak indir
+    </a>
+    <a asp-action="Edit" class="btn btn-outline-primary fw-bold">
+        <i class="bi bi-pencil-square me-1"></i> Düzenle
+    </a>
+</div>
+
+<h3 class="fw-bold text-primary mb-4">
+    <i class="bi bi-info-circle me-2"></i> Otel Altyapısı & Sistem Uyumluluğu
+</h3>
+
+<div class="card shadow p-4 bg-light rounded-4">
+    <h5 class="text-dark mb-3">🖥️ Bilgisayar Dağılımı</h5>
+    <ul>
+        <li>📌 Resepsiyon: 4 bilgisayar</li>
+        <li>📌 Bar: 1 bilgisayar</li>
+        <li>📌 Havuzbaşı Snackbar: 1 bilgisayar</li>
+        <li>📌 Yönetici Ofisleri: 6 bilgisayar</li>
+    </ul>
+
+    <h5 class="text-dark mt-4">🗃️ Sunucu Bilgileri</h5>
+    <ul>
+        <li>🖥️ Server-1: Windows Server 2003 – Mail sunucusu ve Access dosyaları yüklü</li>
+        <li>🖥️ Server-2: Windows XP Professional – Wireless internet için, domaine bağlı değil</li>
+    </ul>
+
+    <h5 class="text-dark mt-4">🔗 Domain ve İşletim Sistemleri</h5>
+    <ul>
+        <li>✅ Ana makineler domaine bağlıdır</li>
+        <li>❗ Wireless sunucu domain dışıdır</li>
+        <li>🧩 Client bilgisayarların bazıları Windows XP Home Edition kullanmaktadır</li>
+    </ul>
+
+    <h5 class="text-dark mt-4">⚙️ Sistem Gereksinimleri & Uyumluluk</h5>
+    <ul>
+        <li>✔️ Program üzerinden yetkili kullanıcı yedek alabilir</li>
+        <li>✔️ Geri yükleme (restore) işlemi yetkili erişimle yapılabilir</li>
+        <li>🔁 Sunucu değişikliklerine karşı yapı esnek olacak şekilde tasarlanmıştır</li>
+    </ul>
+
+    <p class="text-muted mt-3">
+        Program, domaine bağlı ya da bağımsız olarak çalışabilir. Eski sistemlerle uyumluluk (Windows XP gibi) göz önünde bulundurulmuş, bağlantı ve erişim kolaylığı için yapılandırma önerileri belgelenmiştir.
+    </p>
+</div>
+

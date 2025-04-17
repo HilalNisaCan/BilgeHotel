@@ -1,0 +1,48 @@
+﻿
+@model List<RoomResponseModel>
+
+
+@{
+    ViewData["Title"] = "Müsait Odalar";
+    Layout = "_ReservationLayout";
+}
+
+<style>
+    .text-gradient {
+        background: linear-gradient(to right, #6a11cb, #2575fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+</style>
+
+
+<h2 class="text-center my-4">🛏️ Müsait Odalar</h2>
+
+
+<div class="container py-5">
+   
+
+    <div class="row g-4">
+        @foreach (var room in Model)
+        {
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 rounded-4">
+                    <img src="~/img/Room/@room.ImagePath" class="card-img-top rounded-top-4" alt="Oda Görseli" style="height: 200px; object-fit: cover;" />
+                    <div class="card-body">
+                        <h5 class="card-title text-gradient fw-bold">@room.RoomType</h5>
+                        <p class="card-text small">@room.Description</p>
+                        <p class="card-text fw-semibold text-success">
+                            💰 @room.PricePerNight.ToString("C0", new System.Globalization.CultureInfo("tr-TR")) / gece
+                        </p>
+                    </div>
+                    <div class="card-footer bg-transparent text-center">
+                        <a asp-area="Reservation" asp-controller="Reservation" asp-action="Create" asp-route-roomId="@room.Id"
+                           class="btn btn-outline-primary rounded-pill px-4 py-2">
+                            🛎️ Rezervasyon Yap
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,107 @@
+﻿@model List<ReservationCheckInOutModel>
+
+@{
+    Layout = "~/Areas/Reservation/Views/Shared/_ReservationLayout.cshtml";
+    ViewData["Title"] = "Giriş / Çıkış Takibi";
+}
+
+<style>
+    .card-status-checkin {
+        border-left: 6px solid #28a745;
+    }
+
+    .card-status-checkout {
+        border-left: 6px solid #ffc107;
+    }
+
+    .badge-custom {
+        font-size: 0.95rem;
+        padding: 7px 14px;
+        border-radius: 20px;
+    }
+
+    .card-shadow-fancy {
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+        transition: all 0.3s ease;
+    }
+
+        .card-shadow-fancy:hover {
+            transform: translateY(-5px);
+        }
+
+    .text-gradient {
+        background: linear-gradient(to right, #6a11cb, #2575fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .card-body p {
+        font-size: 0.95rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .reservation-header {
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .btn-sm {
+        padding: 6px 16px;
+        font-size: 0.9rem;
+    }
+</style>
+
+<div class="container mt-4">
+    <h3 class="fw-bold mb-4 text-primary">
+        📋 Bugünün Giriş / Çıkış İşlemleri
+    </h3>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            Bugün için giriş ya da çıkış işlemi bulunmamaktadır.
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var reservation in Model)
+            {
+                var cardClass = reservation.IsTodayCheckIn ? "card-status-checkin"
+                : reservation.IsTodayCheckOut ? "card-status-checkout"
+                : "";
+
+                <div class="col-lg-6">
+                    <div class="card h-100 border-0 rounded-4 card-shadow-fancy @cardClass">
+                        <div class="card-body">
+                            <div class="reservation-header text-gradient mb-3">@reservation.CustomerFullName</div>
+
+                            <p><strong>🛏️ Oda:</strong> @reservation.RoomNumber</p>
+                            <p><strong>📅 Başlangıç:</strong> @reservation.StartDate.ToString("dd.MM.yyyy")</p>
+                            <p><strong>📅 Bitiş:</strong> @reservation.EndDate.ToString("dd.MM.yyyy")</p>
+                            <p><strong>📦 Paket:</strong> @reservation.Package</p>
+
+                            @if (reservation.IsTodayCheckIn && !reservation.IsTodayCheckOut)
+                            {
+                                <span class="badge bg-success badge-custom">🟢 Bugün Giriş</span>
+                            }
+                            else if (!reservation.IsTodayCheckIn && reservation.IsTodayCheckOut)
+                            {
+                                <span class="badge bg-warning text-dark badge-custom">📤 Bugün Çıkış</span>
+                            }
+                            else if (reservation.IsTodayCheckIn && reservation.IsTodayCheckOut)
+                            {
+                                <span class="badge bg-info text-dark badge-custom">🔄 Giriş & Çıkış</span>
+                            }
+                        </div>
+                        <div class="card-footer bg-transparent border-0 text-end">
+                            <a asp-action="Complete" asp-route-reservationId="@reservation.ReservationId" class="btn btn-outline-primary btn-sm">
+                                Detaya Git
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

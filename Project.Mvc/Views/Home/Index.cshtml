@@ -1,0 +1,120 @@
+﻿@{
+    ViewData["Title"] = "Anasayfa";
+    Layout = "_Layout";
+}
+
+<!-- Hero Section -->
+<section style="background-image: url('/img/hero/hero-1.jpg'); background-size: cover; background-position: center; height: 500px;"
+         class="d-flex align-items-center justify-content-center text-white text-center">
+    <div>
+        <h1 class="display-4 fw-bold">BilgeHotel'e Hoşgeldiniz</h1>
+        <p class="fs-5">Hayalinizdeki tatil için en doğru yer!</p>
+        <a asp-controller="Reservation" asp-action="CreateByRoomType"
+           class="btn px-4 py-2 fw-semibold shadow-sm rounded-3 d-inline-flex align-items-center gap-2 animate__animated animate__fadeInUp"
+           style="font-size: 1.1rem; background-color: 	#6f42c1; color: white; border: none;">
+            <i class="bi bi-bell-fill"></i> Rezervasyon Yap
+        </a>
+
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+
+            <!-- Resim -->
+            <div class="col-lg-6 mb-4 mb-lg-0 animate__animated animate__zoomIn">
+                <div class="img-zoom-container rounded shadow overflow-hidden">
+                    <img src="~/img/about/about-us.jpg" alt="BilgeHotel Hakkında" class="img-fluid zoom-effect" />
+                </div>
+            </div>
+
+            <!-- Yazı -->
+            <div class="col-lg-6 animate__animated animate__fadeIn">
+                <h2 class="fw-bold mb-3">BilgeHotel Resort</h2>
+                <p class="fs-5 text-muted">
+                    BilgeHotel, denize sıfır konumu ve huzurlu atmosferiyle tatilinizi unutulmaz kılar.
+                    Spa & wellness hizmetleri, gurme restoranları ve konforlu odaları ile hayalinizdeki tatili sunar.
+                    Misafir memnuniyetini ilke edinen otelimiz, doğayla iç içe bir konfor vaat ediyor.
+                </p>
+                <a asp-controller="Home" asp-action="About" class="btn btn-outline-dark px-4 mt-3">
+                    Daha Fazlası <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+
+        </div>
+    </div>
+</section>
+<!-- Rooms Preview -->
+<section class="py-5">
+    <div class="container text-center">
+        <h2 class="mb-4 fw-bold">Odalarımız</h2>
+        <p class="mb-5">Her biri farklı konfora sahip odalarımız arasından size en uygun olanını seçin.</p>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            <div class="col">
+                <div class="card h-100 shadow">
+                    <img src="~/img/Room/single-1.jpg" class="card-img-top" alt="Tek Kişilik Oda" asp-append-version="true">
+                    <div class="card-body">
+                        <h5 class="card-title">Tek Kişilik Oda</h5>
+                        <p class="card-text">Konforlu tek kişilik odalarımızla huzurun tadını çıkarın.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100 shadow">
+                    <img src="~/img/Room/double-1.jpg" class="card-img-top" alt="Çift Kişilik Oda" asp-append-version="true">
+                    <div class="card-body">
+                        <h5 class="card-title">Çift Kişilik Oda</h5>
+                        <p class="card-text">Geniş yatak ve balkonlu manzara keyfi ile çift kişilik konfor.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100 shadow">
+                    <img src="~/img/Room/king-1.jpg" class="card-img-top" alt="King Suite" asp-append-version="true">
+                    <div class="card-body">
+                        <h5 class="card-title">King Suite</h5>
+                        <p class="card-text">Geniş alan, özel hizmetler ve lüksün buluştuğu kral dairesi.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tüm Odaları Gör butonu -->
+        <a asp-controller="Room" asp-action="Index"
+           class="btn btn-lg mt-5 px-5 text-white fw-semibold shadow-sm"
+           style="background-color: #6f42c1; border: none;">
+            Tüm Odaları Gör
+        </a>
+    </div>
+</section>
+
+
+<!-- 🎨 Gömülü Stiller ve Animasyonlar -->
+@section Styles {
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
+    <style>
+        .img-zoom-container {
+            overflow: hidden;
+        }
+
+        .zoom-effect {
+            transition: transform 0.5s ease;
+        }
+
+        .zoom-effect:hover {
+            transform: scale(1.08);
+        }
+
+        @@media (max-width: 768px) {
+            .img-zoom-container {
+                margin-bottom: 2rem;
+            }
+
+            .zoom-effect {
+                width: 100%;
+            }
+        }
+    </style>
+}

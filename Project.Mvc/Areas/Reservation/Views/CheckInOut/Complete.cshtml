@@ -1,0 +1,83 @@
+﻿@model CheckOutDetailModel
+
+@{
+    Layout = "~/Areas/Reservation/Views/Shared/_ReservationLayout.cshtml";
+    ViewData["Title"] = "Rezervasyon Çıkış İşlemi";
+
+    var extraTotal = Model.ExtraExpenses.Sum(x => x.Amount);
+    var grandTotal = Model.TotalPrice + extraTotal;
+}
+
+<div class="container mt-4">
+    <h3 class="fw-bold mb-4 text-primary">📤 Çıkış İşlemi – @Model.CustomerFullName</h3>
+
+    <!-- Oda Bilgileri -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <p><strong>Oda:</strong> @Model.RoomNumber</p>
+            <p><strong>Giriş Tarihi:</strong> @Model.StartDate.ToString("dd.MM.yyyy")</p>
+            <p><strong>Çıkış Tarihi:</strong> @Model.EndDate.ToString("dd.MM.yyyy")</p>
+            <p><strong>Paket:</strong> @Model.Package</p>
+            <p><strong>Oda Ücreti:</strong> @Model.TotalPrice.ToString("C0", new System.Globalization.CultureInfo("tr-TR"))</p>
+        </div>
+    </div>
+
+    <!-- Ekstra Harcamalar -->
+    @if (Model.Package != ReservationPackage.AllInclusive && Model.ExtraExpenses.Any())
+    {
+        <h5 class="mt-4 text-secondary">💸 Ekstra Harcamalar</h5>
+        <table class="table table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th>Açıklama</th>
+                    <th>Tutar</th>
+                    <th>Tarih</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var expense in Model.ExtraExpenses)
+                {
+                    <tr>
+                        <td>@expense.Description</td>
+                        <td>@expense.Amount.ToString("C0", new System.Globalization.CultureInfo("tr-TR"))</td>
+                        <td>@expense.Date.ToShortDateString()</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Ödeme Özeti -->
+        <div class="card mt-4 shadow-sm border-info">
+            <div class="card-body">
+                <h5 class="fw-bold text-info">💳 Ödeme Özeti</h5>
+                <p><strong>Ekstra Harcama Toplamı:</strong> @extraTotal.ToString("C0", new System.Globalization.CultureInfo("tr-TR"))</p>
+                <hr />
+                <p class="fw-bold fs-5 text-primary">Genel Toplam: @grandTotal.ToString("C0", new System.Globalization.CultureInfo("tr-TR"))</p>
+            </div>
+        </div>
+    }
+    else if (Model.Package != ReservationPackage.AllInclusive)
+    {
+        <div class="alert alert-warning mt-3">
+            Bu müşterinin ekstra harcaması bulunmamaktadır.
+        </div>
+
+        <div class="card mt-4 shadow-sm border-info">
+            <div class="card-body">
+                <h5 class="fw-bold text-info">💳 Ödeme Özeti</h5>
+                <p class="fw-bold fs-5 text-primary">Genel Toplam: @Model.TotalPrice.ToString("C0", new System.Globalization.CultureInfo("tr-TR"))</p>
+            </div>
+        </div>
+    }
+
+    <!-- Ekstra Ekle ve Çıkış Tamamla -->
+    <a asp-action="AddExpense" asp-route-reservationId="@Model.ReservationId" class="btn btn-outline-primary btn-sm mt-4 me-2">
+        ➕ Yeni Ekstra Harcama Ekle
+    </a>
+
+    <form asp-action="CompleteConfirmed" asp-route-reservationId="@Model.ReservationId" method="post" class="d-inline">
+        <button type="submit" class="btn btn-success btn-sm mt-4 px-4 py-2">
+            <i class="fas fa-check-circle me-2"></i>Çıkış İşlemini Tamamla
+        </button>
+    </form>
+</div>

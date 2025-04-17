@@ -1,0 +1,89 @@
+﻿@model EmployeeShiftOvertimeQueryVm
+
+@{
+    ViewData["Title"] = "Fazla Mesai Hesapla";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var hasEmployees = ViewBag.Employees != null;
+}
+
+  <div class="container mt-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header rounded-top-4 py-3" style="background: linear-gradient(90deg, #3f51b5, #6c63ff); color:white;">
+            <h4 class="mb-0"><i class="fas fa-hourglass-half me-2"></i>Fazla Mesai Hesaplama</h4>
+        </div>
+
+        <div class="card-body bg-white rounded-bottom-4">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-times-circle me-2"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+                </div>
+            }
+
+            @if (!hasEmployees)
+            {
+                <div class="alert alert-warning fw-semibold text-center">Çalışan listesi yüklenemedi. Lütfen önce çalışan ekleyin.</div>
+            }
+            else
+            {
+                <form asp-action="Overtime" method="post" class="row g-4">
+                    <div class="col-md-6">
+                        <label asp-for="EmployeeId" class="form-label">Çalışan</label>
+                        <select asp-for="EmployeeId" asp-items="ViewBag.Employees" class="form-select"></select>
+                        <span asp-validation-for="EmployeeId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="WeekStartDate" class="form-label">Haftanın Başlangıç Tarihi</label>
+                        <input asp-for="WeekStartDate" type="date" class="form-control" readonly />
+                        <span asp-validation-for="WeekStartDate" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 d-flex justify-content-between mt-3">
+                        <!-- 🎯 Detaylı Liste -->
+                        @if (Model != null && Model.EmployeeId > 0 && Model.WeekStartDate != default(DateTime))
+                        {
+                            <a asp-action="OvertimeList"
+                               asp-route-employeeId="@Model.EmployeeId"
+                               asp-route-weekStartDate="@Model.WeekStartDate.ToString("yyyy-MM-dd")"
+                               class="btn btn-outline-info btn-sm fw-semibold">
+                                <i class="fas fa-list me-1"></i> Detaylı Liste
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted small align-self-center">Çalışan ve tarih seçildiğinde liste görüntülenebilir.</span>
+                        }
+
+                        <div>
+                            <a asp-action="Index" class="btn btn-secondary btn-sm me-2">Geri Dön</a>
+                            <button type="submit" class="btn btn-gradient btn-sm fw-bold">Mesai Hesapla</button>
+                        </div>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-gradient {
+        background: linear-gradient(135deg, #3f51b5, #6c63ff);
+        color: white;
+        border: none;
+    }
+
+        .btn-gradient:hover {
+            background: linear-gradient(135deg, #6c63ff, #3f51b5);
+            color: white;
+        }
+</style>

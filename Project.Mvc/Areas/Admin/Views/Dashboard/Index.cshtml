@@ -1,0 +1,118 @@
+﻿@{
+    ViewData["Title"] = "Yönetici Paneli";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <h3 class="mb-4 fw-bold text-primary">
+        <i class="bi bi-speedometer2 me-2"></i> Yönetici Paneli
+    </h3>
+
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary shadow rounded-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Toplam Müşteri</h5>
+                    <p class="fs-3 fw-bold">@ViewBag.TotalCustomers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info shadow rounded-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Toplam Oda</h5>
+                    <p class="fs-3 fw-bold">@ViewBag.TotalRooms</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-secondary shadow rounded-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Toplam Çalışan</h5>
+                    <p class="fs-3 fw-bold">@ViewBag.TotalEmployees</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success shadow rounded-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Bugünkü Rezervasyon</h5>
+                    <p class="fs-3 fw-bold">@ViewBag.TodayReservations</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5" />
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow rounded-4">
+                <div class="card-header bg-light fw-semibold">Bar Chart</div>
+                <div class="card-body">
+                    <canvas id="barChart" height="180"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow rounded-4">
+                <div class="card-header bg-light fw-semibold">Line Chart</div>
+                <div class="card-body">
+                    <canvas id="lineChart" height="180"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow rounded-4">
+                <div class="card-header bg-light fw-semibold">Pie Chart</div>
+                <div class="card-body">
+                    <canvas id="pieChart" height="180"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Dummy bar chart
+        new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Ocak', 'Şub', 'Mar', 'Nis', 'Mayıs'],
+                datasets: [{
+                    label: 'Satış',
+                    data: [12, 19, 3, 5, 2],
+                    backgroundColor: 'rgba(0, 123, 255, 0.6)'
+                }]
+            }
+        });
+
+        // Dummy line chart
+        new Chart(document.getElementById('lineChart'), {
+            type: 'line',
+            data: {
+                labels: ['Ocak', 'Şub', 'Mar', 'Nis', 'Mayıs'],
+                datasets: [{
+                    label: 'Ziyaretçiler',
+                    data: [30, 50, 40, 60, 75],
+                    borderColor: 'rgba(0, 200, 200, 1)',
+                    fill: false
+                }]
+            }
+        });
+
+        // Dummy pie chart
+        new Chart(document.getElementById('pieChart'), {
+            type: 'pie',
+            data: {
+                labels: ['Spa', 'Minibar', 'Restaurant'],
+                datasets: [{
+                    data: [300, 150, 100],
+                    backgroundColor: ['#6610f2', '#20c997', '#fd7e14']
+                }]
+            }
+        });
+    </script>
+}

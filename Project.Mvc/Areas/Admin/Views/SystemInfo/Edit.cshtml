@@ -1,0 +1,79 @@
+﻿@model SystemInfoViewModel
+@{
+    ViewData["Title"] = "Sistem Bilgilerini Düzenle";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h3 class="fw-bold text-primary mb-4">
+    <i class="bi bi-pencil-square me-2"></i> Sistem Bilgilerini Güncelle
+</h3>
+
+<form asp-action="Edit" method="post" class="card shadow bg-light rounded-4 p-4">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">Resepsiyon Bilgisayarı</label>
+            <input asp-for="ResepsiyonBilgileriSayisi" class="form-control" />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Bar Bilgisayarı</label>
+            <input asp-for="BarBilgisayariSayisi" class="form-control" />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Havuz Snackbar</label>
+            <input asp-for="HavuzBilgisayariSayisi" class="form-control" />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Yönetici Bilgisayarı</label>
+            <input asp-for="YoneticiBilgisayariSayisi" class="form-control" />
+        </div>
+
+        <div class="col-md-12">
+            <label class="form-label">Sunucu 1 Bilgisi</label>
+            <textarea asp-for="Sunucu1Bilgisi" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="col-md-12">
+            <label class="form-label">Sunucu 2 Bilgisi</label>
+            <textarea asp-for="Sunucu2Bilgisi" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="col-md-12">
+            <label class="form-label">Domain Durumu</label>
+            <textarea asp-for="DomainDurumu" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="col-md-12">
+            <label class="form-label">Wireless Durumu</label>
+            <textarea asp-for="WirelessDurumu" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="col-md-12">
+            <label class="form-label">İstemci İşletim Sistemi</label>
+            <textarea asp-for="ClientIsletimSistemi" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="col-md-12">
+            <label class="form-label">Yedekleme</label>
+            <textarea asp-for="YedeklemeBilgisi" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="col-md-12">
+            <label class="form-label">Geri Yükleme</label>
+            <textarea asp-for="GeriYuklemeBilgisi" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="col-md-12">
+            <label class="form-label">Sunucu Esnekliği</label>
+            <textarea asp-for="EsneklikBilgisi" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="col-md-12">
+            <label class="form-label">Genel Açıklama</label>
+            <textarea asp-for="Aciklama" class="form-control" rows="3"></textarea>
+        </div>
+    </div>
+
+    <div class="text-end mt-4">
+        <button type="submit" class="btn btn-success fw-bold px-4">
+            <i class="bi bi-check-circle me-1"></i> Kaydet
+        </button>
+        <a asp-action="Index" class="btn btn-secondary ms-2">
+            <i class="bi bi-arrow-left"></i> Geri Dön
+        </a>
+    </div>
+</form>

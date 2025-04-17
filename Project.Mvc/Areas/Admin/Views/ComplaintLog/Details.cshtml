@@ -1,0 +1,70 @@
+﻿@model ComplaintLogResponseModel
+
+@{
+    ViewData["Title"] = "Şikayet Detayı";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2 class="mb-4 text-primary fw-bold">
+    <i class="bi bi-eye-fill me-2"></i> Şikayet Detayı
+</h2>
+
+<div class="card shadow p-4 bg-light rounded-4">
+    <dl class="row mb-0">
+        <dt class="col-sm-3 fw-bold text-secondary">Ad Soyad:</dt>
+        <dd class="col-sm-9">@Model.FullName</dd>
+
+        <dt class="col-sm-3 fw-bold text-secondary">E-posta:</dt>
+        <dd class="col-sm-9">@Model.Email</dd>
+
+      
+
+        <dt class="col-sm-3 fw-bold text-secondary">Tarih:</dt>
+        <dd class="col-sm-9">@Model.SubmittedDate.ToShortDateString()</dd>
+
+        <dt class="col-sm-3 fw-bold text-secondary">Durum:</dt>
+        <dd class="col-sm-9">
+            @switch (Model.Status)
+            {
+                case ComplaintStatus.Pending:
+                    <span class="badge bg-warning text-dark">Bekliyor</span>
+                    break;
+                case ComplaintStatus.InProgress:
+                    <span class="badge bg-info text-dark">İnceleniyor</span>
+                    break;
+                case ComplaintStatus.Responded:
+                    <span class="badge bg-success">Cevaplandı</span>
+                    break;
+                case ComplaintStatus.Rejected:
+                    <span class="badge bg-danger">Reddedildi</span>
+                    break;
+            }
+        </dd>
+
+        <dt class="col-sm-3 fw-bold text-secondary">Şikayet:</dt>
+        <dd class="col-sm-9">@Model.Description</dd>
+
+        <dt class="col-sm-3 fw-bold text-secondary">Yönetici Yanıtı:</dt>
+        <dd class="col-sm-9">
+            @if (!string.IsNullOrEmpty(Model.Response))
+            {
+                <span class="text-success">@Model.Response</span>
+            }
+            else
+            {
+                <span class="text-muted fst-italic">Henüz yanıtlanmamış</span>
+            }
+        </dd>
+
+        <dt class="col-sm-3 fw-bold text-secondary">Çözüldü mü?</dt>
+        <dd class="col-sm-9">
+            @(Model.IsResolved ? "✔️ Evet" : "❌ Hayır")
+        </dd>
+    </dl>
+</div>
+
+<div class="mt-4">
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Geri Dön
+    </a>
+</div>

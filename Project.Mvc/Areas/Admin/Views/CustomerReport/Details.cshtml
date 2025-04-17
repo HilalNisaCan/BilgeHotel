@@ -1,0 +1,40 @@
+﻿@model CustomerReportDto
+
+@{
+    ViewData["Title"] = "Müşteri Detayı";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4 text-white py-3 rounded" style="background: linear-gradient(to right, #6a11cb, #2575fc);">
+        Müşteri Detay Bilgisi
+    </h2>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white fw-bold">Kişisel Bilgiler</div>
+                <div class="card-body">
+                    <p><strong>Ad Soyad:</strong> @Model.FullName</p>
+                    <p><strong>TC Kimlik:</strong> @Model.IdentityNumber</p>
+                    <p><strong>Telefon:</strong> @Model.PhoneNumber</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-success text-white fw-bold">İstatistik</div>
+                <div class="card-body">
+                    <p><strong>Toplam Harcama:</strong> @Model.TotalSpent.ToString("C2")</p>
+                    <p><strong>Sadakat Puanı:</strong> @Model.LoyaltyPoints</p>
+                    <p><strong>Kampanya Kullanımı:</strong> @Model.CampaignUsageCount</p>
+                    <p><strong>Rezervasyon Sayısı:</strong> @Model.TotalReservationCount</p>
+                    <p><strong>Son Rezervasyon Tarihi:</strong> @Model.LastReservationDate?.ToString("dd.MM.yyyy") ?? "Yok"</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-end mt-4">
+        <a asp-action="Index" class="btn btn-outline-secondary">Geri Dön</a>
+    </div>
+</div>
