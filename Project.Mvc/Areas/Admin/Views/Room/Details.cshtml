@@ -58,7 +58,28 @@
                         <li class="list-group-item"><strong>Açıklama:</strong> @Model.Description</li>
                     </ul>
                 </div>
+
+                @if (Model.CleaningInfo != null)
+                {
+                    <div class="alert alert-info mt-4 text-white bg-info px-4 py-3 rounded shadow-sm" style="max-width: 350px;">
+                        <h6 class="fw-bold mb-2">🧹 Temizlik Bilgisi</h6>
+                        <p class="mb-1"><strong>Personel:</strong> @Model.CleaningInfo.AssignedEmployeeFullName</p>
+                        <p class="mb-1"><strong>Tarih:</strong> @Model.CleaningInfo.ScheduledDate.ToString("dd.MM.yyyy HH:mm")</p>
+                        <p class="mb-0"><strong>Durum:</strong> @Model.CleaningInfo.CleaningStatus</p>
+                    </div>
+                }
+
+                @if (Model.MaintenanceInfo != null)
+                {
+                    <div class="alert alert-warning mt-4 text-dark px-4 py-3 rounded shadow-sm" style="max-width: 350px;">
+                        <h6 class="fw-bold mb-2">🛠️ Bakım Bilgisi</h6>
+                        <p class="mb-1"><strong>Personel:</strong> @Model.MaintenanceInfo.AssignedEmployeeFullName</p>
+                        <p class="mb-1"><strong>Tarih:</strong> @Model.MaintenanceInfo.AssignedDate.ToString("dd.MM.yyyy HH:mm")</p>
+                        <p class="mb-0"><strong>Durum:</strong> @Model.MaintenanceInfo.MaintenanceStatus</p>
+                    </div>
+                }
             </div>
         </div>
+      
     </div>
 </div>

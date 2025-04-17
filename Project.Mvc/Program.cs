@@ -5,6 +5,7 @@ using Project.BLL.DependencyResolver;
 using Project.Common.Tools;
 using Project.Dal.BogusHandling.SeederManager;
 using Project.Dal.ContextClasses;
+using Project.Entities.Enums;
 using Project.Entities.Models;
 using Project.MvcUI.DependencyResolver;
 using Project.MvcUI.Services;
@@ -47,7 +48,39 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Account/AccessDenied"; // opsiyonel
 });
 
+//async Task CreateAdminUserAsync(IServiceProvider provider)
+//{
+//    var userManager = provider.GetRequiredService<UserManager<User>>();
 
+//    string email = "admin@bilgehotel.com";
+//    string password = "123456Aa!";
+//    int role = 6; // Admin rolü
+
+//    var existingUser = await userManager.FindByEmailAsync(email);
+//    if (existingUser == null)
+//    {
+//        User admin = new User
+//        {
+//            UserName = email,
+//            Email = email,
+//            EmailConfirmed = true,
+//            Role = (UserRole)role,
+//            IsActivated = true,
+//            CreatedDate = DateTime.Now,
+//            Status = DataStatus.Inserted
+//        };
+
+//        var result = await userManager.CreateAsync(admin, password);
+//        if (result.Succeeded)
+//        {
+//            Console.WriteLine("✅ Admin başarıyla oluşturuldu.");
+//        }
+//        else
+//        {
+//            Console.WriteLine("❌ Hatalar: " + string.Join(" / ", result.Errors.Select(e => e.Description)));
+//        }
+//    }
+//}
 
 var app = builder.Build();
 
@@ -73,7 +106,11 @@ using (IServiceScope scope = app.Services.CreateScope())
    * 
    * */
 
-
+//using (var scope = app.Services.CreateScope())
+//{
+//    var provider = scope.ServiceProvider;
+//    await CreateAdminUserAsync(provider);
+//}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

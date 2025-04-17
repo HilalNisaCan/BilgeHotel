@@ -1,0 +1,10 @@
+<Guests>
+  <Guest>
+    <FirstName>Bilinmiyor</FirstName>
+    <LastName>Bilinmiyor</LastName>
+    <IdentityNumber>10049566764</IdentityNumber>
+    <CheckInDate>2025-04-18</CheckInDate>
+    <CheckOutDate>2025-04-21</CheckOutDate>
+    <RoomId>4</RoomId>
+  </Guest>
+</Guests>

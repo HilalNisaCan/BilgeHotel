@@ -47,5 +47,12 @@ namespace Project.Dal.Repositories.Concretes
                 .Where(rcs => rcs.AssignedEmployeeId == employeeId)
                 .ToListAsync();
         }
+
+        public async Task<bool> CreateAndConfirmAsync(RoomCleaningSchedule entity)
+        {
+            entity.CreatedDate = DateTime.Now;
+            await _context.RoomCleaningSchedules.AddAsync(entity);
+            return await _context.SaveChangesAsync() > 0;
+        }
     }
 }

@@ -83,7 +83,7 @@ namespace Project.MvcUI.VmMapping
 
 
 
-
+            CreateMap<RoomMaintenanceAssignmentCreateRequestModel, RoomMaintenanceAssignmentDto>();
 
 
 
@@ -256,8 +256,14 @@ namespace Project.MvcUI.VmMapping
       .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
       .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
 
-
-            CreateMap<EmployeeShiftDto, EmployeeShiftUpdateVm>().ReverseMap();
+            CreateMap<EmployeeShiftDto, EmployeeShiftUpdateVm>()
+       .ForMember(dest => dest.ShiftDate, opt => opt.MapFrom(src => src.ShiftDate))
+       .ForMember(dest => dest.ShiftStart, opt => opt.MapFrom(src => src.ShiftStart))
+       .ForMember(dest => dest.ShiftEnd, opt => opt.MapFrom(src => src.ShiftEnd))
+       .ForMember(dest => dest.OvertimePay, opt => opt.MapFrom(src => src.OvertimePay))
+       .ForMember(dest => dest.HasOvertime, opt => opt.MapFrom(src => src.HasOvertime))
+       .ForMember(dest => dest.IsDayOff, opt => opt.MapFrom(src => src.IsDayOff))
+       .ReverseMap();
 
             // VARDİYA ATAMASI
             CreateMap<EmployeeShiftAssignmentDto, EmployeeShiftAssignmentResponseVm>()
@@ -304,26 +310,26 @@ namespace Project.MvcUI.VmMapping
             CreateMap<CampaignDto, CampaignRequestModel>().ReverseMap();
             CreateMap<CampaignDto, CampaignResponseModel>().ReverseMap();
 
-
             CreateMap<RoomDto, RoomAdminResponseModel>()
-     .ForMember(dest => dest.RoomNumber, opt => opt.MapFrom(src => src.RoomNumber))
-     .ForMember(dest => dest.FloorNumber, opt => opt.MapFrom(src => src.FloorNumber))
-     .ForMember(dest => dest.RoomType, opt => opt.MapFrom(src => src.RoomType))
-     .ForMember(dest => dest.RoomStatus, opt => opt.MapFrom(src => src.Status)) // ✅ STATUS EKLENDİ
-     .ForMember(dest => dest.Price, opt => opt.MapFrom<RoomTypePriceResolver>())     // Otomatik fiyat
-     .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-     .ForMember(dest => dest.HasWiFi, opt => opt.MapFrom(src => src.HasWirelessInternet))
-     .ForMember(dest => dest.HasTV, opt => opt.MapFrom(src => src.HasTV))
-     .ForMember(dest => dest.HasMinibar, opt => opt.MapFrom(src => src.HasMinibar))
-     .ForMember(dest => dest.HasHairDryer, opt => opt.MapFrom(src => src.HasHairDryer))
-     .ForMember(dest => dest.HasBalcony, opt => opt.MapFrom(src => src.HasBalcony))
-     .ForMember(dest => dest.ImageGallery, opt => opt.MapFrom(src =>
-         src.RoomImages.Select(x => x.ImagePath).ToList()))
-     .ForMember(dest => dest.ImagePath, opt => opt.Ignore())
-     .AfterMap((src, dest) =>
-     {
-         dest.ImagePath = src.RoomImages.FirstOrDefault(x => x.IsMain)?.ImagePath;
-     });
+                .ForMember(dest => dest.RoomNumber, opt => opt.MapFrom(src => src.RoomNumber))
+                .ForMember(dest => dest.FloorNumber, opt => opt.MapFrom(src => src.FloorNumber))
+                .ForMember(dest => dest.RoomType, opt => opt.MapFrom(src => src.RoomType))
+                .ForMember(dest => dest.RoomStatus, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom<RoomTypePriceResolver>())
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.HasWiFi, opt => opt.MapFrom(src => src.HasWirelessInternet))
+                .ForMember(dest => dest.HasTV, opt => opt.MapFrom(src => src.HasTV))
+                .ForMember(dest => dest.HasMinibar, opt => opt.MapFrom(src => src.HasMinibar))
+                .ForMember(dest => dest.HasHairDryer, opt => opt.MapFrom(src => src.HasHairDryer))
+                .ForMember(dest => dest.HasBalcony, opt => opt.MapFrom(src => src.HasBalcony))
+                .ForMember(dest => dest.ImageGallery, opt => opt.MapFrom(src =>
+                    src.RoomImages.Select(x => x.ImagePath).ToList()))
+                .ForMember(dest => dest.ImagePath, opt => opt.Ignore())
+                .ForMember(dest => dest.CleaningInfo, opt => opt.Ignore()) // ✅ BURAYI EKLE
+                .AfterMap((src, dest) =>
+                {
+                    dest.ImagePath = src.RoomImages.FirstOrDefault(x => x.IsMain)?.ImagePath;
+                });
 
             CreateMap<RoomDto, RoomUpdateVm>().ReverseMap();
 

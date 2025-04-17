@@ -12,6 +12,10 @@ namespace Project.MvcUI.Areas.Admin.Models.PureVm.RequestModel.EmployeeShift
         [Required(ErrorMessage = "Bitiş saati zorunludur")]
         public TimeSpan ShiftEnd { get; set; }
 
+        [Required]
+        [DataType(DataType.Date)]
+        public DateTime ShiftDate { get; set; }
+
         public bool IsDayOff { get; set; } // Vardiya günü izin mi?
         public bool HasOvertime { get; set; } // Fazla mesai var mı?
 

@@ -1,4 +1,5 @@
-﻿using Project.Entities.Enums;
+﻿using Project.BLL.DtoClasses;
+using Project.Entities.Enums;
 
 namespace Project.MvcUI.Areas.Admin.Models.PureVm.ResponseModel.Room
 {
@@ -30,5 +31,9 @@ namespace Project.MvcUI.Areas.Admin.Models.PureVm.ResponseModel.Room
         public string? Description { get; set; }
 
         public List<string>? ImageGallery { get; set; } // Details için Carousel desteği
+
+        public RoomCleaningScheduleDto? CleaningInfo { get; set; }
+
+        public RoomMaintenanceAssignmentDto? MaintenanceInfo { get; set; }
     }
 }

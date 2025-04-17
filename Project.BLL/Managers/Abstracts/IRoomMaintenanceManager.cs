@@ -43,5 +43,7 @@ namespace Project.BLL.Managers.Abstracts
         /// Tek bir bakım kaydını getirir.
         /// </summary>
         Task<RoomMaintenanceDto> GetMaintenanceByIdAsync(int id);
+
+        Task<int> GetOrCreateTodayMaintenanceAsync(int roomId, MaintenanceType type);
     }
 }

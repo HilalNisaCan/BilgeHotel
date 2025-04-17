@@ -97,6 +97,8 @@ namespace Project.MvcUI.Areas.Reservation.Controllers
             {
                 // Müşteri oluştur
                 CustomerDto customerDto = _mapper.Map<CustomerDto>(model);
+                customerDto.UserId = null; // ❗ User kaydı yoksa FK hatasını engellemek için null veriyoruz
+
                 int customerId = await _customerManager.AddAsync(customerDto);
 
                 // Rezervasyon oluştur

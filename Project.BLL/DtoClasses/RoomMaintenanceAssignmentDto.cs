@@ -24,5 +24,7 @@ namespace Project.BLL.DtoClasses
         public DateTime? CompletedDate { get; set; } // Tamamlanma tarihi (opsiyonel)
 
         public MaintenanceStatus? MaintenanceStatus { get; set; } // Bakımın güncel durumu (opsiyonel)
+
+        public string? AssignedEmployeeFullName { get; set; }
     }
 }

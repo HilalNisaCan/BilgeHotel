@@ -274,7 +274,7 @@ namespace Project.MvcUI.Areas.Admin.Controllers
                 return View(vm);
 
             var dto = _mapper.Map<EmployeeShiftDto>(vm);
-            await _shiftManager.UpdateAsync(dto);
+            await _shiftManager.UpdateShiftAsync(dto);
 
             TempData["Success"] = "Vardiya güncellendi.";
             return RedirectToAction("List");

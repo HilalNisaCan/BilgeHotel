@@ -104,6 +104,10 @@ namespace Project.BLL.Managers.Concretes
             return _mapper.Map<List<UserDto>>(users);
         }
 
-       
+        public async Task<UserDto?> GetByUserNameAsync(string username)
+        {
+            User? user = await _userRepository.GetByUserNameAsync(username);
+            return user == null ? null : _mapper.Map<UserDto>(user);
+        }
     }
 }

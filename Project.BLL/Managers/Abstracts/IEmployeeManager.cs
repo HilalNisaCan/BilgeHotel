@@ -1,4 +1,5 @@
 ﻿using Project.BLL.DtoClasses;
+using Project.Entities.Enums;
 using Project.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -80,5 +81,9 @@ namespace Project.BLL.Managers.Abstracts
       //  Task<List<Employee>> GetAllWithIncludeAsync(Expression<Func<Employee, bool>> predicate = null, Func<IQueryable<Employee>, IQueryable<Employee>> include = null);
 
         Task<List<EmployeeDto>> GetAllEmployeesWithDetailsAsync();
+
+        Task<List<EmployeeDto>> GetByPositionAsync(EmployeePosition position);
+
+        Task<List<EmployeeDto>> GetByPositionsAsync(EmployeePosition[] positions);
     }
 }

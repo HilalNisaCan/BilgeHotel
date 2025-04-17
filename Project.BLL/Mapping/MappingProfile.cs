@@ -31,10 +31,22 @@ namespace Project.BLL.Mapping
       .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FirstName + " " + src.LastName)).ReverseMap();
 
             CreateMap<Payment, PaymentDto>().ReverseMap();
-            CreateMap<BackupLog, BackupLogDto>().ReverseMap();
+
+            CreateMap<BackupLog, BackupLogDto>()
+          .ForMember(dest => dest.UserFullName,
+                     opt => opt.MapFrom(src => src.User.UserProfile.FirstName + " " + src.User.UserProfile.LastName))
+          .ReverseMap()
+          .ForMember(dest => dest.User, opt => opt.Ignore())         // 🔒 navigation property ignore
+          .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId)); // ✅ FK alanı manuel eşlensin
+
+
+
+
             CreateMap<Campaign, CampaignDto>().ReverseMap();
             CreateMap<ComplaintLog, ComplaintLogDto>().ReverseMap();
-            CreateMap<Customer, CustomerDto>().ReverseMap();
+            CreateMap<Customer, CustomerDto>()
+      .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
+      .ReverseMap();
             CreateMap<EarlyReservationDiscount, EarlyReservationDiscountDto>().ReverseMap();
             CreateMap<EmployeeShift, EmployeeShiftDto>()
      .ForMember(dest => dest.AssignedEmployees, opt => opt.MapFrom(src => src.ShiftAssignments)) // 🟢 Burası çok kritik
@@ -46,8 +58,30 @@ namespace Project.BLL.Mapping
             CreateMap<Product, ProductDto>().ReverseMap();
             CreateMap<ReportLog, ReportLogDto>().ReverseMap();
             CreateMap<Review, ReviewDto>().ReverseMap();
-            CreateMap<RoomCleaningSchedule, RoomCleaningScheduleDto>().ReverseMap();
+
+            CreateMap<RoomMaintenanceAssignment, RoomMaintenanceAssignmentDto>()
+                .ForMember(dest => dest.AssignedEmployeeFullName,
+                           opt => opt.MapFrom(src => src.Employee.FirstName + " " + src.Employee.LastName))
+                .ReverseMap()
+                .ForMember(dest => dest.Employee, opt => opt.Ignore())
+                .ForMember(dest => dest.Room, opt => opt.Ignore())
+                .ForMember(dest => dest.RoomMaintenance, opt => opt.Ignore())
+                .ForMember(dest => dest.MaintenanceStatus,
+                           opt => opt.MapFrom(src => src.MaintenanceStatus ?? MaintenanceStatus.Scheduled));
+
+            CreateMap<RoomCleaningSchedule, RoomCleaningScheduleDto>()
+      .ForMember(dest => dest.AssignedEmployeeFullName,
+                 opt => opt.MapFrom(src => src.AssignedEmployee.FirstName + " " + src.AssignedEmployee.LastName))
+      .ForMember(dest => dest.Status,
+                 opt => opt.MapFrom(src => src.Status))
+      .ReverseMap()
+      .ForMember(dest => dest.Status,
+                 opt => opt.MapFrom(src => src.Status)); // ✅ DTO'dan Entity'ye geri dönüş
+
+
+
             CreateMap<RoomImage, RoomImageDto>().ReverseMap();
+
             CreateMap<RoomMaintenance, RoomMaintenanceDto>().ReverseMap();
 
             CreateMap<EmployeeShiftAssignmentDto, EmployeeShiftAssignment>()

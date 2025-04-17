@@ -30,6 +30,7 @@
     <Folder Include="Areas\Admin\Views\AdminDashboard\" />
     <Folder Include="Areas\Reservation\Data\" />
     <Folder Include="wwwroot\DatabaseBackups\" />
+    <Folder Include="wwwroot\XmlReports\" />
   </ItemGroup>
 
 </Project>

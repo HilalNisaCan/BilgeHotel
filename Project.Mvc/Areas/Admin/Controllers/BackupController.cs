@@ -69,6 +69,31 @@ namespace Project.MvcUI.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
         }
+        [HttpPost]
+        public async Task<IActionResult> BackupDatabase()
+        {
+            try
+            {
+                string backupFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "DatabaseBackups");
+
+                if (!Directory.Exists(backupFolder))
+                    Directory.CreateDirectory(backupFolder);
+
+                // 📄 Sahte yedek dosyası oluşturuluyor
+                string fileName = $"Demo_BilgeHotelBackup_{DateTime.UtcNow:yyyyMMdd_HHmmss}.txt";
+                string filePath = Path.Combine(backupFolder, fileName);
+
+                await System.IO.File.WriteAllTextAsync(filePath, $"Bu bir SAHTE yedek dosyasıdır.\nTarih: {DateTime.Now}");
+
+                TempData["Success"] = $"✅ '{fileName}' isimli sahte yedek oluşturuldu.";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "❌ Yedekleme sırasında hata oluştu: " + ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
 
 
     }

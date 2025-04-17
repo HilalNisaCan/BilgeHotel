@@ -15,6 +15,7 @@ namespace Project.Dal.Repositories.Abstracts
         Task<User> GetUserWithReservationsAsync(int userId); // Kullanıcıyı rezervasyonlarıyla getir
         Task<List<User>> GetUsersWithRoleAsync(UserRole role); // Belirli bir role sahip kullanıcıları getir
         Task<User> GetAsync(Expression<Func<User, bool>> predicate); // ✅ Kullanıcı sorgulamak için
+        Task<User?> GetByUserNameAsync(string username);
 
     }
 }

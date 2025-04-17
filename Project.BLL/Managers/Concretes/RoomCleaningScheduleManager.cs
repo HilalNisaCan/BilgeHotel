@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Project.BLL.DtoClasses;
 using Project.BLL.Managers.Abstracts;
 using Project.Dal.Repositories.Abstracts;
+using Project.Dal.Repositories.Concretes;
 using Project.Entities.Enums;
 using Project.Entities.Models;
 using System;
@@ -75,6 +77,30 @@ namespace Project.BLL.Managers.Concretes
         {
             var cleanings = await _cleaningScheduleRepository.GetAllAsync(c => c.ScheduledDate.Date == date.Date);
             return _mapper.Map<List<RoomCleaningScheduleDto>>(cleanings);
+        }
+
+        public async Task<RoomCleaningScheduleDto?> GetLatestByRoomIdAsync(int roomId)
+        {
+            // RoomId'ye ait aktif temizlik kayıtlarını ve çalışanı dahil ederek getiriyoruz
+            List<RoomCleaningSchedule> schedules = (await _cleaningScheduleRepository
+                .GetAllWithIncludeAsync(
+                    predicate: x => x.RoomId == roomId && x.Status != DataStatus.Deleted, // aktif kayıtlar
+                    include: q => q.Include(x => x.AssignedEmployee)
+                )).ToList();
+
+            // Kayıt varsa: oluşturulma tarihine göre en son olanı al
+            RoomCleaningSchedule? latest = schedules
+                .OrderByDescending(x => x.CreatedDate)
+                .FirstOrDefault();
+
+            return latest == null
+                ? null
+                : _mapper.Map<RoomCleaningScheduleDto>(latest);
+        }
+
+        public async Task<bool> CreateAndConfirmAsync(RoomCleaningSchedule entity)
+        {
+            return await _cleaningScheduleRepository.CreateAndConfirmAsync(entity);
         }
     }
 }

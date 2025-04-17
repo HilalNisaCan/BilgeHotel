@@ -22,6 +22,12 @@ namespace Project.BLL.DtoClasses
 
         public bool IsRestored { get; set; } // Yedekten geri yükleme yapıldı mı?
 
-        public BackupStatus Status { get; set; }  // Yedekleme durumu (Başarılı, Başarısız)
+        public BackupStatus BackupStatus { get; set; }  // Yedekleme durumu (Başarılı, Başarısız)
+
+        public DateTime? RestoredDate { get; set; }
+        public string? ErrorMessage { get; set; }
+        public string? IPAddress { get; set; }
+        public string? MachineName { get; set; }
+        public string? UserFullName { get; set; }
     }
 }

@@ -11,7 +11,8 @@ namespace Project.BLL.DtoClasses
     public class CustomerDto:BaseDto,IIdentifiablePerson
     {
         [Required]
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
+        public UserDto? User { get; set; }
 
         [Required]
         [StringLength(50)]

@@ -38,5 +38,10 @@ namespace Project.BLL.Managers.Abstracts
         /// Tüm aktif kullanıcıları listeler.
         /// </summary>
         Task<List<UserDto>> GetActiveUsersAsync();
+
+        /// <summary>
+        /// Kullanıcı adından kullanıcıyı getirir.
+        /// </summary>
+        Task<UserDto?> GetByUserNameAsync(string username);
     }
 }

@@ -11,22 +11,23 @@ namespace Project.BLL.Managers.Abstracts
 {
     public interface ICampainManager : IManager<CampaignDto, Campaign>
     {
-        /// <summary>
-        /// Yeni kampanya oluşturur ve sistemde aktif olarak ekler.
-        /// </summary>
-        Task<int> CreateCampaignAsync(CampaignDto campaignDto); // ✅ Yeni kampanya ekle
-        /// <summary>
-        /// Kampanyayı ID'ye göre günceller.
-        /// </summary>
-        Task<bool> UpdateCampaignAsync(int campaignId, CampaignDto campaignDto); // ✅ Kampanyayı güncelle
-        /// <summary>
-        /// Sadece şu an aktif olan kampanyaları döner.
-        /// </summary>
-        Task<List<CampaignDto>> GetActiveCampaignsAsync(); // ✅ Aktif kampanyaları getir
-        /// <summary>
-        /// Kampanyayı ID'ye göre getirir.
-        /// </summary>
-        Task<CampaignDto> GetCampaignByIdAsync(int campaignId); // ✅ Kampanyayı ID'ye göre getir
+        ///// <summary>
+        ///// Yeni kampanya oluşturur ve sistemde aktif olarak ekler.
+        ///// </summary>
+        //Task<int> CreateCampaignAsync(CampaignDto campaignDto); // ✅ Yeni kampanya ekle
+        ///// <summary>
+        ///// Kampanyayı ID'ye göre günceller.
+        ///// </summary>
+        //Task<bool> UpdateCampaignAsync(int campaignId, CampaignDto campaignDto); // ✅ Kampanyayı güncelle
+        ///// <summary>
+        ///// Sadece şu an aktif olan kampanyaları döner.
+        ///// </summary>
+        //Task<List<CampaignDto>> GetActiveCampaignsAsync(); // ✅ Aktif kampanyaları getir
+        ///// <summary>
+        ///// Kampanyayı ID'ye göre getirir.
+        ///// </summary>
+        //Task<CampaignDto> GetCampaignByIdAsync(int campaignId); // ✅ Kampanyayı ID'ye göre getir
+
         /// <summary>
         /// Kampanyayı ID'ye göre siler (kalıcı silme).
         /// </summary>

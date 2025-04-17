@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Project.BLL.DtoClasses;
 using Project.BLL.Managers.Abstracts;
 using Project.Dal.Repositories.Abstracts;
@@ -99,6 +100,70 @@ namespace Project.BLL.Managers.Concretes
 
             await _assignmentRepository.UpdateAsync(entity);
             return true;
+        }
+
+        public async Task<bool> AssignOrCreateMaintenanceAsync(int roomId, int employeeId, DateTime date, string? description)
+        {// Aynı gün aynı odaya bakım var mı?
+            RoomMaintenance? existing = await _maintenanceRepository.GetFirstOrDefaultAsync(
+                predicate: x => x.RoomId == roomId &&
+                                x.ScheduledDate.Date == date.Date &&
+                                x.Status != DataStatus.Deleted,
+                include: q => q // include boş verildi ama parametre karşılandı ✅
+            );
+
+            if (existing == null)
+            {
+                existing = new RoomMaintenance
+                {
+                    RoomId = roomId,
+                    ScheduledDate = date,
+                    MaintenanceType = MaintenanceType.GeneralMaintenance, // varsayılan veya dışarıdan al
+                    StartDate = DateTime.MinValue,
+                    MaintenanceStatus = MaintenanceStatus.Scheduled,
+                    Description = "Görev atamasıyla oluşturuldu",
+                    CreatedDate = DateTime.Now,
+                    Status = DataStatus.Inserted
+                };
+
+                await _maintenanceRepository.CreateAsync(existing);
+            }
+
+            RoomMaintenanceAssignment assignment = new RoomMaintenanceAssignment
+            {
+                RoomId = roomId,
+                RoomMaintenanceId = existing.Id,
+                EmployeeId = employeeId,
+                AssignedDate = DateTime.Now,
+                MaintenanceStatus = MaintenanceStatus.Scheduled,
+                Description = description,
+                Status = DataStatus.Inserted,
+                CreatedDate = DateTime.Now
+            };
+
+            await _assignmentRepository.CreateAsync(assignment);
+            return true;
+        }
+
+        public async Task<RoomMaintenanceAssignmentDto?> GetLatestByRoomIdAsync(int roomId)
+        {
+            List<RoomMaintenanceAssignment> list = (await _assignmentRepository.GetAllWithIncludeAsync(
+                x => x.RoomId == roomId && x.Status != DataStatus.Deleted,
+                q => q.Include(x => x.Employee)
+            )).ToList();
+
+            RoomMaintenanceAssignment? latest = list
+                .OrderByDescending(x => x.AssignedDate)
+                .FirstOrDefault();
+
+            return latest == null
+                ? null
+                : _mapper.Map<RoomMaintenanceAssignmentDto>(latest);
+        }
+
+        public async Task<bool> CreateWithEntityAsync(RoomMaintenanceAssignment entity)
+        {
+            await _assignmentRepository.AddAsync(entity);
+            return true; // SaveChangesAsync çağrısını AddAsync içinde yapıyoruz
         }
     }
 }

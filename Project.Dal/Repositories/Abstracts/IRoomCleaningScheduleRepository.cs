@@ -13,5 +13,7 @@ namespace Project.Dal.Repositories.Abstracts
         Task<List<RoomCleaningSchedule>> GetCompletedCleaningsAsync(); // Temizliği tamamlanmış odaları getir
         Task<List<RoomCleaningSchedule>> GetCleaningsByDateAsync(DateTime date); // Belirli bir tarihte yapılan temizlemeleri getir
         Task<List<RoomCleaningSchedule>> GetCleaningsByEmployeeIdAsync(int employeeId); // Belirli bir çalışanın yaptığı temizlikleri getir
+        Task<bool> CreateAndConfirmAsync(RoomCleaningSchedule entity);
+
     }
 }

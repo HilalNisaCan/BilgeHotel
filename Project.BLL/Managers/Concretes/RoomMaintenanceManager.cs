@@ -95,5 +95,39 @@ namespace Project.BLL.Managers.Concretes
             var entity = await _maintenanceRepository.GetByIdAsync(id);
             return _mapper.Map<RoomMaintenanceDto>(entity);
         }
+
+        /// <summary>
+        /// Eğer bugün için aynı oda ve bakım tipiyle kayıt varsa getirir. Yoksa yeni kayıt oluşturur.
+        /// </summary>
+        public async Task<int> GetOrCreateTodayMaintenanceAsync(int roomId, MaintenanceType type)
+        {
+            DateTime today = DateTime.Today;
+
+            // Bugün için aynı oda ve bakım tipinde varsa
+            RoomMaintenance? existing = await _maintenanceRepository.GetFirstOrDefaultAsync(
+                x => x.RoomId == roomId &&
+                     x.MaintenanceType == type &&
+                     x.ScheduledDate.Date == today &&
+                     x.Status != DataStatus.Deleted,
+                include: null // Include yok, sadece kontrol ediyoruz
+            );
+
+            if (existing != null)
+                return existing.Id;
+
+            // Yeni kayıt oluşturuluyor
+            RoomMaintenance entity = new RoomMaintenance
+            {
+                RoomId = roomId,
+                MaintenanceType = type,
+                ScheduledDate = today,
+                StartDate = DateTime.Now,
+                MaintenanceStatus = MaintenanceStatus.Scheduled,
+                Status = DataStatus.Inserted
+            };
+
+            await _maintenanceRepository.AddAsync(entity);
+            return entity.Id;
+        }
     }
 }

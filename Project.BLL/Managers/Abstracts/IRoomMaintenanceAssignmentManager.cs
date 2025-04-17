@@ -32,5 +32,14 @@ namespace Project.BLL.Managers.Abstracts
         /// Bakım atamasını tamamlanmış olarak işaretler.
         /// </summary>
         Task<bool> CompleteMaintenanceAsync(int assignmentId);
+
+        Task<bool> AssignOrCreateMaintenanceAsync(int roomId, int employeeId, DateTime date, string? description);
+
+        /// <summary>
+        /// Verilen odaya ait en son bakım atamasını döndürür (son atama tarihi baz alınır).
+        /// </summary>
+        Task<RoomMaintenanceAssignmentDto?> GetLatestByRoomIdAsync(int roomId);
+
+        Task<bool> CreateWithEntityAsync(RoomMaintenanceAssignment entity);
     }
 }

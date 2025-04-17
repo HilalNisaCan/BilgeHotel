@@ -24,5 +24,6 @@ namespace Project.BLL.DtoClasses
         public UserRole Role { get; set; } // Kullanıcının rolü (Admin, Kullanıcı, vb.)
 
         public bool IsActivated { get; set; }
+        public UserProfileDto UserProfile { get; set; }
     }
 }

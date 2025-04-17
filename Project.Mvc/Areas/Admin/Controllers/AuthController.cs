@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Project.Entities.Enums;
 using Project.Entities.Models;
 using Project.MvcUI.Areas.Admin.Models.PureVm.RequestModel.AppUser;
 
@@ -35,9 +36,9 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             if (!ModelState.IsValid) return View(model);
 
             User user = await _userManager.FindByEmailAsync(model.EmailOrUsername)
-                              ?? await _userManager.FindByNameAsync(model.EmailOrUsername);
+                            ?? await _userManager.FindByNameAsync(model.EmailOrUsername);
 
-            if (user == null || !await _userManager.IsInRoleAsync(user, "Admin"))
+            if (user == null || user.Role != UserRole.Admin)
             {
                 ModelState.AddModelError("", "Kullanıcı bulunamadı veya yetkiniz yok.");
                 return View(model);

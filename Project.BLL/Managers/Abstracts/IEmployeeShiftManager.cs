@@ -54,5 +54,7 @@ namespace Project.BLL.Managers.Abstracts
         /// <param name="shiftId">Silinecek vardiyanın ID’si</param>
         /// <returns>İşlem başarılıysa true, aksi halde false döner.</returns>
         Task<bool> DeleteShiftByIdAsync(int shiftId);
+
+        Task<bool> UpdateShiftAsync(EmployeeShiftDto dto);
     }
 }

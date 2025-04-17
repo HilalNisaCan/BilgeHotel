@@ -78,6 +78,18 @@
                         <a href="@Url.Action("Edit", "Room", new { area = "Admin", id = room.Id })" class="btn btn-outline-warning btn-sm">Güncelle</a>
                         <a href="@Url.Action("Delete", "Room", new { area = "Admin", id = room.Id })" class="btn btn-outline-danger btn-sm">Sil</a>
                     </div>
+                    @if (room.RoomStatus == RoomStatus.Cleaning)
+                    {
+                        <a href="@Url.Action("AssignCleaning", "Room", new { area = "Admin", roomId = room.Id })"
+                           class="btn btn-outline-success btn-sm mt-2 w-100">Temizlik Ata</a>
+                    }
+
+                    @if (room.RoomStatus == RoomStatus.Maintenance)
+                    {
+                        <a href="@Url.Action("AssignMaintenance", "Room", new { area = "Admin", roomId = room.Id })"
+                           class="btn btn-outline-secondary btn-sm mt-2 w-100">Bakım Ata</a>
+                    }
+                  
                 </div>
             </div>
         </div>

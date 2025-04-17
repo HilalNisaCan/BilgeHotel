@@ -13,7 +13,6 @@ using Project.Entities.Enums;
 namespace Project.MvcUI.Areas.Admin.Controllers
 {
     [Area("Admin")]
-  //  [Authorize(Roles = "Admin")]
     public class EmployeeController : Controller
     {
         private readonly IEmployeeManager _employeeManager;

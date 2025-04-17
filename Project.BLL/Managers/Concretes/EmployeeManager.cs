@@ -172,6 +172,20 @@ namespace Project.BLL.Managers.Concretes
 
             return _mapper.Map<List<EmployeeDto>>(employees);
         }
+
+        public async Task<List<EmployeeDto>> GetByPositionAsync(EmployeePosition position)
+        {
+            List<Employee> employees = (await _employeeRepository.GetAllAsync(e => e.Position == position)).ToList();
+            return _mapper.Map<List<EmployeeDto>>(employees);
+        }
+
+        public async Task<List<EmployeeDto>> GetByPositionsAsync(EmployeePosition[] positions)
+        {
+            List<Employee> employees = (await _employeeRepository.GetAllAsync(e =>
+                positions.Contains(e.Position) && e.IsActive)).ToList();
+
+            return _mapper.Map<List<EmployeeDto>>(employees);
+        }
     }
 }
 //_repositoryForInclude

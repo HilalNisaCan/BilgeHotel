@@ -27,5 +27,10 @@ namespace Project.BLL.Managers.Abstracts
         /// Belirli bir tarihte planlanan tüm temizlikleri listeler.
         /// </summary>
         Task<List<RoomCleaningScheduleDto>> GetScheduledCleaningsAsync(DateTime date);
+
+        Task<RoomCleaningScheduleDto?> GetLatestByRoomIdAsync(int roomId);
+       
+        Task<bool> CreateAndConfirmAsync(RoomCleaningSchedule entity);
+
     }
 }

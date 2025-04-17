@@ -267,5 +267,25 @@ namespace Project.BLL.Managers.Concretes
             decimal totalSalary = (decimal)totalWorkedHours * employee.HourlyWage;
             return (Math.Round(totalSalary, 2), totalWorkedHours);
         }
+
+        public async Task<bool> UpdateShiftAsync(EmployeeShiftDto dto)
+        {
+            EmployeeShift? original = await _shiftRepository.GetByIdAsync(dto.Id);
+            if (original == null)
+                return false;
+
+            // 🔐 Atamaları kaybetme
+            List<EmployeeShiftAssignment>? currentAssignments = original.ShiftAssignments.ToList();
+
+            // 🔁 Mapping (ama atamaları silmeden)
+            _mapper.Map(dto, original);
+            original.ShiftAssignments = currentAssignments;
+
+            original.ModifiedDate = DateTime.Now;
+            original.Status = DataStatus.Updated;
+
+            await _shiftRepository.UpdateAsync(original);
+            return true;
+        }
     }    
 }

@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Project.BLL.DtoClasses;
 using Project.BLL.Managers.Abstracts;
 using Project.BLL.Managers.Concretes;
+using Project.Entities.Enums;
 using Project.Entities.Models;
 using Project.MvcUI.Areas.Admin.Models.PureVm.RequestModel.Room;
 using Project.MvcUI.Areas.Admin.Models.PureVm.ResponseModel.Room;
+using Microsoft.EntityFrameworkCore;
 
 namespace Project.MvcUI.Areas.Admin.Controllers
 {
@@ -15,13 +18,23 @@ namespace Project.MvcUI.Areas.Admin.Controllers
     {
         private readonly IRoomManager _roomManager;
         private readonly IRoomTypePriceManager _roomTypePriceManager;
+        private readonly IEmployeeManager _employeeManager;
+        private readonly IRoomCleaningScheduleManager _roomCleaningScheduleManager;
+        private readonly IRoomMaintenanceAssignmentManager _roomMaintenanceAssignmentManager;
+        private readonly IRoomMaintenanceManager _roomMaintenanceManager;
+
         private readonly IMapper _mapper;
 
-        public RoomController(IRoomManager roomManager, IMapper mapper, IRoomTypePriceManager roomTypePriceManager)
+        public RoomController(IRoomManager roomManager, IMapper mapper, IRoomTypePriceManager roomTypePriceManager, IEmployeeManager employeeManager,
+    IRoomCleaningScheduleManager roomCleaningScheduleManager, IRoomMaintenanceAssignmentManager roomMaintenanceAssignmentManager, IRoomMaintenanceManager roomMaintenanceManager)
         {
             _roomManager = roomManager;
             _mapper = mapper;
             _roomTypePriceManager = roomTypePriceManager;
+            _employeeManager = employeeManager;
+            _roomCleaningScheduleManager = roomCleaningScheduleManager;
+            _roomMaintenanceAssignmentManager = roomMaintenanceAssignmentManager;
+            _roomMaintenanceManager = roomMaintenanceManager;
         }
 
         [HttpGet("")]
@@ -68,10 +81,23 @@ namespace Project.MvcUI.Areas.Admin.Controllers
 
             List<RoomTypePriceDto> priceList = await _roomTypePriceManager.GetAllAsync();
 
+            // 🔵 Temizlik bilgisi sadece "Cleaning" durumundaysa getiriyoruz
+            RoomCleaningScheduleDto? cleaningInfo = null;
+            if (roomDto.Status == RoomStatus.Cleaning)
+            {
+                cleaningInfo = await _roomCleaningScheduleManager.GetLatestByRoomIdAsync(id);
+            }
+
+            // 🟡 Bakım bilgisi her zaman kontrol edilsin
+            RoomMaintenanceAssignmentDto? maintenanceInfo = await _roomMaintenanceAssignmentManager.GetLatestByRoomIdAsync(id);
+
             RoomAdminResponseModel vm = _mapper.Map<RoomAdminResponseModel>(
                 roomDto,
-                opt => opt.Items["RoomTypePrices"] = priceList // ✔ context’e fiyat listesi veriyoruz
+                opt => opt.Items["RoomTypePrices"] = priceList
             );
+
+            vm.CleaningInfo = cleaningInfo;
+            vm.MaintenanceInfo = maintenanceInfo;
 
             return View(vm);
         }
@@ -114,6 +140,121 @@ namespace Project.MvcUI.Areas.Admin.Controllers
 
             return RedirectToAction("Index");
         }
+
+        [HttpGet("AssignCleaning/{roomId}")]
+        public async Task<IActionResult> AssignCleaning(int roomId)
+        {
+            // Odayı kontrol et
+            RoomDto room = await _roomManager.GetByIdAsync(roomId);
+            if (room == null || room.Status != RoomStatus.Cleaning)
+                return RedirectToAction("Index");
+
+            // Temizlik personellerini getir
+            List<EmployeeDto> cleaners = await _employeeManager.GetByPositionAsync(EmployeePosition.Cleaner);
+
+            ViewBag.Cleaners = new SelectList(cleaners, "Id", "FullName");
+
+            // Boş model oluşturup sadece RoomId set ediliyor
+            RoomCleaningScheduleCreateRequestModel model = new RoomCleaningScheduleCreateRequestModel
+            {
+                RoomId = roomId
+            };
+
+            return View("AssignCleaning", model);
+        }
+        [HttpPost("AssignCleaning")]
+        public async Task<IActionResult> AssignCleaning(RoomCleaningScheduleCreateRequestModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Message"] = "Form geçerli değil.";
+                return RedirectToAction("AssignCleaning", new { roomId = model.RoomId });
+            }
+
+            RoomCleaningSchedule entity = new RoomCleaningSchedule
+            {
+                RoomId = model.RoomId,
+                AssignedEmployeeId = model.AssignedEmployeeId,
+                ScheduledDate = model.ScheduledDate,
+                Description = model.Description,
+                CleaningStatus = CleaningStatus.Scheduled,
+                IsCompleted = false,
+                Status = DataStatus.Inserted,
+            };
+
+            await _roomCleaningScheduleManager.CreateAndConfirmAsync(entity);
+
+            TempData["Message"] = "Temizlik görevlisi başarıyla atandı.";
+            return RedirectToAction("Details", new { id = model.RoomId });
+        }
+
+
+
+        [HttpGet("AssignMaintenance/{roomId}")]
+        public async Task<IActionResult> AssignMaintenance(int roomId)
+        {
+            RoomDto room = await _roomManager.GetByIdAsync(roomId);
+            if (room == null || room.Status != RoomStatus.Maintenance)
+                return RedirectToAction("Index");
+
+            // Elektrikçi ve IT personellerini getir
+            List<EmployeeDto> maintainers = await _employeeManager.GetByPositionsAsync(
+                new[] { EmployeePosition.Electrician, EmployeePosition.ITSpecialist });
+
+            ViewBag.Maintainers = new SelectList(maintainers, "Id", "FullName");
+
+            RoomMaintenanceAssignmentCreateRequestModel model = new RoomMaintenanceAssignmentCreateRequestModel
+            {
+                RoomId = roomId,
+                AssignedDate = DateTime.Now
+            };
+
+            return View("AssignMaintenance", model);
+        }
+
+        [HttpPost("AssignMaintenance/{roomId}")]
+        public async Task<IActionResult> AssignMaintenance(RoomMaintenanceAssignmentCreateRequestModel model)
+        {
+            Console.WriteLine($"🧪 DEBUG | Seçilen EmployeeId: {model.EmployeeId}");
+
+            // 1. Employee gerçekten var mı?
+            var employee = await _employeeManager.GetByIdAsync(model.EmployeeId);
+            if (employee == null)
+            {
+                TempData["Message"] = "Geçersiz personel seçimi!";
+                return RedirectToAction("AssignMaintenance", new { roomId = model.RoomId });
+            }
+
+            if (!ModelState.IsValid)
+            {
+                TempData["Message"] = "Form geçerli değil.";
+                return RedirectToAction("AssignMaintenance", new { roomId = model.RoomId });
+            }
+
+            // 2. Bakım kaydı kontrolü ve oluşturulması
+            int maintenanceId = await _roomMaintenanceManager.GetOrCreateTodayMaintenanceAsync(
+                model.RoomId,
+                model.MaintenanceType);
+
+            // 3. Atama kaydı oluşturuluyor
+            RoomMaintenanceAssignment entity = new RoomMaintenanceAssignment
+            {
+                RoomId = model.RoomId,
+                RoomMaintenanceId = maintenanceId,
+                EmployeeId = model.EmployeeId,
+                AssignedDate = model.AssignedDate,
+                MaintenanceStatus = MaintenanceStatus.Scheduled,
+                Description = model.Description,
+                Status = DataStatus.Inserted
+            };
+
+            // 4. Kaydet
+            await _roomMaintenanceAssignmentManager.CreateWithEntityAsync(entity);
+
+            TempData["Message"] = "Bakım görevlisi başarıyla atandı.";
+            return RedirectToAction("Details", new { id = model.RoomId });
+        }
+
 
         [HttpPost("Delete/{id}")]
         public async Task<IActionResult> Delete(int id)

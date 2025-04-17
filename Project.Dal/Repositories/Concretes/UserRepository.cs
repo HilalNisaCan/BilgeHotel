@@ -40,5 +40,10 @@ namespace Project.Dal.Repositories.Concretes
         {
             return await _context.Set<User>().FirstOrDefaultAsync(predicate);
         }
+
+        public async Task<User?> GetByUserNameAsync(string username)
+        {
+            return await _dbSet.FirstOrDefaultAsync(u => u.UserName == username);
+        }
     }
 }
