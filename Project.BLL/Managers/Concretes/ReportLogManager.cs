@@ -2,7 +2,9 @@
 using Project.BLL.DtoClasses;
 using Project.BLL.Managers.Abstracts;
 using Project.Dal.Repositories.Abstracts;
+using Project.Dal.Repositories.Concretes;
 using Project.Entities.Enums;
+using Project.Entities.Interfaces;
 using Project.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -26,12 +28,16 @@ namespace Project.BLL.Managers.Concretes
         }
 
         /// <summary>
-        /// Oluşturulan raporları loglar.
+        /// Oluşturulan raporu veritabanına kaydeder. Başarılıysa true döner.
         /// </summary>
-        public async Task LogReportAsync(ReportLogDto logDto)
+        public async Task<bool> CreateReportLogAsync(ReportLogDto dto)
         {
-            ReportLog entity = _mapper.Map<ReportLog>(logDto);
-            await _reportLogRepository.AddAsync(entity);
+            // DTO → Entity dönüşümü
+            ReportLog entity = _mapper.Map<ReportLog>(dto);
+
+            // Veritabanına kaydet
+            await _reportLogRepository.AddLogAsync(entity);
+            return true;
         }
     }
 }

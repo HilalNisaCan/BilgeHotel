@@ -11,7 +11,10 @@ namespace Project.BLL.Managers.Abstracts
 {
     public interface IReportLogManager : IManager<ReportLogDto, ReportLog>
     {
-        Task LogReportAsync(ReportLogDto logDto);
+        /// <summary>
+        /// Oluşturulan raporları veritabanına kaydeder (XML, Finansal vb.).
+        /// </summary>
+        Task<bool> CreateReportLogAsync(ReportLogDto dto);
     }
 }
 
