@@ -58,7 +58,19 @@ namespace Project.BLL.Mapping
             CreateMap<OrderDetail, OrderDetailDto>().ReverseMap();
             CreateMap<Order, OrderDto>().ReverseMap();
             CreateMap<Product, ProductDto>().ReverseMap();
-            CreateMap<ReportLog, ReportLogDto>().ReverseMap();
+            CreateMap<ReportLog, ReportLogDto>()
+          .ForMember(dest => dest.ReportDate, opt => opt.MapFrom(src => src.ReportDate))
+          .ForMember(dest => dest.ReportType, opt => opt.MapFrom(src => src.ReportType))
+          .ForMember(dest => dest.ReportStatus, opt => opt.MapFrom(src => src.ReportStatus))
+          .ForMember(dest => dest.LogMessage, opt => opt.MapFrom(src => src.LogMessage))
+          .ForMember(dest => dest.ReportData, opt => opt.MapFrom(src => src.ReportData))
+          .ForMember(dest => dest.XmlFilePath, opt => opt.MapFrom(src => src.XmlFilePath))
+          .ForMember(dest => dest.IsSystemGenerated, opt => opt.MapFrom(src => src.IsSystemGenerated))
+          .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.CustomerId))
+          .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+          .ForMember(dest => dest.IPAddress, opt => opt.MapFrom(src => src.IPAddress))
+          .ForMember(dest => dest.ErrorMessage, opt => opt.MapFrom(src => src.ErrorMessage))
+          .ReverseMap();
             CreateMap<Review, ReviewDto>().ReverseMap();
 
             CreateMap<RoomMaintenanceAssignment, RoomMaintenanceAssignmentDto>()

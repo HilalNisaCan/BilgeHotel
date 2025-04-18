@@ -57,7 +57,7 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             XElement xml = new XElement("Guests",
                 reservations.Select(r => new XElement("Guest",
                     new XElement("FirstName", r.Customer.FirstName),
-                   new XElement("LastName", r.Customer.LastName),
+                    new XElement("LastName", r.Customer.LastName),
                     new XElement("IdentityNumber", r.Customer?.IdentityNumber ?? "Belirsiz"),
                     new XElement("CheckInDate", r.StartDate.ToString("yyyy-MM-dd")),
                     new XElement("CheckOutDate", r.EndDate.ToString("yyyy-MM-dd")),
@@ -75,7 +75,7 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             await System.IO.File.WriteAllTextAsync(filePath, xml.ToString());
             byte[] xmlBytes = Encoding.UTF8.GetBytes(xml.ToString());
 
-            // Rapor log kaydı
+            // 4️⃣ ReportLog kaydı
             ReportLogDto dto = new ReportLogDto
             {
                 ReportType = ReportType.DailyGuestReport,
@@ -87,6 +87,8 @@ namespace Project.MvcUI.Areas.Admin.Controllers
                 XmlFilePath = $"/XmlReports/{fileName}",
                 IPAddress = HttpContext.Connection?.RemoteIpAddress?.ToString()
             };
+
+            await _reportLogManager.CreateReportLogAsync(dto); // Log kaydını yapıyoruz
 
             TempData["Success"] = "Günlük müşteri XML raporu oluşturuldu ve kayıt altına alındı.";
             return File(xmlBytes, "application/xml", fileName);
