@@ -27,8 +27,8 @@ namespace Project.Entities.Models
         public string? XmlFilePath { get; set; }        // Varsa dışa aktarılan XML yolu
 
         //relational properties
-        public virtual User User { get; set; } = null!;// Log kaydıyla ilişkili kullanıcı
+        public virtual User? User { get; set; } // Log kaydıyla ilişkili kullanıcı
 
-        public virtual Customer Customer { get; set; } = null!;// Log kaydıyla ilişkili müşteri
+        public virtual Customer? Customer { get; set; } // Log kaydıyla ilişkili müşteri
     }
 }

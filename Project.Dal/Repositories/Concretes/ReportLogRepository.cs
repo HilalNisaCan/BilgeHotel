@@ -14,19 +14,26 @@ namespace Project.Dal.Repositories.Concretes
     {
         public ReportLogRepository(MyContext context) : base(context) { }
 
-        public async Task<List<ReportLog>> GetLogsByDateRangeAsync(DateTime startDate, DateTime endDate)
+        // Özel log ekleme işlemi — eksik alanları burada tamamlayabiliriz
+        public async Task AddLogAsync(ReportLog log)
         {
-            return await _dbSet.Where(rl => rl.CreatedDate >= startDate && rl.CreatedDate <= endDate).ToListAsync();
+            // Eğer mesaj boşsa varsayılan veriyoruz
+            if (string.IsNullOrWhiteSpace(log.LogMessage))
+                log.LogMessage = "Sistem logu";
+
+            // Sistem loglarında müşteri bilgisi yoksa null geçilebilir
+            if (log.IsSystemGenerated)
+            {
+                log.UserId = null;
+                log.CustomerId = null;
+            }
+
+            log.CreatedDate = DateTime.Now;
+
+            await _dbSet.AddAsync(log);
+            await _context.SaveChangesAsync(); // EF üzerinden veritabanına kayıt
         }
 
-        public async Task<List<ReportLog>> GetLogsByUserIdAsync(int userId)
-        {
-            return await _dbSet.Where(rl => rl.UserId == userId).ToListAsync();
-        }
-
-        public async Task<List<ReportLog>> GetLogsByIPAddressAsync(string ipAddress)
-        {
-            return await _dbSet.Where(rl => rl.IPAddress == ipAddress).ToListAsync();
-        }
+       
     }
 }

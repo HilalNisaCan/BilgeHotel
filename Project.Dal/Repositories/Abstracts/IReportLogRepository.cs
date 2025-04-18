@@ -9,9 +9,10 @@ namespace Project.Dal.Repositories.Abstracts
 {
     public interface IReportLogRepository:IRepository<ReportLog>
     {
-        Task<List<ReportLog>> GetLogsByDateRangeAsync(DateTime startDate, DateTime endDate);
-        Task<List<ReportLog>> GetLogsByUserIdAsync(int userId);
-        Task<List<ReportLog>> GetLogsByIPAddressAsync(string ipAddress);
+       
+
+        // XML veya sistem loglarını özel olarak eklemek için kullanılacak
+        Task AddLogAsync(ReportLog log);
     }
 }
 

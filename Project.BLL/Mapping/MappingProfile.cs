@@ -20,7 +20,9 @@ namespace Project.BLL.Mapping
             CreateMap<Reservation, ReservationDto>()
            .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.Customer))
            .ForMember(dest => dest.Room, opt => opt.MapFrom(src => src.Room)).ReverseMap();
+
             CreateMap<User, UserDto>().ReverseMap();
+
             CreateMap<Room, RoomDto>()
            .ForMember(dest => dest.RoomImages, opt => opt.MapFrom(src => src.RoomImages)).ReverseMap();
 

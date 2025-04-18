@@ -99,7 +99,18 @@ namespace Project.MvcUI.VmMapping
             CreateMap<ComplaintReplyRequestModel, ComplaintLogDto>().ReverseMap();
 
             CreateMap<CreateReservationRequestModel, CustomerDto>()
-          .ForMember(dest => dest.BillingDetails, opt => opt.MapFrom(src => src.BillingDetails));
+     .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => DateTime.Now))
+     .ForMember(dest => dest.LoyaltyPoints, opt => opt.MapFrom(src => 0))
+     .ForMember(dest => dest.IsIdentityVerified, opt => opt.MapFrom(src => true))
+     .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => (int?)null)) // User ilişkisi yoksa null
+     .ForMember(dest => dest.BillingDetails, opt => opt.MapFrom(src => string.IsNullOrEmpty(src.BillingDetails) ? "Standart Bireysel Fatura" : src.BillingDetails))
+     .ForMember(dest => dest.NeedsIdentityCheck, opt => opt.MapFrom(src => false))
+     .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
+     .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
+     .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
+     .ForMember(dest => dest.IdentityNumber, opt => opt.MapFrom(src => src.IdentityNumber));
+
+
             CreateMap<CreateReservationRequestModel, KimlikBilgisiDto>();
            
             //CreateMap<RoomDto, RoomResponseModel>()
@@ -138,14 +149,12 @@ namespace Project.MvcUI.VmMapping
                 .ForMember(dest => dest.Floor, opt => opt.MapFrom(src => src.FloorNumber.ToString()))
                 .ReverseMap();
 
-    
-            // Request - DTO eşleşmeleri
-            CreateMap<CreateReservationRequest, ReservationDto>()
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.CheckInDate))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.CheckOutDate))
-                .ReverseMap();
 
-         
+            // Request - DTO eşleşmeleri
+            CreateMap<CreateReservationRequestModel, ReservationDto>()
+        .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.CheckIn))
+        .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.CheckOut));
+
 
             // RoomDetailVm için DTO'dan ViewModel'e eşleşme
             CreateMap<RoomDto, RoomDetailVm>()

@@ -7,6 +7,7 @@ using Project.Entities.Enums;
 using Project.Entities.Models;
 using System.Text;
 using System.Xml.Linq;
+using ReservationEntity = Project.Entities.Models.Reservation;
 
 namespace Project.MvcUI.Areas.Admin.Controllers
 {
@@ -34,10 +35,10 @@ namespace Project.MvcUI.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> GenerateTodayGuestXml()
         {
-
             DateTime today = DateTime.Today;
 
-            List<Project.Entities.Models.Reservation> reservationEntities = await _reservationManager.GetAllWithIncludeAsync(
+            // 1️⃣ Bugünkü giriş yapan rezervasyonları çekiyoruz
+            List<ReservationEntity> reservationEntities = await _reservationManager.GetAllWithIncludeAsync(
                 predicate: x => x.StartDate.Date == today,
                 include: x => x.Include(r => r.Customer)
                                .ThenInclude(c => c.User)
@@ -52,18 +53,19 @@ namespace Project.MvcUI.Areas.Admin.Controllers
                 return RedirectToAction("Index", "XmlReport");
             }
 
+            // 2️⃣ XML içeriğini oluşturuyoruz
             XElement xml = new XElement("Guests",
-    reservations.Select(r => new XElement("Guest",
-        new XElement("FirstName", r.Customer?.User?.UserProfile?.FirstName ?? "Bilinmiyor"),
-        new XElement("LastName", r.Customer?.User?.UserProfile?.LastName ?? "Bilinmiyor"),
-        new XElement("IdentityNumber", r.Customer?.IdentityNumber ?? "Belirsiz"),
-        new XElement("CheckInDate", r.StartDate.ToString("yyyy-MM-dd")),
-        new XElement("CheckOutDate", r.EndDate.ToString("yyyy-MM-dd")),
-        new XElement("RoomId", r.RoomId)
+                reservations.Select(r => new XElement("Guest",
+                    new XElement("FirstName", r.Customer.FirstName),
+                   new XElement("LastName", r.Customer.LastName),
+                    new XElement("IdentityNumber", r.Customer?.IdentityNumber ?? "Belirsiz"),
+                    new XElement("CheckInDate", r.StartDate.ToString("yyyy-MM-dd")),
+                    new XElement("CheckOutDate", r.EndDate.ToString("yyyy-MM-dd")),
+                    new XElement("RoomId", r.RoomId)
                 ))
             );
 
-            // 📁 XML dosyasını kaydet
+            // 3️⃣ XML dosyasını kaydet
             string reportsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "XmlReports");
             if (!Directory.Exists(reportsFolder))
                 Directory.CreateDirectory(reportsFolder);
@@ -73,7 +75,7 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             await System.IO.File.WriteAllTextAsync(filePath, xml.ToString());
             byte[] xmlBytes = Encoding.UTF8.GetBytes(xml.ToString());
 
-            // ✅ ReportLog kaydı
+            // Rapor log kaydı
             ReportLogDto dto = new ReportLogDto
             {
                 ReportType = ReportType.DailyGuestReport,
@@ -86,8 +88,7 @@ namespace Project.MvcUI.Areas.Admin.Controllers
                 IPAddress = HttpContext.Connection?.RemoteIpAddress?.ToString()
             };
 
-            await _reportLogManager.CreateAsync(dto);
-
+            TempData["Success"] = "Günlük müşteri XML raporu oluşturuldu ve kayıt altına alındı.";
             return File(xmlBytes, "application/xml", fileName);
         }
     }

@@ -97,25 +97,13 @@ namespace Project.MvcUI.Areas.Reservation.Controllers
             {
                 // Müşteri oluştur
                 CustomerDto customerDto = _mapper.Map<CustomerDto>(model);
-                customerDto.UserId = null; // ❗ User kaydı yoksa FK hatasını engellemek için null veriyoruz
 
                 int customerId = await _customerManager.AddAsync(customerDto);
-
-                // Rezervasyon oluştur
-                ReservationDto reservation = new ReservationDto
-                {
-                    CustomerId = customerId,
-                    RoomId = model.RoomId,
-                    StartDate = model.CheckIn,
-                    EndDate = model.CheckOut,
-                    NumberOfGuests = model.GuestCount,
-                    Package = model.Package,
-                    TotalPrice = model.TotalPrice,
-                    DiscountRate = (decimal)model.DiscountRate,
-                    ReservationStatus = ReservationStatus.Confirmed,
-                    CreatedDate = DateTime.Now
-                };
-
+                ReservationDto reservation = _mapper.Map<ReservationDto>(model);
+                reservation.CustomerId = customerId;
+                reservation.ReservationStatus = ReservationStatus.Confirmed;
+                reservation.CreatedDate = DateTime.Now;
+                reservation.ReservationDate = DateTime.Now; 
                 await _reservationManager.AddAsync(reservation);
 
                 TempData["Success"] = "Rezervasyon başarıyla oluşturuldu.";
