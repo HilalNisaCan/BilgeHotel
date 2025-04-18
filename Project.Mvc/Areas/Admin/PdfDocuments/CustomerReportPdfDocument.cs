@@ -5,6 +5,7 @@ using Project.BLL.DtoClasses;
 
 namespace Project.MvcUI.Areas.Admin.PdfDocuments
 {
+
     public class CustomerReportPdfDocument : IDocument
     {
         private readonly List<CustomerReportDto> _reports;
@@ -14,87 +15,84 @@ namespace Project.MvcUI.Areas.Admin.PdfDocuments
             _reports = reports;
         }
 
-        public DocumentMetadata GetMetadata() => DocumentMetadata.Default;
+        public DocumentMetadata GetMetadata()
+        {
+            return new DocumentMetadata
+            {
+                Title = "Müşteri Raporları",
+                Author = "BilgeHotel",
+                Subject = "Müşteri Rezervasyon ve Harcama Bilgileri",
+                Keywords = "Müşteri,Rapor,BilgeHotel"
+            };
+        }
 
-        [Obsolete]
         public void Compose(IDocumentContainer container)
         {
             container.Page(page =>
             {
                 page.Margin(30);
-                page.Background(Colors.White);
+                page.Size(PageSizes.A4);
+                page.DefaultTextStyle(x => x.FontSize(12));
 
-                page.Header()
-                    .AlignCenter()
-                    .Text("Müşteri Raporları")
-                    .FontSize(18)
-                    .SemiBold()
-                    .FontColor(Colors.Blue.Medium);
+                page.Header().AlignCenter().Text("Müşteri Raporları")
+                    .SemiBold().FontSize(18).FontColor(Colors.Blue.Medium);
 
-                page.Content().PaddingVertical(10).Column(column =>
+                page.Content().Element(ComposeContent);
+
+                page.Footer().AlignCenter().Text(text =>
                 {
-                    column.Spacing(10);
-
-                    // Tablo başlığı
-                    column.Item().Table(table =>
-                    {
-                        table.ColumnsDefinition(columns =>
-                        {
-                            columns.ConstantColumn(30);   // #
-                            columns.RelativeColumn(2);    // Ad Soyad
-                            columns.RelativeColumn(2);    // TC
-                            columns.RelativeColumn(2);    // Telefon
-                            columns.ConstantColumn(40);   // Rez.
-                            columns.RelativeColumn(2);    // Harcama
-                            columns.ConstantColumn(40);   // Puan
-                            columns.ConstantColumn(40);   // Kamp.
-                            columns.RelativeColumn(2);    // Son Tarih
-                        });
-
-                        // Başlıklar
-                        string[] headers = { "#", "Ad Soyad", "TC", "Telefon", "Rez.", "Harcama", "Puan", "Kamp.", "Son Tarih" };
-                        foreach (var title in headers)
-                        {
-                            table.Cell().Element(CellStyle).Text(title).Bold();
-                        }
-
-                        int index = 1;
-                        foreach (var item in _reports)
-                        {
-                            table.Cell().Element(CellStyle).Text(index++.ToString());
-                            table.Cell().Element(CellStyle).Text(item.FullName);
-                            table.Cell().Element(CellStyle).Text(item.IdentityNumber);
-                            table.Cell().Element(CellStyle).Text(item.PhoneNumber);
-                            table.Cell().Element(CellStyle).Text(item.ReservationCount.ToString());
-                            table.Cell().Element(CellStyle).Text(item.TotalSpent.ToString("C2"));
-                            table.Cell().Element(CellStyle).Text(item.LoyaltyPoints.ToString());
-                            table.Cell().Element(CellStyle).Text(item.CampaignCount.ToString());
-                            table.Cell().Element(CellStyle).Text(item.LastReservationDate.HasValue
-                            ? item.LastReservationDate.Value.ToString("dd.MM.yyyy")
-                            : "Yok");
-                        }
-                    });
-                });
-
-                page.Footer().PaddingTop(15).Column(column =>
-                {
-                    column.Spacing(5);
-
-                    column.Item().Row(row =>
-                    {
-                        row.RelativeItem().Text("Hazırlayan: Hilal Nisa Canpolat").Italic().FontSize(10);
-                        row.RelativeItem().AlignRight().Text($"Tarih: {DateTime.Now:dd.MM.yyyy}").FontSize(10);
-                    });
-
-                    column.Item().AlignCenter().Text("Bu belge BilgeHotel Yönetim Paneli tarafından oluşturulmuştur.")
-                          .FontSize(9).Italic().FontColor(Colors.Grey.Darken2);
+                    text.CurrentPageNumber();
+                    text.Span(" / ");
+                    text.TotalPages();
                 });
             });
         }
 
-        private static IContainer CellStyle(IContainer container)
+        void ComposeContent(IContainer container)
         {
-            return container.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(5);
+            container.Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(2); // Ad Soyad
+                    columns.RelativeColumn(2); // TC
+                    columns.RelativeColumn(2); // Telefon
+                    columns.RelativeColumn(2); // Rezervasyon
+                    columns.RelativeColumn(2); // Harcama
+                    columns.RelativeColumn(2); // Sadakat
+                    columns.RelativeColumn(2); // Kampanya
+                    columns.RelativeColumn(2); // Son Konaklama
+                });
+
+                table.Header(header =>
+                {
+                    header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("Ad Soyad").Bold();
+                    header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("TC Kimlik").Bold();
+                    header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("Telefon").Bold();
+                    header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("Rezervasyon").Bold();
+                    header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("Harcama").Bold();
+                    header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("Sadakat").Bold();
+                    header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("Kampanya").Bold();
+                    header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("Son Konaklama").Bold();
+                });
+
+                foreach (var report in _reports)
+                {
+                    table.Cell().Padding(5).Text(report.FullName);
+                    table.Cell().Padding(5).Text(report.IdentityNumber);
+                    table.Cell().Padding(5).Text(report.PhoneNumber);
+                    table.Cell().Padding(5).Text(report.TotalReservationCount.ToString());
+                    table.Cell().Padding(5).Text(report.TotalSpent.ToString("C"));
+                    table.Cell().Padding(5).Text(report.LoyaltyPoints.ToString());
+                    table.Cell().Padding(5).Text(report.CampaignUsageCount.ToString());
+                    table.Cell().Padding(5).Text(report.LastReservationDate?.ToString("dd.MM.yyyy") ?? "-");
+                }
+            });
+        }
+
+        public byte[] GeneratePdf()
+        {
+            return QuestPDF.Fluent.Document.Create(Compose).GeneratePdf();
         }
     }
 }

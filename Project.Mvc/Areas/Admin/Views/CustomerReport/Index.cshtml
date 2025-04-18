@@ -16,7 +16,7 @@
 
     <!-- Dashboard -->
     <div class="row mb-4 text-white">
-        <div class="col-md-3 mb-3">
+        <div class="col-md-4 mb-3">
             <div class="card shadow" style="background: linear-gradient(135deg, #4e54c8, #8f94fb);">
                 <div class="card-body text-center">
                     <h6 class="card-title">Toplam Müşteri</h6>
@@ -24,7 +24,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
+        <div class="col-md-4 mb-3">
             <div class="card shadow" style="background: linear-gradient(135deg, #00b09b, #96c93d);">
                 <div class="card-body text-center">
                     <h6 class="card-title">Toplam Harcama</h6>
@@ -32,15 +32,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
-            <div class="card shadow" style="background: linear-gradient(135deg, #f7971e, #ffd200);">
-                <div class="card-body text-center">
-                    <h6 class="card-title">Ort. Harcama</h6>
-                    <h3>@ortalamaHarcama.ToString("C2")</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
+        <div class="col-md-4 mb-3">
             <div class="card shadow" style="background: linear-gradient(135deg, #1e3c72, #2a5298);">
                 <div class="card-body text-center">
                     <h6 class="card-title">Ort. Sadakat</h6>
@@ -60,53 +52,33 @@
         </a>
     </div>
 
-    <!-- Tablo -->
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped align-middle shadow-sm">
-            <thead class="table-dark text-center">
+    <table class="table table-bordered table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Ad Soyad</th>
+                <th>TC Kimlik</th>
+                <th>Telefon</th>
+                <th>Rezervasyon</th>
+                <th>Toplam Harcama</th>
+                <th>Sadakat</th>
+                <th>Kampanya</th>
+                <th>Son Konaklama</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
                 <tr>
-                    <th>#</th>
-                    <th>Ad Soyad</th>
-                    <th>TC Kimlik</th>
-                    <th>Telefon</th>
-                    <th>Rezervasyon</th>
-                    <th>Harcama</th>
-                    <th>Puan</th>
-                    <th>Kampanya</th>
-                    <th>Son Rezervasyon</th>
-                    <th>Detay</th>
+                    <td>@item.FullName</td>
+                    <td>@item.IdentityNumber</td>
+                    <td>@item.PhoneNumber</td>
+                    <td>@item.TotalReservationCount</td>
+                    <td>@item.TotalSpent.ToString("C")</td>
+                    <td>@item.LoyaltyPoints</td>
+                    <td>@item.CampaignUsageCount</td>
+                    <td>@item.LastReservationDate?.ToString("dd.MM.yyyy")</td>
                 </tr>
-            </thead>
-            <tbody>
-                @if (Model != null && Model.Any())
-                {
-                    int count = 1;
-                    foreach (var item in Model)
-                    {
-                        <tr>
-                            <td class="text-center">@count</td>
-                            <td>@item.FullName</td>
-                            <td>@item.IdentityNumber</td>
-                            <td>@item.PhoneNumber</td>
-                            <td class="text-center">@item.TotalReservationCount</td>
-                            <td>@item.TotalSpent.ToString("C2")</td>
-                            <td><span class="badge bg-primary">@item.LoyaltyPoints</span></td>
-                            <td><span class="badge bg-warning text-dark">@item.CampaignUsageCount</span></td>
-                            <td>@item.LastReservationDate?.ToString("dd.MM.yyyy") ?? "Yok"</td>
-                            <td class="text-center">
-                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Detay</a>
-                            </td>
-                        </tr>
-                        count++;
-                    }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="10" class="text-center">Hiç müşteri raporu bulunamadı.</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+            }
+        </tbody>
+    </table>
 </div>

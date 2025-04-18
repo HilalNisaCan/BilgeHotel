@@ -100,5 +100,11 @@ namespace Project.BLL.Managers.Concretes
             var logs = await _visitLogRepository.GetAllAsync(v => v.CustomerId == customerId);
             return _mapper.Map<List<GuestVisitLogDto>>(logs.OrderByDescending(v => v.EntryDate).ToList());
         }
+
+        public async Task AddAsync(GuestVisitLogDto dto)
+        {
+            GuestVisitLog entity = _mapper.Map<GuestVisitLog>(dto);
+            await _visitLogRepository.AddAsync(entity);
+        }
     }
 }

@@ -49,7 +49,7 @@ namespace Project.BLL.Managers.Abstracts
         /// <returns>Müşteri bazlı rapor listesi</returns>
         Task<List<CustomerReportDto>> GetAllCustomerReportsAsync();
 
-        Task<CustomerReportDto?> GetCustomerReportByIdAsync(int id);
+        //Task<CustomerReportDto?> GetCustomerReportByIdAsync(int id);
 
         Task<int> AddAsync(CustomerDto dto);
     }

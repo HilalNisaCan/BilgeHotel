@@ -122,54 +122,42 @@ namespace Project.BLL.Managers.Concretes
             return customer != null ? _mapper.Map<CustomerDto>(customer) : null;
         }
 
-        public async Task<List<CustomerReportDto>> GetAllCustomerReportsAsync()
-        {
-            // Tüm müşterileri rezervasyon ve ödeme geçmişiyle birlikte çekiyoruz
-            List<Customer> customers = (List<Customer>)await _customerRepository.GetAllWithIncludeAsync(
-                predicate: x => true,
-                include: query => query
-                    .Include(c => c.Reservations)
-                    .Include(c => c.Payments)
-            );
-
-            // DTO listesi oluşturuluyor
-            List<CustomerReportDto> reportList = customers.Select(customer => new CustomerReportDto
-            {
-                Id = customer.Id,
-                FullName = customer.FirstName + " " + customer.LastName,
-                IdentityNumber = customer.IdentityNumber,
-                PhoneNumber = customer.PhoneNumber,
-                LoyaltyPoints = customer.LoyaltyPoints,
-
-                // Toplam rezervasyon sayısı
-                TotalReservationCount = customer.Reservations?.Count ?? 0,
-
-                // En son rezervasyonun bitiş tarihi (yoksa null)
-                LastReservationDate = customer.Reservations?
-               .OrderByDescending(r => r.EndDate)
-              .FirstOrDefault()?.EndDate ?? DateTime.MinValue,
-
-                // Toplam harcama tutarı
-                TotalSpent = customer.Payments?.Sum(p => p.TotalAmount) ?? 0,
-
-                // Kampanyalı rezervasyon sayısı
-                CampaignUsageCount = customer.Reservations?
-                    .Count(r => r.CampaignId != null) ?? 0
-            }).ToList();
-
-            return reportList;
-        }
-
-        public async Task<CustomerReportDto?> GetCustomerReportByIdAsync(int id)
-        {
-            var all = await GetAllCustomerReportsAsync();
-            return all.FirstOrDefault(x => x.Id == id);
-        }
+       
+       
 
         public async Task<int> AddAsync(CustomerDto dto)
         {
             Customer entity = _mapper.Map<Customer>(dto);
             return await _customerRepository.AddAndReturnIdAsync(entity);
         }
+
+        public async Task<List<CustomerReportDto>> GetAllCustomerReportsAsync()
+        {
+            var customers = await _customerRepository.GetAllWithIncludeAsync(null, q =>
+        q.Include(x => x.Reservations)
+         .Include(x => x.Payments));
+
+            return customers.Select(c => new CustomerReportDto
+            {
+                Id = c.Id,
+                FullName = $"{c.FirstName} {c.LastName}",
+                IdentityNumber = c.IdentityNumber,
+                PhoneNumber = c.PhoneNumber,
+                LoyaltyPoints = c.LoyaltyPoints,
+
+                TotalReservationCount = c.Reservations?.Count ?? 0,
+                LastReservationDate = c.Reservations?
+                    .OrderByDescending(r => r.EndDate)
+                    .FirstOrDefault()?.EndDate,
+                TotalSpent = c.Payments?.Sum(p => p.TotalAmount) ?? 0,
+                CampaignUsageCount = c.Reservations?.Count(r => r.CampaignId != null) ?? 0,
+
+                ReservationCount = c.Reservations?.Count ?? 0,
+                CampaignCount = c.Reservations?.Count(r => r.CampaignId != null) ?? 0
+            }).ToList();
+
+          
+        }
+
     }
 }

@@ -11,26 +11,33 @@ namespace Project.BLL.DtoClasses
     public class GuestVisitLogDto:BaseDto
     {
         [Required]
-        public int CustomerId { get; set; } // Misafir eden müşterinin ID'si
+        public int CustomerId { get; set; }
 
         [Required]
-        public int RoomId { get; set; } // Ziyaretin yapıldığı oda ID'si
+        public int RoomId { get; set; }
 
         [Required, StringLength(100)]
-        public string FirstName { get; set; } = null!;// Gelen misafirin adı 
+        public string FirstName { get; set; }
 
         [Required, StringLength(100)]
-        public string LastName { get; set; } = null!; //Gelen misafirin  soyadı
+        public string LastName { get; set; }
 
-        public string PhoneNumber { get; set; } = null!;
+        [Required, StringLength(11)]
+        public string IdentityNumber { get; set; }
 
-        [Required, StringLength(11, MinimumLength = 11)]
-        public string IdentityNumber { get; set; } = null!; // TC Kimlik Numarası
+        public string PhoneNumber { get; set; }
 
-        public DateTime? EntryDate { get; set; } // Giriş tarihi
+        public DateTime? EntryDate { get; set; }
 
-        public DateTime? ExitDate { get; set; } // Çıkış tarihi (nullable)
-        
+        public DateTime? ExitDate { get; set; }
+        public DateTime LastReservationDate { get; set; }
+
+        // Yeni ekleyebileceğin alanlar (opsiyonel, önerilen):
+        public int TotalReservationCount { get; set; }
+        public decimal TotalSpent { get; set; }
+        public int LoyaltyPoints { get; set; }
+        public int CampaignUsageCount { get; set; }
+
 
     }
 }

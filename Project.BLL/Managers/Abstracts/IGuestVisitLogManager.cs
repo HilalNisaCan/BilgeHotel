@@ -27,5 +27,11 @@ namespace Project.BLL.Managers.Abstracts
         /// Müşterinin tüm giriş-çıkış geçmişini listeler.
         /// </summary>
         Task<List<GuestVisitLogDto>> GetGuestVisitHistoryAsync(int customerId);
+
+
+
+
+
+        Task AddAsync(GuestVisitLogDto dto);
     }
 }

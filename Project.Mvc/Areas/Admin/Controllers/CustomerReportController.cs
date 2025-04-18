@@ -10,6 +10,7 @@ using QuestPDF.Infrastructure;
 using QuestPDF.Drawing;
 using QuestPDF.Previewer;
 using Project.MvcUI.Areas.Admin.PdfDocuments;
+using Project.BLL.Managers.Concretes;
 
 namespace Project.MvcUI.Areas.Admin.Controllers
 {
@@ -24,25 +25,22 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             _customerManager = customerManager;
         }
 
-        /// <summary>
-        /// Tüm müşterilerin rezervasyon, harcama ve sadakat özetini listeler.
-        /// </summary>
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
             List<CustomerReportDto> reportList = await _customerManager.GetAllCustomerReportsAsync();
             return View(reportList);
         }
+
         [HttpGet("ExportToExcel")]
         public async Task<IActionResult> ExportToExcel()
         {
-            var reports = await _customerManager.GetAllCustomerReportsAsync();
+            List<CustomerReportDto> reports = await _customerManager.GetAllCustomerReportsAsync();
 
             using (var workbook = new XLWorkbook())
             {
                 var worksheet = workbook.Worksheets.Add("Müşteri Raporları");
 
-                // Başlıklar
                 worksheet.Cell(1, 1).Value = "Ad Soyad";
                 worksheet.Cell(1, 2).Value = "TC Kimlik";
                 worksheet.Cell(1, 3).Value = "Telefon";
@@ -69,13 +67,16 @@ namespace Project.MvcUI.Areas.Admin.Controllers
                 using var stream = new MemoryStream();
                 workbook.SaveAs(stream);
                 var content = stream.ToArray();
+
                 return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "MusteriRaporlari.xlsx");
             }
         }
+
         [HttpGet("ExportToPdf")]
         public async Task<IActionResult> ExportToPdf()
         {
-            var reports = await _customerManager.GetAllCustomerReportsAsync();
+            List<CustomerReportDto> reports = await _customerManager.GetAllCustomerReportsAsync();
+
             var document = new CustomerReportPdfDocument(reports);
             byte[] pdfBytes = document.GeneratePdf();
 
@@ -85,13 +86,13 @@ namespace Project.MvcUI.Areas.Admin.Controllers
         [HttpGet("Details/{id}")]
         public async Task<IActionResult> Details(int id)
         {
-            CustomerReportDto report = await _customerManager.GetCustomerReportByIdAsync(id); // Eğer yoksa senin metodu uyarlayalım
+            var report = (await _customerManager.GetAllCustomerReportsAsync()).FirstOrDefault(x => x.Id == id);
             if (report == null)
-            {
                 return NotFound();
-            }
 
             return View(report);
         }
     }
+
+
 }
