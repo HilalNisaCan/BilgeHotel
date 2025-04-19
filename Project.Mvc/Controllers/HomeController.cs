@@ -40,12 +40,13 @@ namespace Project.MvcUI.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Contact(string fullName, string email, string message)
+        public async Task<IActionResult> Contact(string fullName, string email, string Subject , string message)
         {
             ComplaintLogDto dto = new ComplaintLogDto
             {
                 FullName = fullName,
                 Email = email,
+                Subject=Subject,
                 Description = message,
                 SubmittedDate = DateTime.Now,
                 Status = ComplaintStatus.Pending,

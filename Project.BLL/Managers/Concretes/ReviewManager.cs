@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Project.BLL.DtoClasses;
+using Project.BLL.Helpers;
 using Project.BLL.Managers.Abstracts;
 using Project.Dal.Repositories.Abstracts;
 using Project.Entities.Enums;
@@ -79,12 +80,31 @@ namespace Project.BLL.Managers.Concretes
             return result.ToList();
         }
 
+        public async Task<double> GetAnonymousRateAsync()
+        {
+            List<Review> allReviews = (await _reviewRepository.GetAllAsync()).ToList();
+            return ReviewStatisticsHelper.GetAnonymousRate(allReviews);
+        }
+
+        public async Task<double> GetAverageRatingAsync(RoomType? roomType = null)
+        {
+            List<Review> allReviews = (await _reviewRepository.GetAllAsync()).ToList();
+            return ReviewStatisticsHelper.GetAverageRating(allReviews, roomType);
+        }
+
+
         public async Task<double> GetAverageRatingByRoomTypeAsync(RoomType roomType)
         {
             List<Review> reviews = (await _reviewRepository.GetAllAsync(r => r.RoomType == roomType && r.IsApproved)).ToList();
             if (!reviews.Any()) return 0;
 
             return Math.Round(reviews.Average(r => r.Rating), 1);
+        }
+
+        public async Task<int> GetPendingReviewCountAsync()
+        {
+            List<Review> allReviews = (await _reviewRepository.GetAllAsync()).ToList();
+            return ReviewStatisticsHelper.GetPendingReviews(allReviews).Count;
         }
 
         public async Task<List<ReviewDto>> GetPendingReviewsAsync()

@@ -29,6 +29,15 @@ namespace Project.BLL.Managers.Abstracts
         Task<List<Review>> GetAllWithIncludeAsync(Expression<Func<Review, bool>> predicate, Func<IQueryable<Review>, IQueryable<Review>> include);
 
         Task<double> GetAverageRatingByRoomTypeAsync(RoomType roomType);
+
         Task<List<ReviewDto>> GetReviewsByRoomTypeAsync(RoomType roomType);
+
+        Task<double> GetAverageRatingAsync(RoomType? roomType = null);
+
+        Task<int> GetPendingReviewCountAsync();
+
+        Task<double> GetAnonymousRateAsync();
+
+
     }
 }

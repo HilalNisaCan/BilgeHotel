@@ -45,19 +45,35 @@ namespace Project.BLL.Mapping
 
 
             CreateMap<Campaign, CampaignDto>().ReverseMap();
-            CreateMap<ComplaintLog, ComplaintLogDto>().ReverseMap();
+
+
+            CreateMap<ComplaintLog, ComplaintLogDto>()
+     .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.ComplaintStatus))
+     .ReverseMap()
+     .ForMember(dest => dest.ComplaintStatus, opt => opt.MapFrom(src => src.Status));
+
             CreateMap<Customer, CustomerDto>()
       .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
+      .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
       .ReverseMap();
+
+
             CreateMap<EarlyReservationDiscount, EarlyReservationDiscountDto>().ReverseMap();
+
             CreateMap<EmployeeShift, EmployeeShiftDto>()
      .ForMember(dest => dest.AssignedEmployees, opt => opt.MapFrom(src => src.ShiftAssignments)) // 🟢 Burası çok kritik
      .ReverseMap();
+
             CreateMap<ExchangeRate, ExchangeRateDto>().ReverseMap();
+
             CreateMap<GuestVisitLog, GuestVisitLogDto>().ReverseMap();
+
             CreateMap<OrderDetail, OrderDetailDto>().ReverseMap();
+
             CreateMap<Order, OrderDto>().ReverseMap();
+
             CreateMap<Product, ProductDto>().ReverseMap();
+
             CreateMap<ReportLog, ReportLogDto>()
           .ForMember(dest => dest.ReportDate, opt => opt.MapFrom(src => src.ReportDate))
           .ForMember(dest => dest.ReportType, opt => opt.MapFrom(src => src.ReportType))
@@ -73,8 +89,11 @@ namespace Project.BLL.Mapping
           .ReverseMap();
 
             CreateMap<Review, ReviewDto>()
-      .ForMember(dest => dest.UserFirstName, opt => opt.MapFrom(src => src.User.UserProfile.FirstName))
-      .ForMember(dest => dest.UserLastName, opt => opt.MapFrom(src => src.User.UserProfile.LastName));
+                .ForMember(dest => dest.UserFirstName, opt => opt.MapFrom(src => src.User.UserProfile.FirstName))
+                .ForMember(dest => dest.UserLastName, opt => opt.MapFrom(src => src.User.UserProfile.LastName))
+                .ReverseMap()
+                .ForMember(dest => dest.User, opt => opt.Ignore()); // 🛡️ navigation'ı ignore et
+        
 
             CreateMap<RoomMaintenanceAssignment, RoomMaintenanceAssignmentDto>()
                 .ForMember(dest => dest.AssignedEmployeeFullName,
@@ -135,7 +154,9 @@ namespace Project.BLL.Mapping
 
 
             CreateMap<UserProfile, UserProfileDto>().ReverseMap();
+
             CreateMap<RoomTypePriceDto, RoomTypePrice>().ReverseMap();
+
             CreateMap<Campaign, CampaignDto>()
            .ForMember(dest => dest.ProductImagePath, opt => opt.MapFrom(src => src.ProductImagePath ?? ""));
 

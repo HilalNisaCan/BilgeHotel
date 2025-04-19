@@ -88,7 +88,7 @@
                         </div>
 
                         <div class="card-footer bg-white border-0 d-flex justify-content-between">
-                            <a asp-controller="Room" asp-action="Details" asp-route-id="@room.Id" class="btn btn-outline-primary btn-sm">Detaylar</a>
+                            <a asp-controller="Room" asp-action="Details" asp-route-roomType="@room.RoomType" class="btn btn-outline-primary btn-sm">Detaylar</a>
                             <a class="btn btn-primary" asp-controller="Reservation" asp-action="CreateByRoomType" asp-route-roomType="@room.RoomType">Rezervasyon </a>
 
                         </div>

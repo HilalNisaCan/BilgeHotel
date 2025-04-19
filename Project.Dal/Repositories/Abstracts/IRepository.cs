@@ -35,6 +35,7 @@ namespace Project.Dal.Repositories.Abstracts
         Task CreateAsync(T entity);
         Task RemoveAsync(T entity);
         Task UpdateAsync(T entity);
-        
+        Task<bool> DeleteAsync(int id);
+
     }
 }

@@ -15,7 +15,9 @@ namespace Project.Conf.Options
         {
             builder.HasKey(c => c.Id); // 🔑 Primary Key
 
-         
+            builder.Property(c => c.Subject)
+          .IsRequired()
+          .HasMaxLength(500);
 
             builder.Property(c => c.Description)
                    .HasMaxLength(500); // Şikayet açıklaması

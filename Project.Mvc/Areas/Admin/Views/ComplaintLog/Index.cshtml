@@ -1,5 +1,6 @@
 ﻿@model List<ComplaintLogResponseModel>
 
+
 @{
     ViewData["Title"] = "Şikayet Kayıtları";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
@@ -35,23 +36,18 @@ else
                 <tr>
                     <td>@item.FullName</td>
                     <td>@item.Email</td>
+                    <td>@item.Subject</td>
                     <td>@item.SubmittedDate.ToShortDateString()</td>
                     <td>
-                        @switch (item.Status)
-                        {
-                            case ComplaintStatus.Pending:
-                                <span class="badge bg-warning text-dark">Bekliyor</span>
-                                break;
-                            case ComplaintStatus.InProgress:
-                                <span class="badge bg-info text-dark">İnceleniyor</span>
-                                break;
-                            case ComplaintStatus.Responded:
-                                <span class="badge bg-success">Cevaplandı</span>
-                                break;
-                            case ComplaintStatus.Rejected:
-                                <span class="badge bg-danger">Reddedildi</span>
-                                break;
-                        }
+                        <span class="badge
+                    @(item.Status == ComplaintStatus.Pending ? "bg-warning text-dark" :
+                      item.Status == ComplaintStatus.InProgress ? "bg-info text-dark" :
+                      item.Status == ComplaintStatus.Responded ? "bg-success" :
+                      item.Status == ComplaintStatus.Resolved ? "bg-primary" :
+                      item.Status == ComplaintStatus.Rejected ? "bg-danger" : "bg-secondary")">
+                            @item.Status.ToString()
+                        </span>
+                            item.Status == ComplaintStatus.Rejected ? "Reddedildi" : "Bilinmiyor")
                     </td>
                     <td>
                         @(item.IsResolved ? "✔️" : "❌")
@@ -60,9 +56,15 @@ else
                         <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary me-1">
                             <i class="bi bi-eye"></i> Detay
                         </a>
-                        <a asp-action="Reply" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">
+                        <a asp-action="Reply" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info me-1">
                             <i class="bi bi-reply-fill"></i> Yanıtla
                         </a>
+                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Bu şikayeti silmek istediğinize emin misiniz?')">
+                                <i class="bi bi-trash-fill"></i> Sil
+                            </button>
+                        </form>
                     </td>
                 </tr>
             }

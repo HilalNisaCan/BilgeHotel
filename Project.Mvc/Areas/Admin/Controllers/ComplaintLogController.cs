@@ -23,7 +23,9 @@ namespace Project.MvcUI.Areas.Admin.Controllers
         // 📄 Şikayetleri listele
         public async Task<IActionResult> Index()
         {
+
             List<ComplaintLogDto> dtoList = await _complaintLogManager.GetAllAsync();
+
             List<ComplaintLogResponseModel> modelList = _mapper.Map<List<ComplaintLogResponseModel>>(dtoList);
             return View(modelList);
         }
@@ -65,6 +67,13 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             if (!result)
                 return NotFound();
 
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            bool result = await _complaintLogManager.DeleteComplaintAsync(id);
+            TempData["Message"] = result ? "Şikayet başarıyla silindi." : "Şikayet silinemedi.";
             return RedirectToAction("Index");
         }
     }

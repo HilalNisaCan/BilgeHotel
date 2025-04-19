@@ -113,16 +113,11 @@ namespace Project.MvcUI.VmMapping
 
 
             CreateMap<CreateReservationRequestModel, KimlikBilgisiDto>();
-           
-            //CreateMap<RoomDto, RoomResponseModel>()
-            //    .ForMember(dest => dest.ImagePath, opt =>
-            //        opt.MapFrom(src => src.RoomImages.FirstOrDefault(x => x.IsMain).ImagePath))
 
-            //    .ForMember(dest => dest.ImageGallery, opt =>
-            //        opt.MapFrom(src => src.RoomImages.Select(x => x.ImagePath).ToList()));
-
-
-
+            CreateMap<ComplaintLogDto, ComplaintLogResponseModel>()
+      .ForMember(dest => dest.Subject, opt => opt.MapFrom(src => src.Subject)) // ✅ Bu önemli!
+      .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status)) // ✅ Enum eşleşmesi
+      .ReverseMap();
 
 
             CreateMap<RoomImage, RoomImageDto>().ReverseMap();

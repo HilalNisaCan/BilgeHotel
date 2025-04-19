@@ -73,6 +73,33 @@
     </div>
 </div>
 
+<div class="row g-4 mt-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-warning shadow rounded-4">
+            <div class="card-body text-center">
+                <h5 class="card-title">Ortalama Puan</h5>
+                <p class="fs-3 fw-bold">⭐ @ViewBag.AverageRating.ToString("0.00") / 5</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-danger shadow rounded-4">
+            <div class="card-body text-center">
+                <h5 class="card-title">Onay Bekleyen Yorum</h5>
+                <p class="fs-3 fw-bold">❗ @ViewBag.PendingReviewCount</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-dark shadow rounded-4">
+            <div class="card-body text-center">
+                <h5 class="card-title">Anonim Oranı</h5>
+                <p class="fs-3 fw-bold">👤 @ViewBag.AnonymousRate.ToString("0.0")%</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>

@@ -61,6 +61,17 @@ namespace Project.Dal.Repositories.Concretes
             await _context.SaveChangesAsync();
         }
 
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var entity = await _dbSet.FindAsync(id);
+            if (entity == null)
+                return false;
+
+            _dbSet.Remove(entity);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> exp)
         {
             return await _dbSet.FirstOrDefaultAsync(exp);

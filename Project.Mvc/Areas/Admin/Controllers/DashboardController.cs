@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.BLL.Managers.Abstracts;
+using Project.BLL.Managers.Concretes;
 
 namespace Project.MvcUI.Areas.Admin.Controllers
 {
@@ -12,17 +13,20 @@ namespace Project.MvcUI.Areas.Admin.Controllers
         private readonly IRoomManager _roomManager;
         private readonly IEmployeeManager _employeeManager;
         private readonly IReservationManager _reservationManager;
+        private readonly IReviewManager _reviewManager;
 
         public DashboardController(
             ICustomerManager customerManager,
             IRoomManager roomManager,
             IEmployeeManager employeeManager,
-            IReservationManager reservationManager)
+            IReservationManager reservationManager,
+            IReviewManager reviewManager)
         {
             _customerManager = customerManager;
             _roomManager = roomManager;
             _employeeManager = employeeManager;
             _reservationManager = reservationManager;
+            _reviewManager = reviewManager;
         }
 
         public async Task<IActionResult> Index()
@@ -30,6 +34,10 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             ViewBag.TotalCustomers = (await _customerManager.GetAllAsync()).Count;
             ViewBag.TotalRooms = (await _roomManager.GetAllAsync()).Count;
             ViewBag.TotalEmployees = (await _employeeManager.GetAllAsync()).Count;
+
+            ViewBag.AverageRating = await _reviewManager.GetAverageRatingAsync();
+            ViewBag.PendingReviewCount = await _reviewManager.GetPendingReviewCountAsync();
+            ViewBag.AnonymousRate = await _reviewManager.GetAnonymousRateAsync();
 
             // ✅ Bugünkü rezervasyon sayısı için predicate filtreli çekiyoruz
             var today = DateTime.Today;

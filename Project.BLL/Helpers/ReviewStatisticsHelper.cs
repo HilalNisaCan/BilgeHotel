@@ -9,55 +9,38 @@ using System.Threading.Tasks;
 
 namespace Project.BLL.Helpers
 {
-    /// <summary>
-    /// ReviewStatisticsHelper sınıfı, müşteri yorumlarıyla ilgili istatistiksel analizleri sağlar.
-    /// Yorumların değerlendirilmesi, filtrelenmesi ve istatistiksel özetlerinin çıkarılması için yardımcı olur.
-    /// </summary>
     public static class ReviewStatisticsHelper
     {
         /// <summary>
-        /// Belirli bir odaya ya da tüm otel geneline ait ortalama puanı hesaplar.
+        /// Ortalama puanı hesaplar. Tüm yorumlar veya belirli bir oda tipine göre filtrelenmiş yorumlar alınabilir.
         /// </summary>
-        /// <param name="context">Veritabanı bağlamı</param>
-        /// <param name="roomId">İsteğe bağlı olarak belirli bir oda ID’si girilebilir</param>
-        /// <returns>1 ile 5 arasında ortalama puan değeri</returns>
-        public static double GetAverageRating(MyContext context, RoomType? roomType = null)
+        public static double GetAverageRating(List<Review> reviews, RoomType? roomType = null)
         {
-            IQueryable<Review> query = context.Reviews.AsQueryable();
-
             if (roomType.HasValue)
-                query = query.Where(r => r.RoomType == roomType.Value);
+                reviews = reviews.Where(r => r.RoomType == roomType.Value).ToList();
 
-            return query.Any() ? query.Average(r => r.Rating) : 0;
+            return reviews.Any() ? reviews.Average(r => r.Rating) : 0;
         }
 
         /// <summary>
-        /// Onay bekleyen (IsApproved == false) tüm yorumları getirir.
-        /// Yorum denetleme ve yönetici kontrol ekranlarında kullanılır.
+        /// Onay bekleyen yorumları döner.
         /// </summary>
-        /// <param name="context">Veritabanı bağlamı</param>
-        /// <returns>Onay bekleyen yorum listesi</returns>
-        public static List<Review> GetPendingReviews(MyContext context)
+        public static List<Review> GetPendingReviews(List<Review> reviews)
         {
-            return context.Reviews.Where(r => !r.IsApproved).ToList();
+            return reviews.Where(r => !r.IsApproved).ToList();
         }
 
         /// <summary>
-        /// Sistem genelinde yapılan yorumlar içerisinde anonim olanların yüzdesini döner.
-        /// Kullanıcı davranışlarını analiz etmek için faydalıdır.
+        /// Anonim yorumların yüzdesini hesaplar.
         /// </summary>
-        /// <param name="context">Veritabanı bağlamı</param>
-        /// <returns>Anonim yorumların yüzdesi (0–100 arası)</returns>
-        public static double GetAnonymousRate(MyContext context)
+        public static double GetAnonymousRate(List<Review> reviews)
         {
-            var total = context.Reviews.Count();
-            if (total == 0) return 0;
+            if (!reviews.Any()) return 0;
 
-            var anonymous = context.Reviews.Count(r => r.IsAnonymous);
-            return (double)anonymous / total * 100;
+            int anonymousCount = reviews.Count(r => r.IsAnonymous);
+            return (double)anonymousCount / reviews.Count * 100;
         }
     }
-
 
 
     /*💡 Neden BLL?
@@ -85,6 +68,6 @@ Tamamen iş mantığına destek oluyor → BLL (Business Logic Layer)
 
 
     //"Veri hesaplıyor, analiz yapıyor, veritabanına erişiyorsa → BLL/Helpers
-   // Görsel iş, metin biçimlendirme yapıyorsa → MVC/Helpers"
+    // Görsel iş, metin biçimlendirme yapıyorsa → MVC/Helpers"
 
 }
