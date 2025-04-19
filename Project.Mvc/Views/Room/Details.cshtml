@@ -62,18 +62,13 @@
             <!-- İndirim -->
             @{
                 var now = DateTime.Now;
-                var reservationDate = now.AddMonths(-1).AddDays(-1); // test için
+                var reservationDate = now.AddMonths(-1).AddDays(-1);
                 string indirim = "";
-
-                if (reservationDate <= now.AddMonths(-3))
-                {
-                    indirim = "%23 Erken Rezervasyon İndirimi!";
-                }
+                if (reservationDate <= now.AddMonths(-3)) { indirim = "%23 Erken Rezervasyon İndirimi!"; }
                 else if (reservationDate <= now.AddMonths(-1))
                 {
                     indirim = (Model.RoomType == RoomType.KingSuite || Model.RoomType == RoomType.Quad)
-                    ? "%18 Erken Rezervasyon İndirimi!"
-                    : "%16 Erken Rezervasyon İndirimi!";
+                    ? "%18 Erken Rezervasyon İndirimi!" : "%16 Erken Rezervasyon İndirimi!";
                 }
             }
             @if (!string.IsNullOrEmpty(indirim))
@@ -82,7 +77,6 @@
             }
 
             <a class="btn btn-primary" asp-controller="Reservation" asp-action="CreateByRoomType" asp-route-roomType="@Model.RoomType"> Rezervasyon</a>
-            
         </div>
     </div>
 
@@ -92,9 +86,9 @@
         <div class="col-12">
             <h4 class="fw-bold mb-4">Kullanıcı Yorumları</h4>
 
-            @if (Model.Reviews != null && Model.Reviews.Any())
+            @if (Model.reviewDisplays != null && Model.reviewDisplays.Any())
             {
-                foreach (var review in Model.Reviews)
+                foreach (var review in Model.reviewDisplays)
                 {
                     <div class="border rounded p-3 mb-3 bg-light shadow-sm">
                         <div class="d-flex justify-content-between align-items-center">
@@ -108,10 +102,48 @@
             }
             else
             {
-                <div class="alert alert-info">Yorumlar geçici olarak kapandı en yakın zamanda görüşmek üzere.</div>
+                <div class="alert alert-info">Bu oda için henüz yorum yapılmamış.</div>
             }
         </div>
     </div>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <hr />
+        <div class="col-md-8 offset-md-2 mt-4">
+            <h5 class="mb-3 fw-bold">Bu oda hakkında yorum yapın</h5>
+
+            <form asp-action="AddReview" asp-controller="Room" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="RoomType" value="@Model.RoomType" />
+                <input type="hidden" name="UserId" value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value" />
+
+                <!-- Puan ve Yorum -->
+                <div class="mb-3">
+                    <label class="form-label">Puan</label>
+                    <select name="Rating" class="form-select" required>
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <option value="@i">@i</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Yorumunuz</label>
+                    <textarea name="Comment" class="form-control" rows="4" required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Yorumu Gönder</button>
+            </form>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning mt-4">
+            Yorum yapabilmek için <a href="/Account/Login">giriş yapın</a>.
+        </div>
+    }
 </section>
 
 @section Styles {

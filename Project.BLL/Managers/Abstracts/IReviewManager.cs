@@ -1,4 +1,5 @@
 ﻿using Project.BLL.DtoClasses;
+using Project.Entities.Enums;
 using Project.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -19,33 +20,15 @@ namespace Project.BLL.Managers.Abstracts
         /// </summary>
         Task<bool> AddReviewAsync(ReviewDto dto);
 
-        /// <summary>
-        /// Yorumu sistemden siler.
-        /// </summary>
-        Task<bool> DeleteReviewAsync(int id);
+        Task<List<ReviewDto>> GetPendingReviewsAsync();
 
-        /// <summary>
-        /// Yorumu günceller.
-        /// </summary>
-        Task<bool> UpdateReviewAsync(ReviewDto dto);
+        Task<bool> ApproveReviewAsync(int id);
 
-        /// <summary>
-        /// Belirli bir odaya ait tüm yorumları getirir.
-        /// </summary>
-        Task<List<ReviewDto>> GetReviewsByRoomAsync(int roomId);
-
-        /// <summary>
-        /// Belirli bir rezervasyona ait yorumu getirir.
-        /// </summary>
-        Task<ReviewDto> GetReviewByReservationAsync(int reservationId);
-
-        /// <summary>
-        /// Belirli bir oda için ortalama puanı hesaplar.
-        /// </summary>
-        Task<double> GetAverageRatingAsync(int roomId);
+        Task<bool> DeleteAsync(int id);
 
         Task<List<Review>> GetAllWithIncludeAsync(Expression<Func<Review, bool>> predicate, Func<IQueryable<Review>, IQueryable<Review>> include);
 
-        
+        Task<double> GetAverageRatingByRoomTypeAsync(RoomType roomType);
+        Task<List<ReviewDto>> GetReviewsByRoomTypeAsync(RoomType roomType);
     }
 }

@@ -27,6 +27,7 @@ using Project.MvcUI.Areas.Reservation.Models.PageVm;
 using Project.MvcUI.Areas.Reservation.Models.PureVm.ResponseModel.ExtraExpense;
 using Project.MvcUI.Areas.Reservation.Models.PureVm.RequestModel.Register;
 using System.Globalization;
+using Project.MvcUI.Areas.Admin.Models.PureVm.ResponseModel.Review;
 
 
 
@@ -355,8 +356,11 @@ namespace Project.MvcUI.VmMapping
        .ForMember(dest => dest.CheckInTime, opt => opt.MapFrom(src => src.CheckInTime))
        .ForMember(dest => dest.NumberOfGuests, opt => opt.MapFrom(src => src.NumberOfGuests))
        .ForMember(dest => dest.ReservationDate, opt => opt.MapFrom(src => src.ReservationDate));
+
+
+
+            CreateMap<ReviewDto, ReviewAdminResponseModel>();
         }
-        
 
 
 

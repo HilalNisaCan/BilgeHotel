@@ -53,16 +53,22 @@ namespace Project.MvcUI.Controllers
             DateTime now = DateTime.Now;
 
             List<Reservation> allReservations = await _context.Reservations
-                .Where(r => r.UserId == currentUser.Id)
-                .Include(r => r.Room)
-                .ToListAsync();
+       .AsNoTracking() // 💥 EF cache'i bypass eder, doğrudan DB'den çeker
+       .Where(r => r.UserId == currentUser.Id)
+       .Include(r => r.Room)
+       .ToListAsync();
 
+            foreach (var r in allReservations)
+            {
+                Console.WriteLine($"[DEBUG] RezId: {r.Id} | Fiyat: {r.TotalPrice} ₺ | Status: {r.ReservationStatus}");
+            }
+
+            // ✅ En son onaylanmış rezervasyonu al (gelecek tarihli dahil)
             Reservation? currentReservation = allReservations
-                .FirstOrDefault(r =>
-                    r.StartDate <= now &&
-                    r.EndDate >= now &&
-                    r.ReservationStatus == ReservationStatus.Confirmed); // ✅ Buraya dikkat!
-
+      .Where(r => r.ReservationStatus == ReservationStatus.Confirmed && r.EndDate >= now)
+      .OrderBy(r => r.StartDate)
+      .FirstOrDefault();
+            // ✅ Geçmiş rezervasyonlar
             List<Reservation> pastReservations = allReservations
                 .Where(r => r.EndDate < now || r.ReservationStatus == ReservationStatus.Completed)
                 .ToList();

@@ -2,54 +2,18 @@
     ViewData["Title"] = "Ödeme Başarılı";
 }
 
-<div class="container text-center my-5 animate-fade-in">
-    <div class="alert alert-success alert-animated p-4 shadow-lg rounded-4">
-        <i class="bi bi-check-circle-fill me-2 fs-3"></i>
-        <h4 class="fw-bold mt-2">Ödeme Başarıyla Tamamlandı!</h4>
-        <p>5 saniye içinde anasayfaya yönlendiriliyorsunuz...</p>
+<section class="text-center py-5">
+    <div class="container">
+        <div class="alert alert-success shadow-sm">
+            <h4 class="fw-bold mb-2">✅ Ödeme Başarılı</h4>
+            <p>@TempData["Message"]</p>
+            <p class="text-muted">5 saniye içinde anasayfaya yönlendiriliyorsunuz...</p>
+        </div>
     </div>
-</div>
 
-<!-- 👏 Alkış Sesi -->
-<audio id="applause" autoplay>
-    <source src="https://www.fesliyanstudios.com/play-mp3/387" type="audio/mpeg">
-    Tarayıcınız sesi desteklemiyor.
-</audio>
-
-<script>
-    // Yönlendirme
-    setTimeout(function () {
-        window.location.href = "/";
-    }, 5000);
-
-    // Alkış efekti başlat (gerekiyorsa tekrar çalmak için):
-    const applause = document.getElementById("applause");
-    applause.play();
-</script>
-
-@section Styles {
-    <style>
-        .animate-fade-in {
-            animation: fadeIn 0.9s ease-in-out;
-        }
-
-        .alert-animated {
-            animation: bounceFadeIn 1s ease-in-out;
-            font-size: 1.2rem;
-            font-weight: 500;
-            border-radius: 12px;
-            box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
-        }
-
-        @@keyframes bounceFadeIn {
-            0% { opacity: 0; transform: scale(0.9); }
-            50% { transform: scale(1.05); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-
-        @@keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
-}
+    <script>
+        setTimeout(function () {
+            window.location.href = "/";
+        }, 5000);
+    </script>
+</section>

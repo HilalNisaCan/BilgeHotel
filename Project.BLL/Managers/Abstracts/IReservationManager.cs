@@ -55,6 +55,8 @@ namespace Project.BLL.Managers.Abstracts
 
         Task<int> CreateAndReturnIdAsync(int customerId, int roomId, DateTime checkIn, int duration, ReservationPackage package, decimal totalPrice);
 
+        Task<int> CreateAndReturnIdAsync(int customerId, int userId, int roomId, DateTime checkIn, int duration, ReservationPackage package, decimal totalPrice);
+
         Task<ReservationDto> GetByIdWithRoomAsync(int reservationId);
         Task<bool> UpdateAfterPaymentAsync(int reservationId, int paymentId);
 

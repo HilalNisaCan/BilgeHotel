@@ -53,6 +53,7 @@ namespace Project.MvcUI.Controllers
                 ModelState.AddModelError("", "Rezervasyon bulunamadı.");
                 return View(vm);
             }
+            Console.WriteLine("💳 [PAYMENT] RezID: " + reservation.Id + " | Fiyat: " + reservation.TotalPrice);
 
             if (string.IsNullOrEmpty(vm.PaymentRequest.CardNumber) ||
                 string.IsNullOrEmpty(vm.PaymentRequest.CardUserName) ||
@@ -102,7 +103,7 @@ namespace Project.MvcUI.Controllers
                 ModelState.AddModelError("", "Ödeme başarısız: " + error);
                 return View(vm);
             }
-
+            TempData["Message"] = "Ödeme başarıyla tamamlandı!";
             return RedirectToAction("Success", "Payment");
         }
 

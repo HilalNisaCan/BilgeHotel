@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Project.Entities.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,9 +11,8 @@ namespace Project.Entities.Models
     {
 
         public int UserId { get; set; }              // Yorumu yapan kullanıcı
-        public int? ReservationId { get; set; }       // Hangi rezervasyona ait?
-        public int? RoomId { get; set; }              // Yorumu yapılan oda
-
+      
+        public RoomType RoomType { get; set; }
         public int Rating { get; set; }              // Puan (1-5) – kontrol BLL katmanında yapılacak
         public string? Comment { get; set; }          // Yorum içeriği
         public DateTime CommentDate { get; set; }    // Yorum tarihi
@@ -22,7 +22,6 @@ namespace Project.Entities.Models
 
         // 🔗 Navigation
         public virtual User User { get; set; } = null!;
-        public virtual Reservation Reservation { get; set; } = null!;
-        public virtual Room Room { get; set; } = null!;
+       
     }
 }

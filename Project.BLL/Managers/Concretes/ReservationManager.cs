@@ -277,5 +277,25 @@ namespace Project.BLL.Managers.Concretes
             return _mapper.Map<ReservationDto>(entity);
         }
 
+        public async Task<int> CreateAndReturnIdAsync(int customerId, int userId, int roomId, DateTime checkIn, int duration, ReservationPackage package, decimal totalPrice)
+        {
+            Console.WriteLine($"[LOG] EF'e yazılacak TotalPrice: {totalPrice}");
+            Reservation reservation = new Reservation
+            {
+                CustomerId = customerId,
+                UserId = userId, // ✅ Fark bu!
+                RoomId = roomId,
+                StartDate = checkIn,
+                EndDate = checkIn.AddDays(duration),
+                Package = package,
+                TotalPrice = totalPrice,
+                ReservationStatus = ReservationStatus.Waiting,
+                CreatedDate = DateTime.Now
+            };
+
+            await _reservationRepository.AddAsync(reservation);
+            Console.WriteLine($"[LOG] Reservation.Id: {reservation.Id} | TotalPrice (EF'den sonra): {reservation.TotalPrice}");
+            return reservation.Id;
+        }
     }
 }

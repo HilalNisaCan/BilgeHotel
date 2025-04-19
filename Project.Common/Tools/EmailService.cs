@@ -14,7 +14,7 @@ namespace Project.Common.Tools
         private static readonly string _smtpServer = "smtp.gmail.com";
         private static readonly int _smtpPort = 587;
         private static readonly string _senderEmail = "hilalnisacantest@gmail.com"; // ← '@' eksikti, düzelttim
-        private static readonly string _senderPassword = "tebtpoxuykkuyexc";
+        private static readonly string _senderPassword = "yeotzjcgitxdheoo";
 
         public static bool Send(string toEmail, string body, string subject)
         {

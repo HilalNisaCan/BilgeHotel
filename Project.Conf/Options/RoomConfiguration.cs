@@ -60,10 +60,7 @@ namespace Project.Conf.Options
                    .HasForeignKey(cs => cs.RoomId)
                    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasMany(r => r.Reviews)
-                   .WithOne(rv => rv.Room)
-                   .HasForeignKey(rv => rv.RoomId)
-                   .OnDelete(DeleteBehavior.NoAction);
+           
 
             builder.HasMany(r => r.GuestVisitLogs)
                    .WithOne(g => g.Room)

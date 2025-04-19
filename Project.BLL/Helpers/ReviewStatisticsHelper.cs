@@ -1,4 +1,5 @@
 ﻿using Project.Dal.ContextClasses;
+using Project.Entities.Enums;
 using Project.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -20,12 +21,12 @@ namespace Project.BLL.Helpers
         /// <param name="context">Veritabanı bağlamı</param>
         /// <param name="roomId">İsteğe bağlı olarak belirli bir oda ID’si girilebilir</param>
         /// <returns>1 ile 5 arasında ortalama puan değeri</returns>
-        public static double GetAverageRating(MyContext context, int? roomId = null)
+        public static double GetAverageRating(MyContext context, RoomType? roomType = null)
         {
-            var query = context.Reviews.AsQueryable();
+            IQueryable<Review> query = context.Reviews.AsQueryable();
 
-            if (roomId.HasValue)
-                query = query.Where(r => r.RoomId == roomId.Value);
+            if (roomType.HasValue)
+                query = query.Where(r => r.RoomType == roomType.Value);
 
             return query.Any() ? query.Average(r => r.Rating) : 0;
         }

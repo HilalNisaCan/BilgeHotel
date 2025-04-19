@@ -146,6 +146,9 @@ namespace Project.MvcUI.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> Create(ReservationRequestModel model)
         {
+
+            Console.WriteLine("📥 [Reservation] Form gönderildi. CheckIn: " + model.CheckIn + ", CheckOut: " + model.CheckOut);
+
             if (model.CheckOut <= model.CheckIn)
             {
                 ModelState.AddModelError("", "Çıkış tarihi, giriş tarihinden sonra olmalıdır.");
@@ -168,11 +171,13 @@ namespace Project.MvcUI.Controllers
                 TempData["LoginWarning"] = "Kullanıcı bilgisi alınamadı.";
                 return RedirectToAction("Login", "Account");
             }
+            Console.WriteLine("👤 Kullanıcı ID: " + userId);
 
             // Ad Soyad güvenli ayrıştırılır
             string[] nameParts = model.FullName?.Split(" ", StringSplitOptions.RemoveEmptyEntries) ?? [];
             string firstName = nameParts.FirstOrDefault() ?? "Ad";
             string lastName = nameParts.Skip(1).FirstOrDefault() ?? "Soyad";
+
 
             // Müşteri oluşturuluyor
             var customerDto = await _customerManager.GetOrCreateCustomerAsync(
@@ -182,6 +187,7 @@ namespace Project.MvcUI.Controllers
                 lastName,
                 1990
             );
+            Console.WriteLine("✅ Müşteri oluşturuldu: " + customerDto.FirstName + " " + customerDto.LastName + ", CustomerId: " + customerDto.Id);
 
             if (customerDto == null)
             {
@@ -195,7 +201,7 @@ namespace Project.MvcUI.Controllers
                 ModelState.AddModelError("", "Oda tipi geçersiz.");
                 return View(model);
             }
-
+            Console.WriteLine("🏨 RoomType parse edildi: " + roomTypeEnum.ToString());
             // API'den fiyat çekilir (güvenli şekilde)
             decimal? basePrice;
             try
@@ -215,6 +221,7 @@ namespace Project.MvcUI.Controllers
             }
 
             model.PricePerNight = basePrice.Value;
+            Console.WriteLine("💰 Fiyat bilgisi alındı: " + basePrice + " ₺");
 
             // Süre ve indirim hesaplanır
             int duration = (model.CheckOut - model.CheckIn).Days;
@@ -231,13 +238,16 @@ namespace Project.MvcUI.Controllers
 
             // Rezervasyon kaydı yapılır
             int reservationId = await _reservationManager.CreateAndReturnIdAsync(
-                customerDto.Id, model.RoomId, model.CheckIn, duration, model.Package, model.TotalPrice);
-
+     customerDto.Id, userId, model.RoomId, model.CheckIn, duration, model.Package, model.TotalPrice);
+            Console.WriteLine("🔢 Süre: " + duration + " gün, İndirim: %" + model.DiscountRate);
+            Console.WriteLine("💸 Toplam Fiyat (indirimli): " + model.TotalPrice);
+            Console.WriteLine("📦 Rezervasyon oluşturuluyor...");
             if (reservationId <= 0)
             {
                 ModelState.AddModelError("", "Rezervasyon oluşturulamadı.");
                 return View(model);
             }
+            Console.WriteLine("🎫 Rezervasyon kaydedildi. ID: " + reservationId);
 
             return RedirectToAction("Pay", "Payment", new { reservationId = reservationId });
         }

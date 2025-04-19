@@ -43,6 +43,7 @@ namespace Project.BLL.DependencyResolver
             services.AddScoped<IRoomMaintenanceAssignmentManager,RoomMaintenanceAssignmentManager>();
             services.AddScoped<IRoomMaintenanceManager, RoomMaintenanceManager>();
             services.AddScoped<IGuestVisitLogManager,GuestVisitLogManager>();
+            services.AddScoped<IReviewManager, ReviewManager>();
             //services.AddScoped<IBackupLogManager>(provider =>
             //{
             //    var repository = provider.GetRequiredService<IBackUpRepository>();

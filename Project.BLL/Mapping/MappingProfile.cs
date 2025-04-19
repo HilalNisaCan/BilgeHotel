@@ -71,7 +71,10 @@ namespace Project.BLL.Mapping
           .ForMember(dest => dest.IPAddress, opt => opt.MapFrom(src => src.IPAddress))
           .ForMember(dest => dest.ErrorMessage, opt => opt.MapFrom(src => src.ErrorMessage))
           .ReverseMap();
-            CreateMap<Review, ReviewDto>().ReverseMap();
+
+            CreateMap<Review, ReviewDto>()
+      .ForMember(dest => dest.UserFirstName, opt => opt.MapFrom(src => src.User.UserProfile.FirstName))
+      .ForMember(dest => dest.UserLastName, opt => opt.MapFrom(src => src.User.UserProfile.LastName));
 
             CreateMap<RoomMaintenanceAssignment, RoomMaintenanceAssignmentDto>()
                 .ForMember(dest => dest.AssignedEmployeeFullName,

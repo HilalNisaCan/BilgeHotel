@@ -31,6 +31,10 @@ namespace Project.Conf.Options
             builder.Property(r => r.IsAnonymous)
                    .IsRequired(); // Yorum anonim mi?
 
+            builder.Property(r => r.RoomType)
+           .HasConversion<int>() // enum -> int
+           .IsRequired();
+
             // 🔗 İlişkiler
 
             builder.HasOne(r => r.User) // Kullanıcı ile ilişki
@@ -38,15 +42,9 @@ namespace Project.Conf.Options
                    .HasForeignKey(r => r.UserId)
                    .OnDelete(DeleteBehavior.Cascade); // Kullanıcı silinirse yorum da silinsin
 
-            builder.HasOne(r => r.Reservation) // Rezervasyon ile ilişki
-                   .WithMany(rz => rz.Reviews)
-                   .HasForeignKey(r => r.ReservationId)
-                   .OnDelete(DeleteBehavior.SetNull); // Rezervasyon silinirse yorum kalabilir
+            
 
-            builder.HasOne(r => r.Room) // Oda ile ilişki
-                   .WithMany(rm => rm.Reviews)
-                   .HasForeignKey(r => r.RoomId)
-                   .OnDelete(DeleteBehavior.SetNull); // Oda silinirse yorum kalabilir
+          
         }
     }
 }

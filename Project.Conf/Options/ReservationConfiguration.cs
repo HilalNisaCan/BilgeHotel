@@ -81,10 +81,7 @@ namespace Project.Conf.Options
                    .HasForeignKey(o => o.ReservationId)
                    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasMany(r => r.Reviews)
-                   .WithOne(rv => rv.Reservation)
-                   .HasForeignKey(rv => rv.ReservationId)
-                   .OnDelete(DeleteBehavior.Cascade);
+           
         }
     }
 }

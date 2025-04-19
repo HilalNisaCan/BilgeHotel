@@ -56,7 +56,6 @@ namespace Project.Entities.Models
         public virtual Campaign Campaign { get; set; } = null!; // Kampanya
         public virtual EarlyReservationDiscount EarlyReservationDiscount { get; set; } = null!; // Birebir ilişki ✔️
         public virtual ICollection<ExtraExpense> ExtraExpenses { get; set; } = null!;// Oda dışı harcamalar
-        public virtual ICollection<Review> Reviews { get; set; } = null!; // Yorumlar
         public virtual ICollection<Order> Orders { get; set; } = null!;  // Siparişler (örnek: oda servisi, bar siparişi)
 
     }

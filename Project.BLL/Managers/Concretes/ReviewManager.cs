@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Project.BLL.DtoClasses;
 using Project.BLL.Managers.Abstracts;
 using Project.Dal.Repositories.Abstracts;
+using Project.Entities.Enums;
 using Project.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -41,77 +43,64 @@ namespace Project.BLL.Managers.Concretes
         /// </summary>
         public async Task<bool> AddReviewAsync(ReviewDto dto)
         {
-            var reservation = await _reservationRepository.GetByIdAsync(dto.ReservationId);
-            if (reservation == null || reservation.RoomId != dto.RoomId || reservation.Customer.UserId != dto.UserId)
-                return false;
-
-            var room = await _roomRepository.GetByIdAsync(dto.RoomId);
-            if (room == null)
-                return false;
-
-            var entity = _mapper.Map<Review>(dto);
+            Review entity = _mapper.Map<Review>(dto);
             await _reviewRepository.AddAsync(entity);
             return true;
         }
 
-        /// <summary>
-        /// Yorumu sistemden siler.
-        /// </summary>
-        public async Task<bool> DeleteReviewAsync(int id)
+        public async Task<bool> ApproveReviewAsync(int id)
         {
-            var entity = await _reviewRepository.GetByIdAsync(id);
-            if (entity == null) return false;
+            Review review = await _reviewRepository.GetByIdAsync(id);
+            if (review == null) return false;
 
-            await _reviewRepository.RemoveAsync(entity);
+            review.IsApproved = true;
+            review.ModifiedDate = DateTime.Now;
+            await _reviewRepository.UpdateAsync(review);
             return true;
         }
 
-        /// <summary>
-        /// Mevcut yorumu günceller.
-        /// </summary>
-        public async Task<bool> UpdateReviewAsync(ReviewDto dto)
+        public async Task<bool> DeleteAsync(int id)
         {
-            var entity = await _reviewRepository.GetByIdAsync(dto.Id);
-            if (entity == null) return false;
+            Review? review = await _reviewRepository.GetByIdAsync(id);
+            if (review == null)
+                return false;
 
-            _mapper.Map(dto, entity);
-            await _reviewRepository.UpdateAsync(entity);
+            // örneğin: sadece onay bekleyenleri sil
+            if (review.IsApproved)
+                return false;
+
+            await _reviewRepository.RemoveAsync(review);
             return true;
-        }
-
-        /// <summary>
-        /// Belirli bir odaya ait tüm onaylı yorumları getirir.
-        /// </summary>
-        public async Task<List<ReviewDto>> GetReviewsByRoomAsync(int roomId)
-        {
-            var list = await _reviewRepository.GetAllAsync(x => x.RoomId == roomId && x.IsApproved);
-            return _mapper.Map<List<ReviewDto>>(list);
-        }
-
-        /// <summary>
-        /// Belirli bir rezervasyona ait onaylı yorumu getirir.
-        /// </summary>
-        public async Task<ReviewDto> GetReviewByReservationAsync(int reservationId)
-        {
-            var entity = await _reviewRepository.FirstOrDefaultAsync(x => x.ReservationId == reservationId && x.IsApproved);
-            return _mapper.Map<ReviewDto>(entity);
-        }
-
-        /// <summary>
-        /// Belirli bir odaya ait onaylı yorumların ortalama puanını hesaplar.
-        /// </summary>
-        public async Task<double> GetAverageRatingAsync(int roomId)
-        {
-            var list = await _reviewRepository.GetAllAsync(x => x.RoomId == roomId && x.IsApproved);
-            if (!list.Any()) return 0;
-
-            return list.Average(x => x.Rating);
         }
 
         public async Task<List<Review>> GetAllWithIncludeAsync(Expression<Func<Review, bool>> predicate, Func<IQueryable<Review>, IQueryable<Review>> include)
         {
             IEnumerable<Review> result = await _reviewRepository.GetAllWithIncludeAsync(predicate, include);
             return result.ToList();
+        }
+
+        public async Task<double> GetAverageRatingByRoomTypeAsync(RoomType roomType)
+        {
+            List<Review> reviews = (await _reviewRepository.GetAllAsync(r => r.RoomType == roomType && r.IsApproved)).ToList();
+            if (!reviews.Any()) return 0;
+
+            return Math.Round(reviews.Average(r => r.Rating), 1);
+        }
+
+        public async Task<List<ReviewDto>> GetPendingReviewsAsync()
+        {
+            List<Review> reviews = (await _reviewRepository.GetAllWithIncludeAsync(
+          r => !r.IsApproved,
+          include: r => r.Include(x => x.User).ThenInclude(u => u.UserProfile)
+          )).ToList();
+
+            return _mapper.Map<List<ReviewDto>>(reviews);
+        }
+
+        public async Task<List<ReviewDto>> GetReviewsByRoomTypeAsync(RoomType roomType)
+        {
+            List<Review> reviews = (await _reviewRepository.GetAllAsync(r => r.RoomType == roomType && r.IsApproved)).ToList();
+            return _mapper.Map<List<ReviewDto>>(reviews);
         }
     }
 }

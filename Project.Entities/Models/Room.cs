@@ -49,6 +49,6 @@ namespace Project.Entities.Models
         public virtual ICollection<RoomImage> RoomImages { get; set; } = null!; // Odaya ait fotoğraflar
         public virtual ICollection<RoomCleaningSchedule> CleaningSchedules { get; set; } = null!;
         public virtual ICollection<GuestVisitLog> GuestVisitLogs { get; set; } = null!;
-        public virtual ICollection<Review> Reviews { get; set; } = null!;   
+   
     }
 }

@@ -22,10 +22,7 @@ namespace Project.Dal.Repositories.Concretes
             return await _dbSet.Where(r => r.UserId == userId).ToListAsync();
         }
 
-        public async Task<List<Review>> GetReviewsByReservationIdAsync(int reservationId)
-        {
-            return await _dbSet.Where(r => r.ReservationId == reservationId).ToListAsync();
-        }
+       
 
         public async Task<double> GetAverageRatingAsync()
         {

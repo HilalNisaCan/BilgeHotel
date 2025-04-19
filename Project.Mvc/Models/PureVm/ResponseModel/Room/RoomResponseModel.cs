@@ -30,7 +30,12 @@ namespace Project.MvcUI.Models.PureVm.ResponseModel.Room
         // 👇 Review alanları
         public double AverageRating { get; set; }
         public int ReviewCount { get; set; }
-        public List<ReviewDisplayModel> Reviews { get; set; }
+        public List<ReviewDisplayModel> reviewDisplays { get; set; }
+
+  
+        // Yorum kontrolü için ek alanlar
+        public bool CanComment { get; set; }                
+        public int? LatestReservationId { get; set; }
 
     }
 }

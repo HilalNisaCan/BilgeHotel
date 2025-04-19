@@ -65,25 +65,25 @@ namespace Project.BLL.Managers.Concretes
         /// </summary>
         public async Task<decimal> CalculateDiscountAsync(int customerId, DateTime reservationDate, DateTime checkInDate, decimal basePrice, ReservationPackage package)
         {
+
             int daysBeforeCheckIn = (checkInDate - reservationDate).Days;
 
-            // 🔹 İndirim oranı yüzde cinsinden ondalık olarak hesaplanmalı
             decimal discountRate = 0m;
 
-            // ✅ Erken rezervasyon indirimi
+            // Erken rezervasyon indirimi
             if (daysBeforeCheckIn >= 90)
-                discountRate = Math.Max(discountRate, 0.23m); // %23
+                discountRate = Math.Max(discountRate, 0.23m);
             else if (daysBeforeCheckIn >= 30 && package == ReservationPackage.AllInclusive)
-                discountRate = Math.Max(discountRate, 0.18m); // %18
+                discountRate = Math.Max(discountRate, 0.18m);
             else if (daysBeforeCheckIn >= 30 && package == ReservationPackage.Fullboard)
-                discountRate = Math.Max(discountRate, 0.16m); // %16
+                discountRate = Math.Max(discountRate, 0.16m);
 
-            // ✅ Sadakat indirimi
+            // Sadakat indirimi
             var customer = await _customerRepository.GetByIdAsync(customerId);
             if (customer != null && customer.LoyaltyPoints >= 100)
-                discountRate += 0.05m; // %5 ek
+                discountRate += 0.05m;
 
-            // ✅ Kampanya indirimi (ayrı ayrı değerlendirilir)
+            // Kampanya indirimi
             var activeCampaign = (await _campaignRepository.GetAllAsync(c => c.Package == package && c.IsActive))
                                  .OrderByDescending(c => c.DiscountPercentage)
                                  .FirstOrDefault();
@@ -94,11 +94,8 @@ namespace Project.BLL.Managers.Concretes
                 discountRate += campaignRate;
             }
 
-            // 🔹 Toplam indirimli fiyat
-            decimal discountAmount = basePrice * discountRate;
-            decimal finalPrice = basePrice - discountAmount;
-
-            return Math.Round(finalPrice, 2);
+            // ❗ Bu kez oranı % cinsinden dön!
+            return Math.Round(discountRate * 100, 2);
         }
     }
 }
