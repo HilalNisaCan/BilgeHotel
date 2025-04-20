@@ -39,15 +39,29 @@ else
                     <td>@item.Subject</td>
                     <td>@item.SubmittedDate.ToShortDateString()</td>
                     <td>
-                        <span class="badge
-                    @(item.Status == ComplaintStatus.Pending ? "bg-warning text-dark" :
-                      item.Status == ComplaintStatus.InProgress ? "bg-info text-dark" :
-                      item.Status == ComplaintStatus.Responded ? "bg-success" :
-                      item.Status == ComplaintStatus.Resolved ? "bg-primary" :
-                      item.Status == ComplaintStatus.Rejected ? "bg-danger" : "bg-secondary")">
-                            @item.Status.ToString()
-                        </span>
-                            item.Status == ComplaintStatus.Rejected ? "Reddedildi" : "Bilinmiyor")
+                        @{
+                            string badgeClass = item.Status switch
+                            {
+                                ComplaintStatus.Pending => "bg-warning text-dark",
+                                ComplaintStatus.InProgress => "bg-info text-dark",
+                                ComplaintStatus.Responded => "bg-success",
+                                ComplaintStatus.Resolved => "bg-primary",
+                                ComplaintStatus.Rejected => "bg-danger",
+                                _ => "bg-secondary"
+                            };
+
+                            string statusText = item.Status switch
+                            {
+                                ComplaintStatus.Pending => "Bekliyor",
+                                ComplaintStatus.InProgress => "İnceleniyor",
+                                ComplaintStatus.Responded => "Cevaplandı",
+                                ComplaintStatus.Resolved => "Çözüldü",
+                                ComplaintStatus.Rejected => "Reddedildi",
+                                _ => "Bilinmiyor"
+                            };
+                        }
+
+                        <span class="badge @badgeClass">@statusText</span>
                     </td>
                     <td>
                         @(item.IsResolved ? "✔️" : "❌")
