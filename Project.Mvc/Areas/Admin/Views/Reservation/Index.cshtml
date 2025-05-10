@@ -54,7 +54,22 @@
 
                 <tr>
                     <td>@item.Id</td>
-                    <td>@item.CustomerFullName</td>
+                    <td>
+                        @{
+                            var parts = item.CustomerFullName?.Split(" ");
+                            if (parts != null && parts.Length >= 2)
+                            {
+                                var firstName = string.Join(" ", parts[..^1]); // Soyad dışındaki her şeyi al
+                                var lastName = parts[^1]; // Son parça soyad
+                                var maskedLast = lastName.First() + "***";
+                                @($"{firstName} {maskedLast}")
+                            }
+                            else
+                            {
+                                @item.CustomerFullName
+                            }
+                        }
+                    </td>
                     <td>@(item.IdentityNumber?.Substring(0, 3) + "*******")</td>
                     <td>@(item.PhoneNumber?.Substring(0, 3) + "*******")</td>
                     <td>@item.RoomInfo</td>

@@ -30,7 +30,23 @@
         <div class="card-body row g-4 p-4">
             <div class="col-md-6">
                 <h5 class="fw-bold text-primary">Müşteri Bilgileri</h5>
-                <p><strong>Ad Soyad:</strong> @Model.CustomerFullName</p>
+                <p>
+                    <strong>Ad Soyad:</strong>
+                    @{
+                        var parts = Model.CustomerFullName?.Split(" ");
+                        if (parts != null && parts.Length >= 2)
+                        {
+                            var firstName = string.Join(" ", parts[..^1]);
+                            var lastName = parts[^1];
+                            var maskedLast = lastName.First() + "***";
+                            @($"{firstName} {maskedLast}")
+                        }
+                        else
+                        {
+                            @Model.CustomerFullName
+                        }
+                    }
+                </p>
                 <p><strong>TC Kimlik:</strong> @(Model.IdentityNumber?.Substring(0, 3) + "*******")</p>
                 <p><strong>Telefon:</strong> @(Model.PhoneNumber?.Substring(0, 3) + "*******")</p>
             </div>

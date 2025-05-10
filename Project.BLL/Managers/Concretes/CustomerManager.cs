@@ -132,7 +132,7 @@ namespace Project.BLL.Managers.Concretes
             List<CustomerReportDto> reportList = customers.Select(c => new CustomerReportDto
             {
                 Id = c.Id,
-                FullName = $"{c.FirstName} {c.LastName}",
+                FullName = $"{c.FirstName} {c.LastName.First()}***",
                 IdentityNumber = c.IdentityNumber,
                 PhoneNumber = c.PhoneNumber,
                 LoyaltyPoints = c.LoyaltyPoints,
@@ -162,8 +162,8 @@ namespace Project.BLL.Managers.Concretes
                 return null;
 
             string fullName = customer.User?.UserProfile != null
-                ? $"{customer.User.UserProfile.FirstName} {customer.User.UserProfile.LastName}"
-                : $"{customer.FirstName} {customer.LastName}";
+       ? $"{customer.User.UserProfile.FirstName} {customer.User.UserProfile.LastName.First()}***"
+       : $"{customer.FirstName} {customer.LastName.First()}***";
 
             // 3. Rezervasyon boşsa sıfırla
             List<Reservation> reservations = customer.Reservations?.ToList() ?? new List<Reservation>();
