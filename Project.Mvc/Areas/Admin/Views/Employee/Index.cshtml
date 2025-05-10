@@ -63,7 +63,7 @@
                                 <td>@employee.FirstName</td>
                                 <td>@employee.LastName</td>
                                 <td><span class="badge bg-info text-dark">@employee.Position</span></td>
-                                <td class="text-muted">@employee.Phone</td>
+                                <td class="text-muted">@((employee.Phone?.Length ?? 0) >= 3 ? employee.Phone.Substring(0, 3) + "*******" : "-")</td>
                                 <td class="text-start"><i class="fas fa-envelope text-primary me-1"></i>@employee.Email</td>
                                 <td><span class="badge bg-light border">@employee.SalaryType</span></td>
                                 <td>

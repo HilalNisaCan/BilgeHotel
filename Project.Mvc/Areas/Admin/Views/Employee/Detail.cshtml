@@ -31,8 +31,7 @@
                     <dd class="col-sm-9">@Model.MonthlySalary ₺</dd>
                 }
                 <dt class="col-sm-3">Telefon</dt>
-                <dd class="col-sm-9">@Model.PhoneNumber</dd>
-
+                <dd class="col-sm-9">@((Model.PhoneNumber?.Length ?? 0) >= 3 ? Model.PhoneNumber.Substring(0, 3) + "*******" : "-")</dd>
                 <dt class="col-sm-3">İzin Günü</dt>
                 <dd class="col-sm-9">@Model.WeeklyOffDay</dd>
 

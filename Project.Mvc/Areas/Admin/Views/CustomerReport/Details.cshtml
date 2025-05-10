@@ -16,7 +16,7 @@
                 <div class="card-body">
                     <p><strong>Ad Soyad:</strong> @Model.FullName</p>
                     <p><strong>TC Kimlik:</strong> @(Model.IdentityNumber?.Substring(0, 3) + "*******")</p>
-                    <p><strong>Telefon:</strong> @Model.PhoneNumber</p>
+                    <p><strong>Telefon:</strong> @(Model.PhoneNumber?.Substring(0, 3) + "*******")</p>
                 </div>
             </div>
         </div>
