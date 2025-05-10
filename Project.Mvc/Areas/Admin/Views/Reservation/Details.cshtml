@@ -31,7 +31,7 @@
             <div class="col-md-6">
                 <h5 class="fw-bold text-primary">Müşteri Bilgileri</h5>
                 <p><strong>Ad Soyad:</strong> @Model.CustomerFullName</p>
-                <p><strong>TC Kimlik:</strong> @Model.IdentityNumber</p>
+                <p><strong>TC Kimlik:</strong> @(Model.IdentityNumber?.Substring(0, 3) + "*******")</p>
                 <p><strong>Telefon:</strong> @Model.PhoneNumber</p>
             </div>
             <div class="col-md-6">

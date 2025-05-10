@@ -79,7 +79,7 @@
             {
                 <tr>
                     <td>@item.FullName</td>
-                    <td>@item.IdentityNumber</td>
+                    <td>@(item.IdentityNumber?.Substring(0, 3) + "*******")</td>
                     <td>@item.PhoneNumber</td>
                     <td>@item.TotalReservationCount</td>
                     <td>@item.TotalSpent.ToString("C")</td>

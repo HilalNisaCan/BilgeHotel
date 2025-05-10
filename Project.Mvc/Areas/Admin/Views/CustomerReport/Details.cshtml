@@ -15,7 +15,7 @@
                 <div class="card-header bg-primary text-white fw-bold">Kişisel Bilgiler</div>
                 <div class="card-body">
                     <p><strong>Ad Soyad:</strong> @Model.FullName</p>
-                    <p><strong>TC Kimlik:</strong> @Model.IdentityNumber</p>
+                    <p><strong>TC Kimlik:</strong> @(Model.IdentityNumber?.Substring(0, 3) + "*******")</p>
                     <p><strong>Telefon:</strong> @Model.PhoneNumber</p>
                 </div>
             </div>

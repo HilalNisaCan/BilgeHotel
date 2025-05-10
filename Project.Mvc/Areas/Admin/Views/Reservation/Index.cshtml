@@ -55,7 +55,7 @@
                 <tr>
                     <td>@item.Id</td>
                     <td>@item.CustomerFullName</td>
-                    <td>@item.IdentityNumber</td>
+                    <td>@(item.IdentityNumber?.Substring(0, 3) + "*******")</td>
                     <td>@item.PhoneNumber</td>
                     <td>@item.RoomInfo</td>
                     <td>@item.StartDate.ToString("dd.MM.yyyy")</td>
