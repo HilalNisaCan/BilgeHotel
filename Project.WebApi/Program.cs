@@ -7,7 +7,6 @@ using Project.BLL.Services.Concretes;
 using Project.Dal.ContextClasses;
 using Project.Dal.Repositories.Abstracts;
 using Project.Dal.Repositories.Concretes;
-using Project.WebApi.WebApiResolver;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,9 +31,6 @@ builder.Services.AddDbContext<MyContext>(options =>
 
 // 🔧 AutoMapper servisi
 builder.Services.AddMapperService();
-
-// 🔧 WebAPI için tüm Manager + Repository'leri burada ekliyoruz (temiz yapı)
-builder.Services.AddWebApiResolvers();
 builder.Services.AddIdentityService();
 builder.Services.AddServiceDependencies();
 
@@ -43,6 +39,8 @@ builder.Services.AddServiceDependencies();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddManagerService();
+builder.Services.AddRepositoryService();
 
 var app = builder.Build();
 
