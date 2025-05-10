@@ -13,59 +13,50 @@ namespace Project.Common.Tools
 SMTP ayarları önceden tanımlıdır ve Gmail üzerinden güvenli bağlantıyla gönderim yapılır.
 Statik yapıda tutulduğu için hızlı erişim ve kolay entegrasyon sağlar."*/
 
-/*"EmailService projemizin tüm katmanlarında kullanılabilen bağımsız bir servis olduğu için Common katmanında konumlandırılmıştır.
-Böylece MVC, BLL veya başka bir yapı mail gönderimi gerektiğinde doğrudan bu servise erişebilir.
-Katman bağımsızlığı ve tekrar kullanılabilirlik prensibine uygun olarak Project.Common.Tools altında yer alır."
+    /*"EmailService projemizin tüm katmanlarında kullanılabilen bağımsız bir servis olduğu için Common katmanında konumlandırılmıştır.
+    Böylece MVC, BLL veya başka bir yapı mail gönderimi gerektiğinde doğrudan bu servise erişebilir.
+    Katman bağımsızlığı ve tekrar kullanılabilirlik prensibine uygun olarak Project.Common.Tools altında yer alır."
 
-*/
+    */
 
-public static class EmailService
-{
-    // SMTP ayarları
-    private static readonly string _smtpServer = "smtp.gmail.com";
-    private static readonly int _smtpPort = 587;
-    private static readonly string _senderEmail = "bilgehoteltest@gmail.com";
-    private static readonly string _senderPassword = "mgmeugxhmkakfmqx";
-
-    /// <summary>
-    /// Belirtilen alıcıya e-posta gönderir.
-    /// </summary>
-    /// <param name="toEmail">Alıcının e-posta adresi</param>
-    /// <param name="body">Mail içeriği (HTML olabilir)</param>
-    /// <param name="subject">Konu başlığı</param>
-    /// <returns>Başarılıysa true, hata durumunda false döner</returns>
-    public static bool Send(string toEmail, string body, string subject)
+    public static class EmailService
     {
-        try
-        {
-            MailAddress fromAddress = new MailAddress(_senderEmail, "BilgeHotel");
-            MailAddress toAddress = new MailAddress(toEmail);
+        private static readonly string _smtpServer = Environment.GetEnvironmentVariable("SMTP_SERVER") ?? "smtp.gmail.com";
+        private static readonly int _smtpPort = int.TryParse(Environment.GetEnvironmentVariable("SMTP_PORT"), out int port) ? port : 587;
+        private static readonly string _senderEmail = Environment.GetEnvironmentVariable("SENDER_EMAIL") ?? "hidden@example.com";
+        private static readonly string _senderPassword = Environment.GetEnvironmentVariable("SENDER_PASSWORD") ?? "********";
 
-            using (SmtpClient smtp = new SmtpClient())
+        public static bool Send(string toEmail, string body, string subject)
+        {
+            try
             {
-                smtp.Host = _smtpServer;
-                smtp.Port = _smtpPort;
-                smtp.Credentials = new NetworkCredential(_senderEmail, _senderPassword);
-                smtp.EnableSsl = true;
+                MailAddress fromAddress = new MailAddress(_senderEmail, "BilgeHotel");
+                MailAddress toAddress = new MailAddress(toEmail);
 
-                using (MailMessage message = new MailMessage(fromAddress, toAddress))
+                using (SmtpClient smtp = new SmtpClient())
                 {
-                    message.Subject = subject;
-                    message.Body = body;
-                    message.IsBodyHtml = true;
+                    smtp.Host = _smtpServer;
+                    smtp.Port = _smtpPort;
+                    smtp.Credentials = new NetworkCredential(_senderEmail, _senderPassword);
+                    smtp.EnableSsl = true;
 
-                    smtp.Send(message); // Mail gönderimi yapılır
+                    using (MailMessage message = new MailMessage(fromAddress, toAddress))
+                    {
+                        message.Subject = subject;
+                        message.Body = body;
+                        message.IsBodyHtml = true;
+
+                        smtp.Send(message);
+                    }
                 }
-            }
 
-            return true;
-        }
-        catch (Exception ex)
-        {
-            // ❗ Hata loglanabilir
-            Console.WriteLine("Mail gönderim hatası: " + ex.Message);
-            return false;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Mail gönderim hatası: " + ex.Message);
+                return false;
+            }
         }
     }
-}
 }
