@@ -28,85 +28,20 @@ namespace Project.BLL.Managers.Concretes
             _mapper = mapper;
         }
 
+
+
         /// <summary>
-        /// Manuel döviz kuru ekler (aynı tarihte varsa günceller).
+        /// ID'ye göre döviz kuru kaydını siler.
         /// </summary>
-        public async Task<bool> AddManualExchangeRatesAsync(List<ExchangeRateDto> rates)
+        public async Task<bool> DeleteAsync(int id)
         {
-            foreach (var dto in rates)
-            {
-                var existing = await _exchangeRateRepository
-                    .FirstOrDefaultAsync(x => x.CurrencyCode == dto.CurrencyCode && x.Date.Date == dto.Date.Date);
-
-                if (existing != null)
-                {
-                    existing.Rate = dto.Rate;
-                    await _exchangeRateRepository.UpdateAsync(existing);
-                }
-                else
-                {
-                    var entity = _mapper.Map<ExchangeRate>(dto);
-                    await _exchangeRateRepository.AddAsync(entity);
-                }
-            }
-
+            ExchangeRate entity = new ExchangeRate { Id = id }; // ID ile silme işlemi
+            await _exchangeRateRepository.RemoveAsync(entity);   // Doğrudan sil
             return true;
         }
 
-        /// <summary>
-        /// API'den döviz kuru alımı (şu an pasif - dış servis bekleniyor).
-        /// </summary>
-        public async Task<List<ExchangeRateDto>> FetchLatestExchangeRatesAsync()
-        {
-            // TODO: API bağlantısı yapılırsa buraya entegre edilecek
-            return new List<ExchangeRateDto>();
-        }
 
-        /// <summary>
-        /// İki para birimi arasında belirli bir tarihte dönüşüm yapar.
-        /// </summary>
-        public async Task<decimal> ConvertCurrencyAsync(string fromCurrency, string toCurrency, decimal amount, DateTime date)
-        {
-            var rates = await _exchangeRateRepository.GetAllAsync(x => x.Date.Date == date.Date);
-            var fromRate = rates.FirstOrDefault(x => x.CurrencyCode == fromCurrency)?.Rate ?? 1;
-            var toRate = rates.FirstOrDefault(x => x.CurrencyCode == toCurrency)?.Rate ?? 1;
 
-            if (fromRate == 0 || toRate == 0)
-                throw new Exception("Döviz kuru bilgileri eksik.");
-
-            return (amount / fromRate) * toRate;
-        }
-
-        /// <summary>
-        /// Belirli bir tarihe ait döviz kurlarını listeler.
-        /// </summary>
-        public async Task<List<ExchangeRateDto>> GetRatesByDateAsync(DateTime date)
-        {
-            var rates = await _exchangeRateRepository.GetAllAsync(x => x.Date.Date == date.Date);
-            return _mapper.Map<List<ExchangeRateDto>>(rates);
-        }
-
-        /// <summary>
-        /// Var olan döviz kurunu günceller, yoksa yeni ekler.
-        /// </summary>
-        public async Task<bool> UpdateExchangeRateAsync(ExchangeRateDto dto)
-        {
-            var existing = await _exchangeRateRepository
-                .FirstOrDefaultAsync(x => x.CurrencyCode == dto.CurrencyCode && x.Date.Date == dto.Date.Date);
-
-            if (existing != null)
-            {
-                existing.Rate = dto.Rate;
-                await _exchangeRateRepository.UpdateAsync(existing);
-                return true;
-            }
-            else
-            {
-                var entity = _mapper.Map<ExchangeRate>(dto);
-                await _exchangeRateRepository.AddAsync(entity);
-                return true;
-            }
-        }
 
 
     }

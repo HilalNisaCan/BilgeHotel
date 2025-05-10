@@ -14,49 +14,33 @@ namespace Project.BLL.Managers.Abstracts
     {
         /// <summary>
         /// Şu anda boş olan tüm odaları getirir.
+        /// Kullanıldığı yer: Web/MVC kullanıcı oda seçimi ekranı.
         /// </summary>
         Task<List<RoomDto>> GetAvailableRoomsAsync();
 
         /// <summary>
-        /// Belirtilen odanın durumunu değiştirir.
+        /// Belirli koşula göre ilk odayı getirir. İlişkili veriler include ile alınabilir.
+        /// Kullanıldığı yer: Rezervasyon ekranında ilk uygun oda bulmak.
         /// </summary>
-        Task ChangeRoomStatusAsync(int roomId, RoomStatus status);
+        Task<Room> GetFirstOrDefaultAsync(
+            Expression<Func<Room, bool>> predicate,
+            Func<IQueryable<Room>, IQueryable<Room>> include);
 
         /// <summary>
-        /// Odayı belirlenen tarihte temizliğe planlar.
+        /// Tüm odaları ve onların görsellerini getirir.
+        /// Kullanıldığı yer: Ana sayfa / oda listesi görsel galeri.
         /// </summary>
-        Task ScheduleCleaningAsync(int roomId, DateTime cleaningDate);
-
-        /// <summary>
-        /// Odanın temizlik işlemi tamamlandığında temiz olarak işaretler.
-        /// </summary>
-        Task MarkRoomAsCleanedAsync(int roomId);
-
-        /// <summary>
-        /// Belirli bir odada bakım planlar.
-        /// </summary>
-        Task ScheduleMaintenanceAsync(int roomId, DateTime maintenanceDate, MaintenanceType type);
-
-        /// <summary>
-        /// Belirli bir odanın tüm detaylarını getirir.
-        /// </summary>
-        Task<Room> GetRoomDetailsAsync(int roomId);
-
-        Task<Room>  GetFirstOrDefaultAsync(Expression<Func<Room, bool>> predicate, Func<IQueryable<Room>, IQueryable<Room>> include);
-
         Task<List<RoomDto>> GetAllWithImagesAsync();
 
-        Task<Room> GetFirstAvailableRoomByTypeAsync(RoomType roomType);
-
-        // IRoomManager.cs
-        Task<decimal> GetRoomPriceAsync(RoomType roomType);
-
+        /// <summary>
+        /// ID ile odanın tüm bilgilerini ve görsellerini getirir.
+        /// Kullanıldığı yer: Oda detay sayfası.
+        /// </summary>
         Task<RoomDto> GetByIdWithImagesAsync(int id);
-
-        Task<RoomDto> GetByIdWithPriceAsync(int RoomId);
 
         /// <summary>
         /// Tüm odaları fiyat bilgileriyle birlikte getirir.
+        /// Kullanıldığı yer: Admin fiyat yönetimi, kullanıcı listeleme ekranı.
         /// </summary>
         Task<List<RoomDto>> GetAllWithPricesAsync();
     }

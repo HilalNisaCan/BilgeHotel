@@ -1,0 +1,18 @@
+<Guests>
+  <Guest>
+    <FirstName>Burak Yavuz</FirstName>
+    <LastName>Acar</LastName>
+    <IdentityNumber>17465319578</IdentityNumber>
+    <CheckInDate>2025-05-05</CheckInDate>
+    <CheckOutDate>2025-05-08</CheckOutDate>
+    <RoomId>156</RoomId>
+  </Guest>
+  <Guest>
+    <FirstName>Fatma</FirstName>
+    <LastName>Yıldız</LastName>
+    <IdentityNumber>12200957848</IdentityNumber>
+    <CheckInDate>2025-05-05</CheckInDate>
+    <CheckOutDate>2025-05-09</CheckOutDate>
+    <RoomId>193</RoomId>
+  </Guest>
+</Guests>

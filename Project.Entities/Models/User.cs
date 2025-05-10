@@ -3,6 +3,7 @@ using Project.Entities.Enums;
 using Project.Entities.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
@@ -20,8 +21,9 @@ namespace Project.Entities.Models
         // Kullanıcının hesabının aktif olup olmadığını belirler
         public bool IsActivated { get; set; }
 
-        // Kullanıcının sistemdeki rolünü belirler (Müşteri, Resepsiyonist, Yönetici)
-        public UserRole Role { get; set; }
+        public int? AppRoleId { get; set; }  // FK
+
+        public bool WantsCampaignEmails { get; set; } = true;
 
         // Kullanıcının sisteme kayıt olduğu tarih
         public DateTime CreatedDate { get; set; }
@@ -34,6 +36,7 @@ namespace Project.Entities.Models
 
         // Kullanıcının aktif, pasif veya silinmiş olup olmadığını belirler
         public DataStatus Status { get; set; }
+
 
         //Relational properties
 
@@ -56,12 +59,15 @@ namespace Project.Entities.Models
         public virtual ICollection<Review> Reviews { get; set; } = null!;
 
         // Kullanıcının yaptığı ödemeleri takip eder
-        public virtual ICollection<Payment> Payments { get; set; } = null!;
+        public virtual ICollection<Payment> Payments { get; set; } 
 
         // Kullanıcının sistem üzerinde yaptığı işlemlerin loglarını saklar
         public virtual ICollection<ReportLog> ReportLogs { get; set; } = null!;
 
         //Kullanıcının sistem üzerinde yaptığı Yedekleme işlemlerin loglarını saklar
         public virtual ICollection<BackupLog> BackupLogs { get; set; } = null!;
+
+     
+        public virtual AppRole? AppRole { get; set; } 
     }
 }

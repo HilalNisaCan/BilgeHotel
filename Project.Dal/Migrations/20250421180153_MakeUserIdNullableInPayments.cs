@@ -5,7 +5,7 @@
 namespace Project.Dal.Migrations
 {
     /// <inheritdoc />
-    public partial class MakeReportLogRelationsNullable : Migration
+    public partial class MakeUserIdNullableInPayments : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

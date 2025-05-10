@@ -6,5 +6,6 @@
         public string RoomStatus { get; set; }
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
+        public int? FloorNumber { get; set; }
     }
 }

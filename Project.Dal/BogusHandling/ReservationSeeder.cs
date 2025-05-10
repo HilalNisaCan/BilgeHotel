@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Project.Dal.BogusHandling
 {
-   public static class ReservationSeeder
+    public static class ReservationSeeder
     {
         public static async Task SeedAsync(MyContext context)
         {
@@ -21,9 +21,9 @@ namespace Project.Dal.BogusHandling
                 return;
 
             List<int> customerIds = context.Customers.Select(c => c.Id).ToList();
-            List<int> roomIds = context.Rooms.Select(r => r.Id).ToList();
+            List<Room> rooms = context.Rooms.ToList();
 
-            if (!customerIds.Any() || !roomIds.Any())
+            if (!customerIds.Any() || !rooms.Any())
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("❌ [ReservationSeeder] Müşteri veya oda yok. Rezervasyon oluşturulmadı.");
@@ -31,13 +31,12 @@ namespace Project.Dal.BogusHandling
                 return;
             }
 
-
-            List<Reservation> reservations = GenerateReservations(15, customerIds, roomIds);
+            List<Reservation> reservations = GenerateReservations(15, customerIds, rooms);
             context.Reservations.AddRange(reservations);
             await context.SaveChangesAsync();
         }
 
-        public static List<Reservation> GenerateReservations(int count, List<int> customerIds, List<int> roomIds)
+        public static List<Reservation> GenerateReservations(int count, List<int> customerIds, List<Room> rooms)
         {
             Faker faker = new Faker("en");
             List<Reservation> reservations = new List<Reservation>();
@@ -46,25 +45,41 @@ namespace Project.Dal.BogusHandling
             {
                 DateTime startDate = faker.Date.FutureOffset(1).Date;
                 DateTime endDate = startDate.AddDays(faker.Random.Int(1, 7));
-                decimal exchangeRate = faker.Random.Decimal(22, 30);
+                DateTime reservationDate = DateTime.Now.AddDays(-faker.Random.Int(1, 60));
+                TimeSpan checkInTime = new TimeSpan(14, 0, 0);
+
+                Room room = faker.PickRandom(rooms);
+                int nights = (endDate - startDate).Days;
+                decimal pricePerNight = room.PricePerNight;
+                decimal totalPrice = pricePerNight * nights;
+
+                ReservationPackage package = faker.PickRandom<ReservationPackage>();
+                int daysBefore = (startDate - reservationDate).Days;
+                decimal discount = 0;
+
+                if (daysBefore >= 90)
+                    discount = 23;
+                else if (daysBefore >= 30)
+                    discount = (package == ReservationPackage.AllInclusive) ? 18 : 16;
+
+                decimal discountedPrice = totalPrice * (1 - discount / 100m);
 
                 Reservation reservation = new Reservation
                 {
                     CustomerId = faker.PickRandom(customerIds),
-                    RoomId = faker.PickRandom(roomIds),
-                    ReservationDate = DateTime.Now.AddDays(-faker.Random.Int(1, 10)),
+                    RoomId = room.Id,
+                    ReservationDate = reservationDate,
                     StartDate = startDate,
                     EndDate = endDate,
-                    CheckInTime = new TimeSpan(14, 0, 0),
+                    CheckInTime = checkInTime,
                     NumberOfGuests = faker.Random.Int(1, 4),
-                    Package = faker.PickRandom<ReservationPackage>(),
-                    ExchangeRate = exchangeRate,
+                    Package = package,
+                    ExchangeRate = faker.Random.Decimal(22, 30),
                     CurrencyCode = "TRY",
-                    DiscountRate = faker.Random.Decimal(0, 25),
-                    TotalPrice = faker.Random.Decimal(1500, 6000),
+                    DiscountRate = discount,
+                    TotalPrice = discountedPrice,
                     ReservationStatus = ReservationStatus.Confirmed,
-                    CreatedDate = DateTime.Now,
-                 
+                    CreatedDate = DateTime.Now
                 };
 
                 reservations.Add(reservation);
@@ -73,6 +88,7 @@ namespace Project.Dal.BogusHandling
             return reservations;
         }
     }
+
 
 
     /*  Tüm rezervasyonlar müşteri, oda ve ödeme tablolarına bağlı. (FK test senaryosu)

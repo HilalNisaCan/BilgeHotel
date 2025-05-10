@@ -60,11 +60,8 @@ namespace Project.Conf.Options
            .HasForeignKey(p => p.CustomerId)
            .OnDelete(DeleteBehavior.NoAction);
 
-        //    builder.HasOne(p => p.User)
-        //.WithMany()
-        //.HasForeignKey(p => p.UserId)
-        //.OnDelete(DeleteBehavior.SetNull);
-
+            builder.Property(p => p.UserId)
+            .IsRequired(false);
 
 
             // Kullanıcı silinse bile ödeme kalsın

@@ -41,5 +41,7 @@ namespace Project.MvcUI.Models.PureVm.RequestModel.User
         [Compare("Password", ErrorMessage = "Şifreler eşleşmiyor.")]
         [Display(Name = "Şifre (Tekrar)")]
         public string ConfirmPassword { get; set; } = null!;
+
+        public bool WantsCampaignEmails { get; set; } = true;
     }
 }

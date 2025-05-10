@@ -2,18 +2,18 @@
 
 
 @{
-    ViewData["Title"] = "Şikayet Kayıtları";
+    ViewData["Title"] = "Geri Bildirimler ";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
 <h2 class="mb-4 text-primary fw-bold">
-    <i class="bi bi-chat-left-text me-2"></i> Şikayet Kayıtları
+    <i class="bi bi-chat-left-text me-2"></i> Geri Bildirim Kayıtları
 </h2>
 
 @if (!Model.Any())
 {
     <div class="alert alert-info">
-        <i class="bi bi-info-circle me-1"></i> Henüz bir şikayet kaydı bulunmamaktadır.
+        <i class="bi bi-info-circle me-1"></i> Henüz bir Geri bildirim  bulunmamaktadır.
     </div>
 }
 else

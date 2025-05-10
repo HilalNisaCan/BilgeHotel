@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Project.BLL.Services.abstracts;
 using Project.BLL.Services.Concretes;
+using Project.Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +15,11 @@ namespace Project.BLL.DependencyResolver
     {
         public static void AddServiceDependencies(this IServiceCollection services)
         {
-            services.AddScoped<IPasswordHasher, PasswordHasher>();
+            //services.AddScoped<IPasswordHasher, PasswordHasher>();
             services.AddScoped<IIdentityValidationService, TCKimlikDogrulamaService>();
+            services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
+
 
         }
     }

@@ -26,17 +26,18 @@ namespace Project.BLL.Managers.Concretes
             _mapper = mapper;
         }
 
-        // Yeni fiyat ekler
+        /// <summary>
+        /// Yeni bir oda tipi fiyatı ekler. Aynı RoomType varsa tekrar eklemez.
+        /// </summary>
         public async Task<RoomTypePriceDto> CreateRoomTypePriceAsync(RoomTypePriceDto model)
         {
-            // ❗ Aynı RoomType varsa ekleme
             RoomTypePrice? existing = await _repository.GetFirstOrDefaultAsync(
-            x => x.RoomType == model.RoomType,
-            x => x // ❗ boş include zorunluysa bu şekilde gönderilir
+                x => x.RoomType == model.RoomType,
+                x => x // include kullanılmazsa boş geçilebilir
             );
 
             if (existing != null)
-                return null; // ❌ zaten kayıtlı, ikinci kez eklenemez
+                return null;
 
             RoomTypePrice roomTypePrice = new RoomTypePrice
             {
@@ -50,10 +51,13 @@ namespace Project.BLL.Managers.Concretes
             return _mapper.Map<RoomTypePriceDto>(roomTypePrice);
         }
 
-        // RoomTypePrice'ı siler
+
+        /// <summary>
+        /// Oda tipi fiyatını siler.
+        /// </summary>
         public async Task DeleteRoomTypePriceAsync(int id)
         {
-            RoomTypePrice roomTypePrice = await _repository.GetByIdAsync(id);
+            RoomTypePrice? roomTypePrice = await _repository.GetByIdAsync(id);
             if (roomTypePrice != null)
             {
                 await _repository.RemoveAsync(roomTypePrice);
@@ -61,36 +65,46 @@ namespace Project.BLL.Managers.Concretes
             }
         }
 
-        // RoomTypePrice'leri getirir
+        /// <summary>
+        /// Tüm oda tipi fiyatlarını listeler.
+        /// </summary>
         public async Task<List<RoomTypePriceDto>> GetAllRoomTypePricesAsync()
         {
-            List<RoomTypePrice> roomTypePrices = (List<RoomTypePrice>)await _repository.GetAllAsync();
-            return _mapper.Map<List<RoomTypePriceDto>>(roomTypePrices);
+            IEnumerable<RoomTypePrice> roomTypePrices = await _repository.GetAllAsync();
+            return _mapper.Map<List<RoomTypePriceDto>>(roomTypePrices.ToList());
         }
 
+        /// <summary>
+        /// Belirli bir oda tipine ait fiyat bilgisini getirir (DTO olarak).
+        /// </summary>
         public async Task<RoomTypePriceDto> GetByRoomTypeAsync(RoomType roomType)
         {
-            var roomTypePrice = await _repository.GetAllAsync();
-            var result = roomTypePrice.FirstOrDefault(x => x.RoomType == roomType);
+            IEnumerable<RoomTypePrice> roomTypePrices = await _repository.GetAllAsync();
+            RoomTypePrice? result = roomTypePrices.FirstOrDefault(x => x.RoomType == roomType);
 
-            return _mapper.Map<RoomTypePriceDto>(result); 
+            return _mapper.Map<RoomTypePriceDto>(result);
         }
 
+        /// <summary>
+        /// Belirli bir oda tipine ait gecelik fiyatı döner.
+        /// </summary>
         public async Task<decimal> GetPriceByRoomTypeAsync(RoomType roomType)
         {
-            // Veriyi getirmek için include parametresini kullan
-            var roomTypePrice = await _repository.FirstOrDefaultAsync(x => x.RoomType == roomType);
+            RoomTypePrice? roomTypePrice = await _repository.FirstOrDefaultAsync(x => x.RoomType == roomType);
 
             if (roomTypePrice == null)
-                return 0; // Null yerine 0 döndürüyoruz
+                return 0;
 
-            return roomTypePrice.PricePerNight; // PricePerNight'ı döndür
+            return roomTypePrice.PricePerNight;
         }
 
-        // Fiyatı günceller
+
+        /// <summary>
+        /// Var olan bir oda tipine ait fiyat bilgisini günceller.
+        /// </summary>
         public async Task UpdateRoomTypePriceAsync(int id, RoomTypePriceDto model)
         {
-            RoomTypePrice roomTypePrice = await _repository.GetByIdAsync(id);
+            RoomTypePrice? roomTypePrice = await _repository.GetByIdAsync(id);
             if (roomTypePrice != null)
             {
                 roomTypePrice.RoomType = model.RoomType;

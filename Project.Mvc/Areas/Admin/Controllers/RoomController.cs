@@ -12,6 +12,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Project.MvcUI.Areas.Admin.Controllers
 {
+    /*"RoomController, oda yönetimine dair tüm işlemleri kapsayan kapsamlı bir paneldir.
+Oda listeleme, detay görüntüleme, temizlik ve bakım atamaları gibi işlemler DTO – RequestModel – ResponseModel yapıları ile yürütülmektedir.
+Her veri katmanında AutoMapper kullanılmakta, Entity ile doğrudan temas engellenmiştir.
+Fiyatlar RoomTypePriceDto ile ilişkilendirilerek dinamik olarak ViewModel’e aktarılır.
+Ayrıca, oda temizlik ve bakım atamaları ilgili manager’lar üzerinden yürütülür, atama işlemlerinde form validasyonu, personel rol kontrolü, şarta bağlı logic gibi özel kurallar devrededir.*/
+
+
     [Area("Admin")]
     [Route("Admin/Rooms")]
     public class RoomController : Controller
@@ -64,7 +71,10 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             {
                 roomDtoList = roomDtoList.Where(r => r.PricePerNight <= filter.MaxPrice).ToList();
             }
-
+            if (filter.FloorNumber.HasValue)
+            {
+                roomDtoList = roomDtoList.Where(r => r.FloorNumber == filter.FloorNumber).ToList();
+            }
             // Veriyi modele mapa
             List<RoomAdminResponseModel> vmList = _mapper.Map<List<RoomAdminResponseModel>>(roomDtoList,
                 opt => opt.Items["RoomTypePrices"] = priceDtoList);
@@ -113,30 +123,21 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             return View(vm);
         }
 
+        /// <summary>
+        /// Oda bilgilerini günceller (ViewModel → DTO → Entity mimarisi)
+        /// </summary>
         [HttpPost("Edit/{id}")]
         public async Task<IActionResult> Edit(int id, RoomUpdateVm vm)
         {
             if (!ModelState.IsValid)
                 return View(vm);
 
-            // Mevcut DTO'yu EF ile takipte olan haliyle çekiyoruz
-            RoomDto existingRoom = await _roomManager.GetByIdAsync(id);
-            if (existingRoom == null)
-                return NotFound();
+            // ViewModel → DTO dönüşümü yapılır
+            RoomDto dto = _mapper.Map<RoomDto>(vm);
+            dto.Id = id; // ID manuel atanır
 
-            // Güncellenebilir alanları manuel atıyoruz
-            existingRoom.RoomNumber = vm.RoomNumber;
-            existingRoom.FloorNumber = vm.FloorNumber;
-            existingRoom.Status = vm.Status;
-            existingRoom.Description = vm.Description;
-            existingRoom.HasMinibar = vm.HasMinibar;
-            existingRoom.HasHairDryer = vm.HasHairDryer;
-            existingRoom.HasTV = vm.HasTV;
-            existingRoom.HasBalcony = vm.HasBalcony;
-            existingRoom.HasAirConditioning = vm.HasAirConditioning;
-            existingRoom.HasWirelessInternet = vm.HasWiFi;
-
-            await _roomManager.UpdateAsync(existingRoom);
+            // DTO doğrudan manager'a iletilir
+            await _roomManager.UpdateAsync(dto);
 
             return RedirectToAction("Index");
         }
@@ -162,6 +163,9 @@ namespace Project.MvcUI.Areas.Admin.Controllers
 
             return View("AssignCleaning", model);
         }
+        /// <summary>
+        /// Temizlik ataması işlemi (RequestModel → DTO → Entity akışı)
+        /// </summary>
         [HttpPost("AssignCleaning")]
         public async Task<IActionResult> AssignCleaning(RoomCleaningScheduleCreateRequestModel model)
         {
@@ -171,23 +175,12 @@ namespace Project.MvcUI.Areas.Admin.Controllers
                 return RedirectToAction("AssignCleaning", new { roomId = model.RoomId });
             }
 
-            RoomCleaningSchedule entity = new RoomCleaningSchedule
-            {
-                RoomId = model.RoomId,
-                AssignedEmployeeId = model.AssignedEmployeeId,
-                ScheduledDate = model.ScheduledDate,
-                Description = model.Description,
-                CleaningStatus = CleaningStatus.Scheduled,
-                IsCompleted = false,
-                Status = DataStatus.Inserted,
-            };
-
-            await _roomCleaningScheduleManager.CreateAndConfirmAsync(entity);
+            RoomCleaningScheduleDto dto = _mapper.Map<RoomCleaningScheduleDto>(model);
+            await _roomCleaningScheduleManager.CreateAndConfirmAsync(dto);
 
             TempData["Message"] = "Temizlik görevlisi başarıyla atandı.";
             return RedirectToAction("Details", new { id = model.RoomId });
         }
-
 
 
         [HttpGet("AssignMaintenance/{roomId}")]
@@ -212,44 +205,33 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             return View("AssignMaintenance", model);
         }
 
+        /// <summary>
+        /// Bakım ataması işlemi (RequestModel → DTO → Entity akışı)
+        /// </summary>
         [HttpPost("AssignMaintenance/{roomId}")]
         public async Task<IActionResult> AssignMaintenance(RoomMaintenanceAssignmentCreateRequestModel model)
         {
-            Console.WriteLine($"🧪 DEBUG | Seçilen EmployeeId: {model.EmployeeId}");
-
-            // 1. Employee gerçekten var mı?
-            var employee = await _employeeManager.GetByIdAsync(model.EmployeeId);
-            if (employee == null)
-            {
-                TempData["Message"] = "Geçersiz personel seçimi!";
-                return RedirectToAction("AssignMaintenance", new { roomId = model.RoomId });
-            }
-
             if (!ModelState.IsValid)
             {
                 TempData["Message"] = "Form geçerli değil.";
                 return RedirectToAction("AssignMaintenance", new { roomId = model.RoomId });
             }
 
-            // 2. Bakım kaydı kontrolü ve oluşturulması
-            int maintenanceId = await _roomMaintenanceManager.GetOrCreateTodayMaintenanceAsync(
-                model.RoomId,
-                model.MaintenanceType);
-
-            // 3. Atama kaydı oluşturuluyor
-            RoomMaintenanceAssignment entity = new RoomMaintenanceAssignment
+            EmployeeDto employee = await _employeeManager.GetByIdAsync(model.EmployeeId);
+            if (employee == null)
             {
-                RoomId = model.RoomId,
-                RoomMaintenanceId = maintenanceId,
-                EmployeeId = model.EmployeeId,
-                AssignedDate = model.AssignedDate,
-                MaintenanceStatus = MaintenanceStatus.Scheduled,
-                Description = model.Description,
-                Status = DataStatus.Inserted
-            };
+                TempData["Message"] = "Geçersiz personel seçimi!";
+                return RedirectToAction("AssignMaintenance", new { roomId = model.RoomId });
+            }
 
-            // 4. Kaydet
-            await _roomMaintenanceAssignmentManager.CreateWithEntityAsync(entity);
+            // DTO oluşturulup mapper ile model dönüştürülür
+            RoomMaintenanceAssignmentDto dto = _mapper.Map<RoomMaintenanceAssignmentDto>(model);
+            dto.RoomMaintenanceId = await _roomMaintenanceManager.GetOrCreateTodayMaintenanceAsync(
+                model.RoomId, model.MaintenanceType);
+
+            Console.WriteLine("🧾 Formdan gelen EmployeeId: " + model.EmployeeId);
+
+            await _roomMaintenanceAssignmentManager.CreateAsync(dto);
 
             TempData["Message"] = "Bakım görevlisi başarıyla atandı.";
             return RedirectToAction("Details", new { id = model.RoomId });

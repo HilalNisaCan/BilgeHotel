@@ -14,8 +14,9 @@ namespace Project.MvcUI.Areas.Reservation.Models.PureVm.RequestModel.Reservation
         [Required]
         public string LastName { get; set; } = null!;
 
-        [Required]
-        [StringLength(11, MinimumLength = 11)]
+        [Required(ErrorMessage = "T.C. Kimlik numarası gereklidir.")]
+        [StringLength(11, MinimumLength = 11, ErrorMessage = "T.C. Kimlik numarası 11 haneli olmalıdır.")]
+        [RegularExpression(@"^\d{11}$", ErrorMessage = "T.C. Kimlik numarası yalnızca rakamlardan oluşmalıdır.")]
         public string IdentityNumber { get; set; } = null!;
 
         [Required]

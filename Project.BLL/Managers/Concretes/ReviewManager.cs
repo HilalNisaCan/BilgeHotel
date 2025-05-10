@@ -22,20 +22,15 @@ namespace Project.BLL.Managers.Concretes
     public class ReviewManager : BaseManager<ReviewDto, Review>, IReviewManager
     {
         private readonly IReviewRepository _reviewRepository;
-        private readonly IReservationRepository _reservationRepository;
-        private readonly IRoomRepository _roomRepository;
         private readonly IMapper _mapper;
 
         public ReviewManager(
             IReviewRepository reviewRepository,
-            IReservationRepository reservationRepository,
-            IRoomRepository roomRepository,
+      
             IMapper mapper)
             : base(reviewRepository, mapper)
         {
             _reviewRepository = reviewRepository;
-            _reservationRepository = reservationRepository;
-            _roomRepository = roomRepository;
             _mapper = mapper;
         }
 
@@ -49,6 +44,9 @@ namespace Project.BLL.Managers.Concretes
             return true;
         }
 
+        /// <summary>
+        /// Belirli bir yorumu onaylar.
+        /// </summary>
         public async Task<bool> ApproveReviewAsync(int id)
         {
             Review review = await _reviewRepository.GetByIdAsync(id);
@@ -60,32 +58,44 @@ namespace Project.BLL.Managers.Concretes
             return true;
         }
 
+
+        /// <summary>
+        /// Onaylanmamış bir yorumu siler.
+        /// </summary>
         public async Task<bool> DeleteAsync(int id)
         {
             Review? review = await _reviewRepository.GetByIdAsync(id);
-            if (review == null)
-                return false;
-
-            // örneğin: sadece onay bekleyenleri sil
-            if (review.IsApproved)
-                return false;
+            if (review == null) return false;
+            if (review.IsApproved) return false;
 
             await _reviewRepository.RemoveAsync(review);
             return true;
         }
 
-        public async Task<List<Review>> GetAllWithIncludeAsync(Expression<Func<Review, bool>> predicate, Func<IQueryable<Review>, IQueryable<Review>> include)
+        /// <summary>
+        /// Include içeren filtreli tüm yorumları getirir.
+        /// </summary>
+        public async Task<List<Review>> GetAllWithIncludeAsync(
+            Expression<Func<Review, bool>> predicate,
+            Func<IQueryable<Review>, IQueryable<Review>> include)
         {
             IEnumerable<Review> result = await _reviewRepository.GetAllWithIncludeAsync(predicate, include);
             return result.ToList();
         }
 
+
+        /// <summary>
+        /// Tüm yorumlar içindeki anonim yorum yüzdesini hesaplar.
+        /// </summary>
         public async Task<double> GetAnonymousRateAsync()
         {
             List<Review> allReviews = (await _reviewRepository.GetAllAsync()).ToList();
             return ReviewStatisticsHelper.GetAnonymousRate(allReviews);
         }
 
+        /// <summary>
+        /// İsteğe bağlı olarak tüm yorumlar veya sadece bir oda tipi için ortalama puanı getirir.
+        /// </summary>
         public async Task<double> GetAverageRatingAsync(RoomType? roomType = null)
         {
             List<Review> allReviews = (await _reviewRepository.GetAllAsync()).ToList();
@@ -93,6 +103,9 @@ namespace Project.BLL.Managers.Concretes
         }
 
 
+        /// <summary>
+        /// Belirli bir oda tipine ait onaylı yorumların ortalama puanını getirir.
+        /// </summary>
         public async Task<double> GetAverageRatingByRoomTypeAsync(RoomType roomType)
         {
             List<Review> reviews = (await _reviewRepository.GetAllAsync(r => r.RoomType == roomType && r.IsApproved)).ToList();
@@ -101,25 +114,37 @@ namespace Project.BLL.Managers.Concretes
             return Math.Round(reviews.Average(r => r.Rating), 1);
         }
 
+        /// <summary>
+        /// Onay bekleyen yorum sayısını getirir.
+        /// </summary>
         public async Task<int> GetPendingReviewCountAsync()
         {
             List<Review> allReviews = (await _reviewRepository.GetAllAsync()).ToList();
             return ReviewStatisticsHelper.GetPendingReviews(allReviews).Count;
         }
 
+        /// <summary>
+        /// Onay bekleyen yorumları DTO olarak getirir.
+        /// </summary>
         public async Task<List<ReviewDto>> GetPendingReviewsAsync()
         {
             List<Review> reviews = (await _reviewRepository.GetAllWithIncludeAsync(
-          r => !r.IsApproved,
-          include: r => r.Include(x => x.User).ThenInclude(u => u.UserProfile)
-          )).ToList();
+                r => !r.IsApproved,
+                include: r => r.Include(x => x.User).ThenInclude(u => u.UserProfile)
+            )).ToList();
 
             return _mapper.Map<List<ReviewDto>>(reviews);
         }
 
+
+        /// <summary>
+        /// Belirli bir oda tipine ait onaylı yorumları getirir.
+        /// </summary>
         public async Task<List<ReviewDto>> GetReviewsByRoomTypeAsync(RoomType roomType)
         {
-            List<Review> reviews = (await _reviewRepository.GetAllAsync(r => r.RoomType == roomType && r.IsApproved)).ToList();
+            List<Review> reviews = (await _reviewRepository.GetAllAsync(
+                r => r.RoomType == roomType && r.IsApproved)).ToList();
+
             return _mapper.Map<List<ReviewDto>>(reviews);
         }
     }

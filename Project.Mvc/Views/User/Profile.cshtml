@@ -105,19 +105,28 @@
 
                             <!-- REZERVASYON -->
                             <div class="tab-pane fade" id="pills-history" role="tabpanel">
-
-                                @if (Model.CurrentReservation != null)
+                                @if (Model.CurrentReservations != null && Model.CurrentReservations.Any())
                                 {
-                                    <div class="alert alert-success shadow-sm mb-4">
-                                        <h5 class="fw-bold mb-2">✅ Şu Anki Aktif Rezervasyonunuz</h5>
-                                        <ul class="mb-0">
-                                            <li><strong>Oda:</strong> @Model.CurrentReservation.Room?.RoomType</li>
-                                            <li><strong>Giriş:</strong> @Model.CurrentReservation.StartDate.ToShortDateString()</li>
-                                            <li><strong>Çıkış:</strong> @Model.CurrentReservation.EndDate.ToShortDateString()</li>
-                                            <li><strong>Paket:</strong> @Model.CurrentReservation.Package</li>
-                                            <li><strong>Durum:</strong> @Model.CurrentReservation.ReservationStatus.ToString()</li>
-                                        </ul>
-                                    </div>
+                                    @foreach (var res in Model.CurrentReservations)
+                                    {
+                                        <div class="alert alert-success shadow-sm mb-4">
+                                            <h5 class="fw-bold mb-2">✅ Aktif Rezervasyon</h5>
+                                            <ul class="mb-0">
+                                                <li><strong>Oda:</strong> @res.Room?.RoomType</li>
+                                                <li><strong>Giriş:</strong> @res.StartDate.ToShortDateString()</li>
+                                                <li><strong>Çıkış:</strong> @res.EndDate.ToShortDateString()</li>
+                                                <li><strong>Paket:</strong> @res.Package</li>
+                                                <li><strong>Durum:</strong> @res.ReservationStatus.ToString()</li>
+                                            </ul>
+
+                                            <form asp-action="CancelReservation" asp-controller="User" method="post" class="mt-3">
+                                                <input type="hidden" name="id" value="@res.Id" />
+                                                <button type="submit" class="btn btn-danger">
+                                                    <i class="bi bi-x-circle me-1"></i> Rezervasyonu İptal Et
+                                                </button>
+                                            </form>
+                                        </div>
+                                    }
                                 }
                                 else
                                 {
@@ -148,9 +157,9 @@
                                                         <td>@item.Room?.RoomType</td>
                                                         <td>@item.StartDate.ToShortDateString()</td>
                                                         <td>@item.EndDate.ToShortDateString()</td>
-                                                        <td>@item.TotalPrice ₺</td>
+                                                        <td>@item.TotalPrice.ToString("C0", new System.Globalization.CultureInfo("tr-TR"))</td>
                                                         <td>@item.Package</td>
-                                                        <td>@item.Status</td>
+                                                        <td>@item.ReservationStatus</td>
                                                     </tr>
                                                 }
                                             </tbody>

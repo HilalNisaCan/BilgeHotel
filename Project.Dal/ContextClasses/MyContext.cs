@@ -12,7 +12,7 @@ using System.Reflection.Emit;
 
 namespace Project.Dal.ContextClasses
 {
-    public class MyContext: IdentityDbContext<User, IdentityRole<int>, int>
+    public class MyContext : IdentityDbContext<User, AppRole, int>
     {
         public MyContext(DbContextOptions<MyContext> opt) : base(opt)
         {
@@ -50,7 +50,8 @@ namespace Project.Dal.ContextClasses
             builder.ApplyConfiguration(new BackupLogConfiguration());
             builder.ApplyConfiguration(new ComplaintLogConfiguration());
             builder.ApplyConfiguration(new GuestVisitLogConfiguration());
-            builder.ApplyConfiguration(new RoomTypePriceConfiguration());  // Burada yapılandırmayı uyguluyoruz
+            builder.ApplyConfiguration(new RoomTypePriceConfiguration());  
+            builder.ApplyConfiguration(new AppRoleConfiguration());
 
         }
 
@@ -80,6 +81,7 @@ namespace Project.Dal.ContextClasses
         public DbSet<ComplaintLog> ComplaintLogs { get; set; }
         public DbSet<GuestVisitLog> GuestVisitLogs { get; set; }
         public DbSet<RoomTypePrice> RoomTypePrices { get; set; }
+        public DbSet<AppRole> AppRoles { get; set; }
 
     }
     

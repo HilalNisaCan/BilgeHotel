@@ -60,6 +60,12 @@
                     <label asp-for="ConfirmPassword">Şifre Tekrar</label>
                     <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
                 </div>
+                <div class="form-check mb-3">
+                    <input asp-for="WantsCampaignEmails" class="form-check-input" type="checkbox" checked />
+                    <label asp-for="WantsCampaignEmails" class="form-check-label">
+                        Kampanya ve indirimlerden e-posta almak istiyorum
+                    </label>
+                </div>
 
                 <button type="submit" class="btn btn-gradient w-100">Kayıt Ol</button>
 

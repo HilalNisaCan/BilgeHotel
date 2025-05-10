@@ -2,6 +2,9 @@
 @{
     ViewData["Title"] = "Ödeme Yap";
 }
+@{
+    TempData.Keep("TempReservation");
+}
 
 <section class="payment-section">
     <div class="container animate-fade-in">
@@ -20,26 +23,14 @@
                         <i class="bi bi-credit-card-2-front-fill me-2"></i> Ödeme Bilgileri
                     </h4>
 
-                  @*   @if (TempData["Message"] != null)
-                    {
-                        <div class="alert alert-success alert-animated text-center mt-4">
-                            <i class="bi bi-check-circle-fill me-2"></i>
-                            @TempData["Message"]
-                            <br />
-                            <span class="text-muted small">5 saniye içinde anasayfaya yönlendiriliyorsunuz...</span>
-                        </div>
 
-                        <script>
-                            setTimeout(function () {
-                                window.location.href = "/";
-                            }, 5000); // ⏱️ 5 saniye
-                        </script>
-                    }
- *@
-                    <form asp-action="Pay" method="post">
-                        <input type="hidden" asp-for="ReservationId" />
+
+                    <form asp-controller="Payment" asp-action="Pay" method="post">
                         <input type="hidden" asp-for="TotalPrice" />
                         <input type="hidden" asp-for="PaymentRequest.ShoppingPrice" value="@Model.TotalPrice" />
+
+                        <!-- Yeni eklenen para birimi seçimi -->
+                        <input type="hidden" asp-for="PaymentRequest.Currency" value="TRY" />
 
                         <div class="mb-3">
                             <label asp-for="PaymentRequest.CardUserName" class="form-label">Kart Üzerindeki İsim</label>

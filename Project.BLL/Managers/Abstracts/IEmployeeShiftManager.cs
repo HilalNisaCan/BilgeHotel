@@ -14,47 +14,38 @@ namespace Project.BLL.Managers.Abstracts
     public interface IEmployeeShiftManager : IManager<EmployeeShiftDto, EmployeeShift>
     {
         /// <summary>
-        /// Çalışana yeni vardiya ataması yapar.
+        /// Çalışana yeni vardiya atar.
         /// </summary>
         Task<bool> AssignShiftAsync(int employeeId, DateTime startDate, DateTime endDate);
 
         /// <summary>
-        /// Çalışanın haftalık toplam çalışma saatini hesaplar.
+        /// Yeni vardiya oluşturur ve ID’yi döner.
         /// </summary>
-        Task<double> CalculateWeeklyHoursAsync(int employeeId, DateTime weekStartDate);
-
-        /// <summary>
-        /// Fazla mesai süresini hesaplar. (40 saati aşan)
-        /// </summary>
-      //  Task<double> CalculateOvertimeAsync(int employeeId, DateTime weekStartDate);
-
-        /// <summary>
-        /// Aylık maaşı hesaplar (fazla mesai dahil).
-        /// </summary>
-     //   Task<decimal> CalculateSalaryAsync(int employeeId, int month, int year);
-
-        /// <summary>
-        /// Belirli bir tarihi çalışan için izin günü olarak işaretler.
-        /// </summary>
-        Task<bool> SetDayOffAsync(int employeeId, DateTime day);
-
         Task<int> CreateAndReturnIdAsync(EmployeeShiftDto dto);
 
         /// <summary>
-        /// Tüm vardiyalarla birlikte bu vardiyaya atanmış çalışanları getirir.
+        /// Tüm vardiyalarla birlikte atanan çalışanları getirir.
         /// </summary>
         Task<List<EmployeeShiftDto>> GetAllWithAssignmentsAsync();
 
+        /// <summary>
+        /// Belirtilen aralıkta çalışanın fazla mesaisini hesaplar.
+        /// </summary>
         Task<double> CalculateOvertimeAsync(int employeeId, DateTime startDate, DateTime endDate);
 
-        Task<(decimal Salary, double TotalWorkedHours)> CalculateSalaryAsync(int employeeId, DateTime startDate, DateTime endDate);
         /// <summary>
-        /// Belirtilen ID’ye sahip vardiyayı sistemden siler.
+        /// Belirtilen aralıkta çalışanın maaş bilgisini hesaplar.
         /// </summary>
-        /// <param name="shiftId">Silinecek vardiyanın ID’si</param>
-        /// <returns>İşlem başarılıysa true, aksi halde false döner.</returns>
+        Task<(decimal Salary, double TotalWorkedHours)> CalculateSalaryAsync(int employeeId, DateTime startDate, DateTime endDate);
+
+        /// <summary>
+        /// Vardiyayı siler.
+        /// </summary>
         Task<bool> DeleteShiftByIdAsync(int shiftId);
 
+        /// <summary>
+        /// Vardiya bilgilerini günceller.
+        /// </summary>
         Task<bool> UpdateShiftAsync(EmployeeShiftDto dto);
     }
 }

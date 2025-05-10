@@ -1,4 +1,4 @@
-﻿@model RoomTypePriceDto
+﻿@model RoomTypePriceResponseModel
 
 @{
     ViewData["Title"] = "Fiyat Güncelle";
@@ -9,10 +9,11 @@
 
     <form asp-action="Edit" method="post">
         <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="RoomType" /> <!-- Güncellemede gerekiyor -->
 
         <div class="mb-3">
-            <label asp-for="RoomType" class="form-label">Oda Tipi</label>
-            <input asp-for="RoomType" class="form-control" readonly />
+            <label class="form-label">Oda Tipi</label>
+            <input value="@Model.RoomTypeName" class="form-control" readonly />
         </div>
 
         <div class="mb-3">
@@ -24,4 +25,3 @@
         <button type="submit" class="btn btn-primary w-100">Fiyatı Güncelle</button>
     </form>
 </div>
-

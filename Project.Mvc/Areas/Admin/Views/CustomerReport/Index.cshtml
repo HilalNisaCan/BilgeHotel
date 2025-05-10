@@ -1,4 +1,4 @@
-﻿@model List<CustomerReportDto>
+﻿@model List<CustomerReportPageVm>
 
 @{
     ViewData["Title"] = "Müşteri Raporları";
@@ -16,7 +16,7 @@
 
     <!-- Dashboard -->
     <div class="row mb-4 text-white">
-        <div class="col-md-4 mb-3">
+        <div class="col-md-3 mb-3">
             <div class="card shadow" style="background: linear-gradient(135deg, #4e54c8, #8f94fb);">
                 <div class="card-body text-center">
                     <h6 class="card-title">Toplam Müşteri</h6>
@@ -24,16 +24,24 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="card shadow" style="background: linear-gradient(135deg, #00b09b, #96c93d);">
+        <div class="col-md-3 mb-3">
+            <div class="card shadow" style="background: linear-gradient(135deg, #16a085, #1abc9c);">
                 <div class="card-body text-center">
-                    <h6 class="card-title">Toplam Harcama</h6>
-                    <h3>@toplamHarcama.ToString("C2")</h3>
+                    <h6 class="card-title">Toplam Rezervasyon</h6>
+                    <h3>@Model.Sum(x => x.TotalReservationCount)</h3>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="card shadow" style="background: linear-gradient(135deg, #1e3c72, #2a5298);">
+        <div class="col-md-3 mb-3">
+            <div class="card shadow" style="background: linear-gradient(135deg, #f39c12, #f1c40f);">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Toplam Harcama</h6>
+                    <h3>@toplamHarcama.ToString("C0", new System.Globalization.CultureInfo("tr-TR"))</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow" style="background: linear-gradient(135deg, #2c3e50, #4ca1af);">
                 <div class="card-body text-center">
                     <h6 class="card-title">Ort. Sadakat</h6>
                     <h3>@ortalamaPuan.ToString("F1")</h3>
@@ -63,6 +71,7 @@
                 <th>Sadakat</th>
                 <th>Kampanya</th>
                 <th>Son Konaklama</th>
+                <th>İşlem</th>
             </tr>
         </thead>
         <tbody>
@@ -77,6 +86,18 @@
                     <td>@item.LoyaltyPoints</td>
                     <td>@item.CampaignUsageCount</td>
                     <td>@item.LastReservationDate?.ToString("dd.MM.yyyy")</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">
+                            <i class="bi bi-eye-fill"></i>Detay
+                        </a>
+                        <form asp-area="Admin" asp-controller="CustomerReport" asp-action="Delete" asp-route-id="@item.Id" method="post"
+                              onsubmit="return confirm('Bu müşteriyi silmek istediğinizden emin misiniz?');">
+                            @Html.AntiForgeryToken()
+                            <button class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash-fill me-1"></i> Sil
+                            </button>
+                        </form>
+                    </td>
                 </tr>
             }
         </tbody>

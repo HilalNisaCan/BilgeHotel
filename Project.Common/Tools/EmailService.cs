@@ -9,46 +9,63 @@ using System.Threading.Tasks;
 
 namespace Project.Common.Tools
 {
-    public static class EmailService
+    /*"EmailService, kullanıcıya aktivasyon kodu, bilgilendirme veya sistem mesajı göndermek için kullanılmaktadır.
+SMTP ayarları önceden tanımlıdır ve Gmail üzerinden güvenli bağlantıyla gönderim yapılır.
+Statik yapıda tutulduğu için hızlı erişim ve kolay entegrasyon sağlar."*/
+
+/*"EmailService projemizin tüm katmanlarında kullanılabilen bağımsız bir servis olduğu için Common katmanında konumlandırılmıştır.
+Böylece MVC, BLL veya başka bir yapı mail gönderimi gerektiğinde doğrudan bu servise erişebilir.
+Katman bağımsızlığı ve tekrar kullanılabilirlik prensibine uygun olarak Project.Common.Tools altında yer alır."
+
+*/
+
+public static class EmailService
+{
+    // SMTP ayarları
+    private static readonly string _smtpServer = "smtp.gmail.com";
+    private static readonly int _smtpPort = 587;
+    private static readonly string _senderEmail = "bilgehoteltest@gmail.com";
+    private static readonly string _senderPassword = "mgmeugxhmkakfmqx";
+
+    /// <summary>
+    /// Belirtilen alıcıya e-posta gönderir.
+    /// </summary>
+    /// <param name="toEmail">Alıcının e-posta adresi</param>
+    /// <param name="body">Mail içeriği (HTML olabilir)</param>
+    /// <param name="subject">Konu başlığı</param>
+    /// <returns>Başarılıysa true, hata durumunda false döner</returns>
+    public static bool Send(string toEmail, string body, string subject)
     {
-        private static readonly string _smtpServer = "smtp.gmail.com";
-        private static readonly int _smtpPort = 587;
-        private static readonly string _senderEmail = "hilalnisacantest@gmail.com"; // ← '@' eksikti, düzelttim
-        private static readonly string _senderPassword = "yeotzjcgitxdheoo";
-
-        public static bool Send(string toEmail, string body, string subject)
+        try
         {
-            try
-            {
-                var fromAddress = new MailAddress(_senderEmail, "BilgeHotel");
-                var toAddress = new MailAddress(toEmail);
+            MailAddress fromAddress = new MailAddress(_senderEmail, "BilgeHotel");
+            MailAddress toAddress = new MailAddress(toEmail);
 
-                using (var smtp = new SmtpClient())
+            using (SmtpClient smtp = new SmtpClient())
+            {
+                smtp.Host = _smtpServer;
+                smtp.Port = _smtpPort;
+                smtp.Credentials = new NetworkCredential(_senderEmail, _senderPassword);
+                smtp.EnableSsl = true;
+
+                using (MailMessage message = new MailMessage(fromAddress, toAddress))
                 {
-                    smtp.Host = _smtpServer;
-                    smtp.Port = _smtpPort;
-                    smtp.Credentials = new NetworkCredential(_senderEmail, _senderPassword);
-                    smtp.EnableSsl = true;
+                    message.Subject = subject;
+                    message.Body = body;
+                    message.IsBodyHtml = true;
 
-                    using (var message = new MailMessage(fromAddress, toAddress)
-                    {
-                        Subject = subject,
-                        Body = body,
-                        IsBodyHtml = true
-                    })
-                    {
-                        smtp.Send(message);
-                    }
+                    smtp.Send(message); // Mail gönderimi yapılır
                 }
+            }
 
-                return true; // ✅ Başarılıysa true dön
-            }
-            catch (Exception ex)
-            {
-                // 🔴 Log mekanizması varsa buraya eklenebilir
-                Console.WriteLine("Mail gönderim hatası: " + ex.Message);
-                return false; // ❌ Hatalıysa false dön
-            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            // ❗ Hata loglanabilir
+            Console.WriteLine("Mail gönderim hatası: " + ex.Message);
+            return false;
         }
     }
+}
 }

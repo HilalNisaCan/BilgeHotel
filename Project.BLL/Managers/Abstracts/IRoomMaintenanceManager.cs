@@ -15,35 +15,17 @@ namespace Project.BLL.Managers.Abstracts
     public interface IRoomMaintenanceManager : IManager<RoomMaintenanceDto, RoomMaintenance>
     {
         /// <summary>
-        /// Oda için belirli tarihte bakım planlar.
+        /// Eğer bugün için aynı oda ve bakım türünde kayıt varsa onu döner; yoksa yeni bir kayıt oluşturur.
         /// </summary>
-        Task<int> ScheduleRoomMaintenanceAsync(int roomId, DateTime maintenanceDate, MaintenanceType type);
-
-        /// <summary>
-        /// Bakım kaydının durumunu günceller.
-        /// </summary>
-        Task<bool> UpdateMaintenanceStatusAsync(int maintenanceId, MaintenanceStatus status);
-
-        /// <summary>
-        /// Belirli bir oda için tüm bakım geçmişini getirir.
-        /// </summary>
-        Task<List<RoomMaintenanceDto>> GetMaintenanceHistoryByRoomAsync(int roomId);
-
-        /// <summary>
-        /// Bakım kaydını sistemden siler.
-        /// </summary>
-        Task<bool> DeleteMaintenanceRecordAsync(int maintenanceId);
-
-        /// <summary>
-        /// Devam eden (Pending/InProgress) bakım kayıtlarını getirir.
-        /// </summary>
-        Task<List<RoomMaintenanceDto>> GetActiveMaintenancesAsync();
-
-        /// <summary>
-        /// Tek bir bakım kaydını getirir.
-        /// </summary>
-        Task<RoomMaintenanceDto> GetMaintenanceByIdAsync(int id);
-
+        /// <param name="roomId">Bakım yapılacak odanın ID’si</param>
+        /// <param name="type">Bakım tipi (örneğin: Elektrik, Su, Temizlik)</param>
+        /// <returns>Var olan ya da oluşturulan bakım kaydının ID’si</returns>
+        /// 
+        /// <remarks>
+        /// 📌 Not: Bu metot, günlük tekrar eden bakım kayıtlarını önlemek amacıyla tasarlanmıştır.  
+        /// Arka planda otomasyon senaryolarında veya servis içi kontrol noktalarında kullanılabilir.  
+        ///  “otomatik kontrolle bakım planlaması” örneği olarak anlatılabilir.
+        /// </remarks>
         Task<int> GetOrCreateTodayMaintenanceAsync(int roomId, MaintenanceType type);
     }
 }

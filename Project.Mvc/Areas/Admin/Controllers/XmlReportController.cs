@@ -11,6 +11,13 @@ using ReservationEntity = Project.Entities.Models.Reservation;
 
 namespace Project.MvcUI.Areas.Admin.Controllers
 {
+
+    /*"XmlReportController, otel sisteminde günlük müşteri girişlerini XML formatında raporlayıp sistemsel olarak kayıt altına alır.
+Rezervasyonlar önce Entity olarak alınır, ardından AutoMapper ile ReservationDto'ya dönüştürülerek XML yapısına aktarılır.
+Raporlama işlemi sonrası log bilgileri ReportLog tablosuna kaydedilir ve kullanıcıya bilgi verilir.
+Kod yapısı AutoMapper, açık tip kullanımı ve XElement tabanlı XML yapısı ile sade ve sürdürülebilirdir."*/
+
+
     [Area("Admin")]
     public class XmlReportController : Controller
     {
@@ -26,6 +33,9 @@ namespace Project.MvcUI.Areas.Admin.Controllers
         }
 
 
+        /// <summary>
+        /// XML rapor ana sayfasını döner.
+        /// </summary>
         [HttpGet]
         public IActionResult Index()
         {
@@ -75,6 +85,11 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             await System.IO.File.WriteAllTextAsync(filePath, xml.ToString());
             byte[] xmlBytes = Encoding.UTF8.GetBytes(xml.ToString());
 
+              //“Sistemde log işlemleri için daha önceden tanımlı olan ReportLogDto yapısını kullandık.
+             // Bu DTO, log verisinin taşınması ve yönetilmesi için kullanılıyor.
+            // AutoMapper üzerinden entity’ye dönüştürülerek veritabanına kaydediliyor.
+           //Bu sayede hem temiz kod hem katman bağımsızlığı sağlanıyor.”
+
             // 4️⃣ ReportLog kaydı
             ReportLogDto dto = new ReportLogDto
             {
@@ -87,6 +102,9 @@ namespace Project.MvcUI.Areas.Admin.Controllers
                 XmlFilePath = $"/XmlReports/{fileName}",
                 IPAddress = HttpContext.Connection?.RemoteIpAddress?.ToString()
             };
+
+            // ✅ AutoMapper ile DTO → Entity dönüşümü
+            ReportLog log = _mapper.Map<ReportLog>(dto);
 
             await _reportLogManager.CreateReportLogAsync(dto); // Log kaydını yapıyoruz
 

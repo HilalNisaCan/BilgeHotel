@@ -8,6 +8,12 @@ using Project.MvcUI.Models.PureVm.ResponseModel.Room;
 
 namespace Project.MvcUI.Areas.Reservation.Controllers
 {
+
+    /*“Reservation Area’da yer alan RoomController, yalnızca müsait durumdaki odaları listelemek amacıyla hazırlanmıştır.
+     * DTO → ViewModel dönüşümleri AutoMapper ile sağlanır. Kullanıcı dostu sade arayüz üzerinden resepsiyonistler
+     * odaların doluluk durumunu anlık olarak görüntüleyebilir. İş kurallarına uygun olarak sadece
+     * boş durumdaki odalar filtrelenerek listelenir.”*/
+
     [Area("Reservation")]
     [Route("Reservation/Rooms")]
     public class RoomController : Controller

@@ -10,21 +10,29 @@ using Project.BLL.DtoClasses;
 
 namespace Project.MvcUI.Areas.Admin.Controllers
 {
+    /*“CampaignController, otelde tanımlanan kampanyaların listeleme, ekleme, düzenleme ve silme işlemlerini yöneten yönetici paneli controller’ıdır.
+Yapı, katmanlı mimariye uygun olarak tasarlanmıştır.
+Kullanıcıdan gelen veriler CampaignRequestModel aracılığıyla alınır ve AutoMapper ile CampaignDto'ya dönüştürülerek iş katmanına (BLL) iletilir.
+Listeleme işlemleri için CampaignDto nesneleri, CampaignResponseModel'e dönüştürülerek View'a aktarılır.
+Bu yapı sayesinde ViewModel, DTO ve Entity’ler arasında net bir ayrım sağlanmış olur.
+Ayrıca hata yönetimi ModelState kontrolleriyle sağlanır, tüm veri transferi AutoMapper ile gerçekleştirilerek temiz ve sürdürülebilir bir yapı oluşturulmuştur.”*/
+
     [Area("Admin")]
     [Route("Admin/[controller]/[action]")]
     public class CampaignController : Controller
     {
-        private readonly ICampainManager _campaignManager;
+        private readonly ICampaignManager _campaignManager;
         private readonly IMapper _mapper;
 
-        public CampaignController(ICampainManager campaignManager, IMapper mapper)
+        public CampaignController(  ICampaignManager campaignManager, IMapper mapper)
         {
             _campaignManager = campaignManager;
             _mapper = mapper;
         }
 
-        // Listeleme
-        [HttpGet]
+        /// <summary>
+        /// Tüm kampanyaları listeler (DTO → ResponseModel dönüşümü yapılır)
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -33,25 +41,37 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             return View(modelList);
         }
 
-        // Ekleme GET
+        /// <summary>
+        /// Yeni kampanya oluşturma formu
+        /// </summary>
         [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
 
+        /// <summary>
+        /// Yeni kampanya oluşturur (RequestModel → DTO dönüşümü yapılır)
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> Create(CampaignRequestModel model)
         {
             if (!ModelState.IsValid) return View(model);
 
             CampaignDto dto = _mapper.Map<CampaignDto>(model);
-            await _campaignManager.CreateAsync(dto);
+
+            // ✅ Kampanya oluşturuluyor ve geri dönüyor
+            Campaign createdCampaign = await _campaignManager.CreateAndReturnAsync(dto);
+
+            // 📩 E-posta yalnızca aktif kampanyalar için gönderiliyor
+            await _campaignManager.NotifyUsersAsync(createdCampaign);
 
             return RedirectToAction("Index");
         }
 
-        // Güncelleme GET
+        /// <summary>
+        /// Kampanya düzenleme formu (DTO → RequestModel dönüşümü)
+        /// </summary>
         [HttpGet("{id}")]
         public async Task<IActionResult> Edit(int id)
         {
@@ -62,6 +82,9 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Kampanya bilgilerini günceller (RequestModel → DTO dönüşümü)
+        /// </summary>
         [HttpPost("{id}")]
         public async Task<IActionResult> Edit(int id, CampaignRequestModel model)
         {
@@ -74,17 +97,17 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
-        // Silme GET
+        /// <summary>
+        /// Kampanya silme işlemi
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var dto = await _campaignManager.GetByIdAsync(id);
+            CampaignDto dto = await _campaignManager.GetByIdAsync(id);
             if (dto == null) return NotFound();
 
             await _campaignManager.DeleteAsync(dto);
             return RedirectToAction("Index");
         }
-
-
     }
 }

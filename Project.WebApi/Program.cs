@@ -36,7 +36,7 @@ builder.Services.AddMapperService();
 // 🔧 WebAPI için tüm Manager + Repository'leri burada ekliyoruz (temiz yapı)
 builder.Services.AddWebApiResolvers();
 builder.Services.AddIdentityService();
-builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddServiceDependencies();
 
 
 // 🔧 Controller servisi (API)

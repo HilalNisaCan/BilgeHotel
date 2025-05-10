@@ -40,6 +40,7 @@ namespace Project.WebApi.WebApiResolver
             services.AddScoped<IRoomTypePriceRepository, RoomTypePriceRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IIdentityValidationService, TCKimlikDogrulamaService>(); // Eğer bu senin kendi servissen
+            services.AddScoped<IAppRoleRepository, AppRoleRepository>();
 
 
 
@@ -55,7 +56,7 @@ namespace Project.WebApi.WebApiResolver
             services.AddScoped<IEarlyReservationDiscountManager, EarlyReservationDiscountManager>();
             services.AddScoped<ICustomerManager, CustomerManager>();
             services.AddScoped<IRoomTypePriceManager, RoomTypePriceManager>();
-            services.AddScoped<ICampainManager, CampaignManager>();
+            services.AddScoped<ICampaignManager, CampaignManager>();
             services.AddScoped<IPaymentManager, PaymentManager>();
             services.AddScoped<IExtraExpenseManager, ExtraExpenseManager>();
             services.AddScoped<IComplaintLogManager, ComplaintLogManager>();

@@ -1,45 +1,77 @@
-﻿
-@model List<RoomResponseModel>
-
+﻿@model List<RoomResponseModel>
 
 @{
     ViewData["Title"] = "Müsait Odalar";
     Layout = "_ReservationLayout";
 }
 
-<style>
-    .text-gradient {
-        background: linear-gradient(to right, #6a11cb, #2575fc);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-</style>
-
-
 <h2 class="text-center my-4">🛏️ Müsait Odalar</h2>
 
-
 <div class="container py-5">
-   
-
     <div class="row g-4">
         @foreach (var room in Model)
         {
             <div class="col-md-4">
                 <div class="card h-100 shadow-sm border-0 rounded-4">
-                    <img src="~/img/Room/@room.ImagePath" class="card-img-top rounded-top-4" alt="Oda Görseli" style="height: 200px; object-fit: cover;" />
+                    <img src="~/img/Room/@room.ImagePath" class="card-img-top rounded-top-4" style="height: 200px; object-fit: cover;" />
                     <div class="card-body">
-                        <h5 class="card-title text-gradient fw-bold">@room.RoomType</h5>
+                        <h5 class="card-title fw-bold text-primary">@room.RoomType</h5>
                         <p class="card-text small">@room.Description</p>
-                        <p class="card-text fw-semibold text-success">
+                        <p class="fw-semibold text-success">
                             💰 @room.PricePerNight.ToString("C0", new System.Globalization.CultureInfo("tr-TR")) / gece
                         </p>
                     </div>
-                    <div class="card-footer bg-transparent text-center">
-                        <a asp-area="Reservation" asp-controller="Reservation" asp-action="Create" asp-route-roomId="@room.Id"
-                           class="btn btn-outline-primary rounded-pill px-4 py-2">
+                    <div class="card-footer bg-transparent text-center d-flex justify-content-around">
+                        <button class="btn btn-outline-secondary rounded-pill px-3 py-2"
+                                data-bs-toggle="modal" data-bs-target="#roomModal-@room.Id">
+                            🔍 Detay
+                        </button>
+                        <a asp-area="Reservation" asp-controller="Reservation" asp-action="Create"
+                           asp-route-roomId="@room.Id"
+                           class="btn btn-outline-primary rounded-pill px-3 py-2">
                             🛎️ Rezervasyon Yap
                         </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🧾 MODAL: Oda Detayı -->
+            <div class="modal fade" id="roomModal-@room.Id" tabindex="-1" aria-labelledby="modalLabel-@room.Id" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content rounded-4 shadow">
+                        <div class="modal-header bg-primary text-white rounded-top-4">
+                            <h5 class="modal-title" id="modalLabel-@room.Id">@room.RoomType - Oda Detayları</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body row">
+                            <div class="col-md-6">
+                                <img src="~/img/Room/@room.ImagePath" class="img-fluid rounded" />
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item"><strong>Kat:</strong> @room.FloorNumber. Kat</li>
+                                    <li class="list-group-item"><strong>Oda Tipi:</strong> @room.RoomType</li>
+                                    <li class="list-group-item"><strong>Kapasite:</strong> @(room.Capacity + " Kişilik")</li>
+                                    <li class="list-group-item"><strong>Fiyat:</strong> @room.PricePerNight ₺ / gece</li>
+                                    <li class="list-group-item"><strong>Minibar:</strong> @(room.HasMinibar ? "✔️ Var" : "❌ Yok")</li>
+                                    <li class="list-group-item"><strong>Balkon:</strong> @(room.HasBalcony ? "✔️ Var" : "❌ Yok")</li>
+                                    <li class="list-group-item"><strong>Klima:</strong> ✔️ Var</li>
+                                    <li class="list-group-item"><strong>Televizyon:</strong> ✔️ Var</li>
+                                    <li class="list-group-item"><strong>Saç Kurutma Makinesi:</strong> ✔️ Var</li>
+                                    <li class="list-group-item"><strong>Wi-Fi:</strong> ✔️ Ücretsiz Kablosuz İnternet</li>
+                                    <li class="list-group-item"><strong>Uygun Paketler:</strong> Tam Pansiyon / Her Şey Dahil</li>
+                                    <li class="list-group-item"><strong>Açıklama:</strong> @room.Description</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light rounded-bottom-4">
+                            <a asp-area="Reservation" asp-controller="Reservation" asp-action="Create"
+                               asp-route-roomId="@room.Id"
+                               class="btn btn-success">
+                                🛎️ Rezervasyon Yap
+                            </a>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                        </div>
                     </div>
                 </div>
             </div>

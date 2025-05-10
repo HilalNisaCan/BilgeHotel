@@ -13,24 +13,31 @@ namespace Project.BLL.Managers.Abstracts
     /// </summary>
     public interface IRoomCleaningScheduleManager : IManager<RoomCleaningScheduleDto, RoomCleaningSchedule>
     {
-        /// <summary>
-        /// Belirli bir oda için temizlik planı oluşturur.
-        /// </summary>
-        Task<int> ScheduleRoomCleaningAsync(int roomId, DateTime cleaningDate);
+
 
         /// <summary>
-        /// Planlanan temizlik işlemini tamamlanmış olarak işaretler.
+        /// Belirtilen odaya ait en son temizlik planını getirir.
         /// </summary>
-        Task<bool> MarkCleaningAsCompletedAsync(int cleaningScheduleId);
-
-        /// <summary>
-        /// Belirli bir tarihte planlanan tüm temizlikleri listeler.
-        /// </summary>
-        Task<List<RoomCleaningScheduleDto>> GetScheduledCleaningsAsync(DateTime date);
-
+        /// <param name="roomId">Oda ID’si</param>
+        /// <returns>Son temizlik planı DTO’su, yoksa null</returns>
+        /// 
+        /// <remarks>
+        /// 📌 Not: Bu metot, oda detay ekranında en son temizlik bilgisi göstermek için kullanılır.
+        /// Temizlik görevlisi atama veya temizlik geçiş ekranlarında da değerlendirilebilir.
+        /// </remarks>
         Task<RoomCleaningScheduleDto?> GetLatestByRoomIdAsync(int roomId);
-       
-        Task<bool> CreateAndConfirmAsync(RoomCleaningSchedule entity);
+
+        /// <summary>
+        /// Yeni bir temizlik planı oluşturur ve ardından temizlenmiş olarak işaretler.
+        /// </summary>
+        /// <param name="dto">Oda temizlik DTO’su</param>
+        /// <returns>İşlem başarılıysa true, değilse false</returns>
+        /// 
+        /// <remarks>
+        /// 📌 Not: Bu işlem tek adıma indirgenmiştir — planlama ve onay tek hamlede yapılır.
+        /// Kat görevlisi işlemlerinde hızlı temizlik tamamlaması senaryosu için uygundur.
+        /// </remarks>
+        Task<bool> CreateAndConfirmAsync(RoomCleaningScheduleDto dto);
 
     }
 }

@@ -31,11 +31,7 @@ namespace Project.Dal.Repositories.Concretes
                                 .FirstOrDefaultAsync(u => u.Id == userId);
         }
 
-        public async Task<List<User>> GetUsersWithRoleAsync(UserRole role)
-        {
-            return await _dbSet.Where(u => u.Role == role).ToListAsync();
-        }
-
+       
         public async Task<User> GetAsync(Expression<Func<User, bool>> predicate)
         {
             return await _context.Set<User>().FirstOrDefaultAsync(predicate);
@@ -44,6 +40,14 @@ namespace Project.Dal.Repositories.Concretes
         public async Task<User?> GetByUserNameAsync(string username)
         {
             return await _dbSet.FirstOrDefaultAsync(u => u.UserName == username);
+        }
+
+        public async Task<List<User>> GetUsersByRoleIdAsync(int roleId)
+        {
+            return await _dbSet
+                .Where(u => u.AppRoleId == roleId)
+                .Include(u => u.AppRole) // Rol bilgisine erişmek istersen
+                .ToListAsync();
         }
     }
 }

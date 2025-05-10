@@ -4,9 +4,22 @@ using Project.BLL.DtoClasses;
 using Project.BLL.Managers.Abstracts;
 using Project.MvcUI.Areas.Admin.Models.PageVm;
 using Project.MvcUI.Areas.Admin.Models.PureVm.RequestModel.RoomTypePrice;
+using Project.MvcUI.Areas.Admin.Models.PureVm.ResponseModel.RoomTypePrice;
 
 namespace Project.MvcUI.Areas.Admin.Controllers
 {
+    /*"RoomTypePriceController, oda türlerine ait fiyatların listelenmesi, güncellenmesi ve silinmesini sağlayan yönetici panelidir.
+Tüm veriler RoomTypePriceDto üzerinden çekilir ve RoomTypePriceResponseModel'e AutoMapper aracılığıyla dönüştürülür.
+Güncelleme işlemleri ViewModel → DTO dönüşümüyle yapılır ve TempData üzerinden kullanıcıya işlem sonuçları bildirilir.
+Kod yapısı açık tiplerle yazılmıştır, var kullanılmamıştır. Katmanlı mimari ve temiz MVC prensiplerine uygundur."
+
+* "Fiyatlar Enum olan RoomType bilgisine göre eşleştirilir."
+
+* "Fiyatlar sayfası ViewModel (PageVm) aracılığıyla taşınır, DTO'lar direkt View’a gönderilmez."
+
+*"Mapping işlemleri profilde RoomTypePriceDto → ResponseModel şeklinde yapılandırılmıştır." */
+
+
     [Area("Admin")]
     [Route("Admin/[controller]/[action]")]
     public class RoomTypePriceController : Controller
@@ -34,23 +47,28 @@ namespace Project.MvcUI.Areas.Admin.Controllers
 
 
 
+        // [GET] Edit
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             RoomTypePriceDto? dto = await _roomTypePriceManager.GetByIdAsync(id);
-            if (dto == null)
-                return NotFound();
+            if (dto == null) return NotFound();
 
-            return View(dto); // View: Edit.cshtml
+            RoomTypePriceResponseModel model = _mapper.Map<RoomTypePriceResponseModel>(dto);
+            return View(model); // View: Edit.cshtml
         }
 
+
+        // [POST] Edit
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, RoomTypePriceDto model)
+        public async Task<IActionResult> Edit(int id, RoomTypePriceResponseModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
-            await _roomTypePriceManager.UpdateRoomTypePriceAsync(id, model);
+            RoomTypePriceDto dto = _mapper.Map<RoomTypePriceDto>(model);
+            await _roomTypePriceManager.UpdateRoomTypePriceAsync(id, dto);
+
             TempData["Message"] = "✅ Fiyat başarıyla güncellendi.";
             return RedirectToAction(nameof(Index));
         }
@@ -63,4 +81,5 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
     }
+
 }

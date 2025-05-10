@@ -22,7 +22,7 @@ namespace Project.BLL.Managers.Concretes
         private readonly IEmployeeShiftAssignmentRepository _shiftAssignmentRepository;
         private readonly IEmployeeShiftRepository _shiftRepository;
         private readonly IMapper _mapper;
-    //    private readonly IRepository<Employee> _repositoryForInclude;
+
         public EmployeeManager(IEmployeeRepository employeeRepository,
                                IEmployeeShiftAssignmentRepository shiftAssignmentRepository,
                                IEmployeeShiftRepository shiftRepository,
@@ -30,7 +30,6 @@ namespace Project.BLL.Managers.Concretes
             : base(employeeRepository, mapper)
         {
             _employeeRepository = employeeRepository;
-      //      _repositoryForInclude = repositoryForInclude; // assign ettik
             _shiftAssignmentRepository = shiftAssignmentRepository;
             _shiftRepository = shiftRepository;
             _mapper = mapper;
@@ -41,26 +40,26 @@ namespace Project.BLL.Managers.Concretes
         /// </summary>
         public async Task<int> AddEmployeeAsync(EmployeeDto dto)
         {
-            var employee = _mapper.Map<Employee>(dto);
+            Employee employee = _mapper.Map<Employee>(dto);
             await _employeeRepository.AddAsync(employee);
             return employee.Id;
         }
 
         /// <summary>
-        /// ID'ye göre çalışan getirir.
+        /// ID’ye göre çalışanı getirir.
         /// </summary>
         public async Task<EmployeeDto> GetEmployeeByIdAsync(int id)
         {
-            var employee = await _employeeRepository.GetByIdAsync(id);
+            Employee? employee = await _employeeRepository.GetByIdAsync(id);
             return _mapper.Map<EmployeeDto>(employee);
         }
 
         /// <summary>
-        /// Tüm çalışanları DTO listesi olarak getirir.
+        /// Tüm çalışanları getirir.
         /// </summary>
         public async Task<List<EmployeeDto>> GetAllEmployeesAsync()
         {
-            var employees = await _employeeRepository.GetAllAsync();
+            List<Employee> employees = (await _employeeRepository.GetAllAsync()).ToList();
             return _mapper.Map<List<EmployeeDto>>(employees);
         }
 
@@ -69,7 +68,7 @@ namespace Project.BLL.Managers.Concretes
         /// </summary>
         public async Task<bool> UpdateEmployeeAsync(EmployeeDto dto)
         {
-            var employee = await _employeeRepository.GetByIdAsync(dto.Id);
+            Employee? employee = await _employeeRepository.GetByIdAsync(dto.Id);
             if (employee == null) return false;
 
             _mapper.Map(dto, employee);
@@ -82,7 +81,7 @@ namespace Project.BLL.Managers.Concretes
         /// </summary>
         public async Task<bool> DeleteEmployeeAsync(int id)
         {
-            var employee = await _employeeRepository.GetByIdAsync(id);
+            Employee? employee = await _employeeRepository.GetByIdAsync(id);
             if (employee == null) return false;
 
             await _employeeRepository.RemoveAsync(employee);
@@ -90,19 +89,11 @@ namespace Project.BLL.Managers.Concretes
         }
 
         /// <summary>
-        /// Sabit maaş hesaplar: saatlik ücret x 160 saat.
-        /// </summary>
-        public async Task<decimal> GetManagerSalaryAsync(int employeeId, decimal hourlyRate)
-        {
-            return hourlyRate * 160;
-        }
-
-        /// <summary>
-        /// Çalışana vardiya atar.
+        /// Çalışana belirtilen vardiyayı atar.
         /// </summary>
         public async Task<bool> AssignShiftAsync(int employeeId, int shiftId, DateTime assignedDate)
         {
-            var assignment = new EmployeeShiftAssignment
+            EmployeeShiftAssignment assignment = new EmployeeShiftAssignment
             {
                 EmployeeId = employeeId,
                 EmployeeShiftId = shiftId,
@@ -112,18 +103,17 @@ namespace Project.BLL.Managers.Concretes
             await _shiftAssignmentRepository.AddAsync(assignment);
             return true;
         }
-
         /// <summary>
         /// Vardiyalardan toplam saatleri toplayarak maaş hesaplar.
         /// </summary>
         public async Task<decimal> CalculateSalaryAsync(int employeeId, decimal hourlyRate)
         {
-            var assignments = await _shiftAssignmentRepository.GetAllAsync(a => a.EmployeeId == employeeId);
+            List<EmployeeShiftAssignment> assignments = (await _shiftAssignmentRepository.GetAllAsync(a => a.EmployeeId == employeeId)).ToList();
             decimal totalHours = 0;
 
-            foreach (var assignment in assignments)
+            foreach (EmployeeShiftAssignment assignment in assignments)
             {
-                var shift = await _shiftRepository.GetByIdAsync(assignment.EmployeeShiftId);
+                EmployeeShift? shift = await _shiftRepository.GetByIdAsync(assignment.EmployeeShiftId);
                 if (shift != null)
                 {
                     totalHours += (decimal)(shift.ShiftEnd - shift.ShiftStart).TotalHours;
@@ -134,58 +124,37 @@ namespace Project.BLL.Managers.Concretes
         }
 
         /// <summary>
-        /// Çalışanın toplam fazla mesai süresini getirir.
+        /// Çalışanları kullanıcı ve profil bilgileriyle birlikte getirir.
         /// </summary>
-        public async Task<int> TrackOvertimeAsync(int employeeId)
-        {
-            var employee = await _employeeRepository.GetByIdAsync(employeeId);
-            if (employee == null) return 0;
-
-            int regularMonthlyHours = 160;
-            return employee.TotalWorkedHours > regularMonthlyHours
-                ? employee.TotalWorkedHours - regularMonthlyHours
-                : 0;
-        }
-
-        //public async Task<List<Employee>> GetAllWithIncludeAsync(Expression<Func<Employee, bool>> predicate = null, Func<IQueryable<Employee>, IQueryable<Employee>> include = null)
-        //{
-
-        //    if (_employeeRepository == null)
-        //        throw new InvalidOperationException("_repositoryForInclude is null");
-
-        //    var result = await _employeeRepository.GetAllWithIncludeAsync(predicate, include);
-
-        //    if (result == null)
-        //        throw new InvalidOperationException("No data returned from GetAllWithIncludeAsync.");
-
-        //    return result.ToList();
-        //}
-
         public async Task<List<EmployeeDto>> GetAllEmployeesWithDetailsAsync()
         {
-
-            var employees = await _employeeRepository.GetAllWithIncludeAsync(
+            List<Employee> employees =( await _employeeRepository.GetAllWithIncludeAsync(
                 null,
                 q => q.Include(e => e.User)
                       .ThenInclude(u => u.UserProfile)
-            );
+            )).ToList();
 
             return _mapper.Map<List<EmployeeDto>>(employees);
         }
 
+        /// <summary>
+        /// Belirli pozisyondaki çalışanları getirir.
+        /// </summary>
         public async Task<List<EmployeeDto>> GetByPositionAsync(EmployeePosition position)
         {
             List<Employee> employees = (await _employeeRepository.GetAllAsync(e => e.Position == position)).ToList();
             return _mapper.Map<List<EmployeeDto>>(employees);
         }
 
+        /// <summary>
+        /// Birden fazla pozisyondaki aktif çalışanları getirir.
+        /// </summary>
         public async Task<List<EmployeeDto>> GetByPositionsAsync(EmployeePosition[] positions)
         {
-            List<Employee> employees = (await _employeeRepository.GetAllAsync(e =>
-                positions.Contains(e.Position) && e.IsActive)).ToList();
+            List<Employee> employees = (await _employeeRepository
+                .GetAllAsync(e => positions.Contains(e.Position) && e.IsActive)).ToList();
 
             return _mapper.Map<List<EmployeeDto>>(employees);
         }
     }
 }
-//_repositoryForInclude

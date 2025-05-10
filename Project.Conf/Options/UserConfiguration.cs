@@ -26,8 +26,7 @@ namespace Project.Conf.Options
             builder.Property(u => u.IsActivated)
                    .IsRequired();
 
-            builder.Property(u => u.Role)
-                   .IsRequired(); // Enum: Admin, Receptionist, Customer vs.
+           
 
             // 🔗 İlişkiler
 
@@ -42,9 +41,9 @@ namespace Project.Conf.Options
                    .OnDelete(DeleteBehavior.SetNull); // Kullanıcı silinse bile rezervasyon kalsın
 
             builder.HasMany(u => u.Payments)
-            .WithOne(p => p.User)
-            .HasForeignKey(p => p.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
+          .WithOne(p => p.User)
+          .HasForeignKey(p => p.UserId)
+          .OnDelete(DeleteBehavior.NoAction);
 
             builder.HasMany(u => u.ReportLogs)
                    .WithOne(r => r.User)
@@ -64,6 +63,11 @@ namespace Project.Conf.Options
             builder.HasMany(u => u.Orders)
                    .WithOne(o => o.User)
                    .HasForeignKey(o => o.UserId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(u => u.AppRole)
+                   .WithMany(r => r.Users)
+                   .HasForeignKey(u => u.AppRoleId)
                    .OnDelete(DeleteBehavior.Restrict);
         }
     }

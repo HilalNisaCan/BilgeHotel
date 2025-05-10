@@ -4,6 +4,12 @@ using Project.BLL.Managers.Abstracts;
 
 namespace Project.WebApi.Controllers
 {
+
+    //“Web sitesi ödeme formundan gelen talepler burada karşılanıyor. API üzerinden ödeme kaydı yapılır ve yönetici paneline yansıtılır.
+
+    /// <summary>
+    /// Ödeme işlemleri için kullanılan API controller'dır.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class PaymentApiController : ControllerBase
@@ -15,11 +21,15 @@ namespace Project.WebApi.Controllers
             _paymentManager = paymentManager;
         }
 
-        // 🔹 Belirli bir rezervasyona ait ödeme bilgisi
+        /// <summary>
+        /// Belirli rezervasyona ait ödeme bilgilerini getirir.
+        /// </summary>
+        /// <param name="reservationId">Rezervasyon ID</param>
+        /// <returns>Ödeme bilgisi veya 404</returns>
         [HttpGet("reservation/{reservationId}")]
         public async Task<IActionResult> GetByReservationId(int reservationId)
         {
-            var payment = await _paymentManager.GetByIdAsync(reservationId);
+            PaymentDto? payment = await _paymentManager.GetByIdAsync(reservationId);
 
             if (payment == null)
                 return NotFound("Ödeme bilgisi bulunamadı.");
@@ -37,7 +47,11 @@ namespace Project.WebApi.Controllers
             });
         }
 
-        // 🔹 Ödeme kaydı oluşturma
+        /// <summary>
+        /// Yeni bir ödeme kaydı oluşturur.
+        /// </summary>
+        /// <param name="dto">Ödeme DTO</param>
+        /// <returns>Oluşturulan ödeme ID</returns>
         [HttpPost("create")]
         public async Task<IActionResult> CreatePayment([FromBody] PaymentDto dto)
         {
@@ -65,3 +79,4 @@ namespace Project.WebApi.Controllers
         }
     }
 }
+

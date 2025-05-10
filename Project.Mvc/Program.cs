@@ -8,6 +8,7 @@ using Project.Dal.ContextClasses;
 using Project.Entities.Enums;
 using Project.Entities.Models;
 using Project.MvcUI.DependencyResolver;
+using Project.MvcUI.DependencyResolver.RoomTypePriceResolver;
 using Project.MvcUI.Services;
 using Project.MvcUI.VmMapping;
 using QuestPDF.Infrastructure;
@@ -30,7 +31,7 @@ RotativaConfiguration.Setup(env.WebRootPath, "Rotativa");
 builder.Services.AddDbContextService();
 builder.Services.AddRepositoryService();
 builder.Services.AddIdentityService();
-
+builder.Services.AddTransient<RoomTypePriceResolver>();
 builder.Services.AddManagerService();
 builder.Services.AddVmMapperService(); // 
 builder.Services.AddMapperService();
@@ -48,39 +49,6 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Account/AccessDenied"; // opsiyonel
 });
 
-//async Task CreateAdminUserAsync(IServiceProvider provider)
-//{
-//    var userManager = provider.GetRequiredService<UserManager<User>>();
-
-//    string email = "admin@bilgehotel.com";
-//    string password = "123456Aa!";
-//    int role = 6; // Admin rolü
-
-//    var existingUser = await userManager.FindByEmailAsync(email);
-//    if (existingUser == null)
-//    {
-//        User admin = new User
-//        {
-//            UserName = email,
-//            Email = email,
-//            EmailConfirmed = true,
-//            Role = (UserRole)role,
-//            IsActivated = true,
-//            CreatedDate = DateTime.Now,
-//            Status = DataStatus.Inserted
-//        };
-
-//        var result = await userManager.CreateAsync(admin, password);
-//        if (result.Succeeded)
-//        {
-//            Console.WriteLine("✅ Admin başarıyla oluşturuldu.");
-//        }
-//        else
-//        {
-//            Console.WriteLine("❌ Hatalar: " + string.Join(" / ", result.Errors.Select(e => e.Description)));
-//        }
-//    }
-//}
 
 var app = builder.Build();
 
@@ -91,26 +59,22 @@ CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 // 👇👇👇 SEEDER BURAYA EKLENDİ
 // SEED işlemi için scope açılır
-// SEED işlemi için scope açılır
+
 using (IServiceScope scope = app.Services.CreateScope())
 {
     IServiceProvider serviceProvider = scope.ServiceProvider;
 
     MyContext context = serviceProvider.GetRequiredService<MyContext>();
     UserManager<User> userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+    RoleManager<AppRole> roleManager = serviceProvider.GetRequiredService<RoleManager<AppRole>>();
 
-    await SeederManager.SeedAllAsync(context, userManager);
+    await SeederManager.SeedAllAsync(context, userManager, roleManager); // 🔥 roleManager parametresi de gönderildi
 } /*
    *  sahte veri seeding işlemini sadece IsDevelopment() ortamında çalışacak şekilde ekledim.
      Böylece production'da veri bozulmaz. UserManager ve DbContext’i Dependency Injection üzerinden alarak profesyonel bir yapı kurdum.
    * 
    * */
 
-//using (var scope = app.Services.CreateScope())
-//{
-//    var provider = scope.ServiceProvider;
-//    await CreateAdminUserAsync(provider);
-//}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

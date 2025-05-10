@@ -13,6 +13,13 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Project.MvcUI.Areas.Reservation.Controllers
 {
+
+/*"CheckInOutController, rezervasyon modülünde günlük giriş/çıkış kontrolü, ekstra harcama yönetimi ve çıkış tamamlama işlemlerini yürütür. 
+ * Tüm işlemler katmanlı mimariye uygun şekilde Entity → DTO → ViewModel akışı ile gerçekleştirilir. 
+ * Kodda var kullanılmadan açık tiplerle temiz yapı korunmuş, AutoMapper ile tüm dönüşümler otomatikleştirilmiştir.
+ * Kullanıcı arayüzünde dinamik API destekli ürün seçimleri ile etkileşimli bir deneyim sağlanır."*/
+
+
     [Area("Reservation")]
     public class CheckInOutController : Controller
     {
@@ -29,49 +36,53 @@ namespace Project.MvcUI.Areas.Reservation.Controllers
             _productManager = productManager;
         }
 
+        /// <summary>
+        /// Bugün giriş/çıkış yapacak rezervasyonları listeler (Entity → DTO → ViewModel).
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             DateTime today = DateTime.Today;
 
-            // Sadece bugünkü aktif giriş ve çıkış rezervasyonları
-            var allReservations = await _reservationManager.GetAllWithIncludeAsync(
-                x => (x.StartDate.Date == today || x.EndDate.Date == today) &&
-                     x.ReservationStatus != ReservationStatus.Completed,
-                q => q.Include(x => x.Customer).ThenInclude(c => c.User)
-                      .Include(x => x.Room)
+            List< Project.Entities.Models.Reservation> allReservations = await _reservationManager.GetAllWithIncludeAsync(
+                x => (x.StartDate.Date == today || x.EndDate.Date == today) && x.ReservationStatus != ReservationStatus.Completed,
+                q => q.Include(x => x.Customer).ThenInclude(c => c.User).Include(x => x.Room)
             );
 
-            var vm = _mapper.Map<List<ReservationCheckInOutModel>>(allReservations);
+            List<ReservationCheckInOutModel> vm = _mapper.Map<List<ReservationCheckInOutModel>>(allReservations);
             return View(vm);
         }
 
+
+        /// <summary>
+        /// Çıkış yapacak rezervasyonun detaylarını getirir (DTO → ViewModel).
+        /// </summary>
         [HttpGet("Complete")]
         public async Task<IActionResult> Complete(int reservationId)
         {
-            var reservation = await _reservationManager.GetWithIncludeAsync(reservationId);
-
+            ReservationDto reservation = await _reservationManager.GetWithIncludeAsync(reservationId);
             if (reservation == null) return NotFound();
 
-            var vm = _mapper.Map<CheckOutDetailModel>(reservation);
+            CheckOutDetailModel vm = _mapper.Map<CheckOutDetailModel>(reservation);
 
-            // Her şey dahil DEĞİLSE, ekstra harcamaları getir
             if (reservation.Package != ReservationPackage.AllInclusive)
             {
-                var expenses = await _extraExpenseManager.GetExpensesByReservationAsync(reservationId);
+                List<ExtraExpenseDto> expenses = await _extraExpenseManager.GetExpensesByReservationAsync(reservationId);
                 vm.ExtraExpenses = _mapper.Map<List<ExtraExpenseModel>>(expenses);
             }
 
             return View(vm);
         }
 
+        /// <summary>
+        /// Çıkış işlemini onaylar.
+        /// </summary>
         [HttpPost("Complete")]
         public async Task<IActionResult> CompleteConfirmed(int reservationId)
         {
             try
             {
                 await _reservationManager.CompleteReservationAsync(reservationId);
-
                 TempData["Success"] = "✅ Çıkış işlemi başarıyla tamamlandı.";
                 return RedirectToAction("Index");
             }
@@ -83,18 +94,23 @@ namespace Project.MvcUI.Areas.Reservation.Controllers
             }
         }
 
+        /// <summary>
+        /// Ekstra harcama ekleme formunu getirir.
+        /// </summary>
         [HttpGet("AddExpense")]
         public IActionResult AddExpense(int reservationId)
         {
-            var categories = Enum.GetValues(typeof(ProductCategory))
-           .Cast<ProductCategory>()
-           .Select(c => new SelectListItem
-           {
-            Value = ((int)c).ToString(),
-            Text = c.ToString()
-          }).ToList();
+            // 🔹 Enum'dan kategori listesini SelectListItem olarak hazırla
+            List<SelectListItem> categories = Enum.GetValues(typeof(ProductCategory))
+                .Cast<ProductCategory>()
+                .Select(c => new SelectListItem
+                {
+                    Value = ((int)c).ToString(),
+                    Text = c.ToString()
+                }).ToList();
 
-            var model = new AddExtraExpenseModel
+            // 🔹 Modeli doldur ve View'a gönder
+            AddExtraExpenseModel model = new AddExtraExpenseModel
             {
                 ReservationId = reservationId,
                 CategoryList = categories
@@ -103,6 +119,12 @@ namespace Project.MvcUI.Areas.Reservation.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Ekstra harcamayı ekler (RequestModel → DTO AutoMapper kullanımı)
+        /// </summary>
+        /// <summary>
+        /// Ekstra harcamayı ekler (RequestModel → DTO AutoMapper kullanımı)
+        /// </summary>
         [HttpPost("AddExpense")]
         public async Task<IActionResult> AddExpense(AddExtraExpenseModel model)
         {
@@ -161,15 +183,22 @@ namespace Project.MvcUI.Areas.Reservation.Controllers
             return RedirectToAction("Complete", new { reservationId = model.ReservationId });
         }
 
+
+        /// <summary>
+        /// Seçilen kategoriye göre ürün listesini API ile döner.
+        /// </summary>
         [HttpGet("api/product/byCategory/{category}")]
         public async Task<IActionResult> GetProductsByCategory(int category)
         {
-            var products = await _productManager.GetByCategoryAsync((ProductCategory)category);
-            var simplified = products.Select(p => new
+            // 🔹 Belirli kategoriye ait ürünleri getir
+            List<ProductDto> products = await _productManager.GetByCategoryAsync((ProductCategory)category);
+
+            // 🔹 Sadece gerekli alanları içeren anonim tipli liste oluştur
+            IEnumerable<object> simplified = products.Select(p => new
             {
                 id = p.Id,
                 name = p.Name,
-                unitPrice = p.Price,
+                unitPrice = p.Price
             });
 
             return Ok(simplified);

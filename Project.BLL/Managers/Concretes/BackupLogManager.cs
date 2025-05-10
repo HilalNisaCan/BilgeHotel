@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using Microsoft.Data.SqlClient;
 using Project.BLL.DtoClasses;
 using Project.BLL.Managers.Abstracts;
 using Project.Dal.Repositories.Abstracts;
+using Project.Dal.Repositories.Concretes;
 using Project.Entities.Enums;
 using Project.Entities.Models;
 using System;
@@ -11,127 +11,75 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-//namespace Project.BLL.Managers.Concretes
-//{
-////    public class BackupLogManager : BaseManager<BackupLogDto, BackupLog>, IBackupLogManager
-//    {
-//        private readonly IBackUpRepository _backupRepository;
-//        private readonly IUserRepository _userRepository;
-//        private readonly string _connectionString;
-//        private readonly IMapper _mapper;
+namespace Project.BLL.Managers.Concretes
+{
+    /// <summary>
+    /// Veritabanı yedekleme ve geri yükleme işlemlerini yöneten manager sınıfı.
+    /// (Simülasyon amaçlı, gerçek yedekleme yapılmaz)
+    /// </summary>
+    public class BackupLogManager : BaseManager<BackupLogDto, BackupLog>, IBackupLogManager
+    {
+        private readonly IBackUpRepository _backupLogRepository;
+        private readonly IMapper _mapper;
 
-//        public BackupLogManager(IBackUpRepository backupRepository,
-//                                IUserRepository userRepository,
-//                                string connectionString,
-//                                IMapper mapper)
-//            : base(backupRepository, mapper)
-//        {
-//            _backupRepository = backupRepository;
-//            _userRepository = userRepository;
-//            _connectionString = connectionString;
-//            _mapper = mapper;
-//        }
+        public BackupLogManager(IBackUpRepository backupLogRepository, IMapper mapper)
+            : base(backupLogRepository, mapper)
+        {
+            _backupLogRepository = backupLogRepository;
+            _mapper = mapper;
+        }
 
-//        /// <summary>
-//        /// Belirtilen kullanıcı tarafından veritabanı yedeği alır. Sadece Admin yetkisine izin verilir.
-//        /// </summary>
-//        public async Task<bool> BackupDatabaseAsync(int userId, string backupFolderPath)
-//        {
-//            var user = await _userRepository.GetByIdAsync(userId);
-//            if (user == null || user.Role != UserRole.Admin) // ✅ Yalnızca Admin izinli
-//                throw new UnauthorizedAccessException("Bu işlemi yapma yetkiniz yok!");
+        /// <summary>
+        /// Yedekleme işlemi başlatır (simülasyon).
+        /// </summary>
+        public async Task<bool> BackupDatabaseAsync(int userId, string backupFolderPath)
+        {
+            string filePath = Path.Combine(backupFolderPath, $"backup_{DateTime.Now:yyyyMMdd_HHmmss}.bak");
 
-//            string backupFilePath = Path.Combine(backupFolderPath, $"Backup_{DateTime.UtcNow:yyyyMMddHHmmss}.bak");
-//            string query = $"BACKUP DATABASE BilgeHotel TO DISK = '{backupFilePath}'";
+            BackupLog log = new BackupLog
+            {
+                UserId = userId,
+                IsAuthorized = true,
+                FilePath = filePath,
+                BackupDate = DateTime.Now,
+                BackupStatus = BackupStatus.Success,
+                IsRestored = false,
+                IPAddress = GetIpAddress(),
+                MachineName = Environment.MachineName
+            };
 
-//            try
-//            {
-//                using (SqlConnection conn = new SqlConnection(_connectionString))
-//                {
-//                    await conn.OpenAsync();
-//                    using (SqlCommand cmd = new SqlCommand(query, conn))
-//                    {
-//                        await cmd.ExecuteNonQueryAsync();
-//                    }
-//                }
+            await _backupLogRepository.AddAsync(log);
+            return true;
+        }
 
-//                var backupLog = new BackupLog
-//                {
-//                    FilePath = backupFilePath,
-//                    CreatedDate = DateTime.UtcNow,
-//                    BackupStatus = BackupStatus.Success
-//                };
+        /// <summary>
+        /// Geri yükleme işlemi başlatır (simülasyon).
+        /// </summary>
+        public async Task<bool> RestoreDatabaseAsync(int userId, string backupFilePath)
+        {
+            BackupLog log = new BackupLog
+            {
+                UserId = userId,
+                IsAuthorized = true,
+                FilePath = backupFilePath,
+                BackupDate = DateTime.Now.AddDays(-1), // Simülasyon olarak dün alınmış gibi
+                BackupStatus = BackupStatus.Success,
+                IsRestored = true,
+                RestoredDate = DateTime.Now,
+                IPAddress = GetIpAddress(),
+                MachineName = Environment.MachineName
+            };
 
-//                await _backupRepository.AddAsync(backupLog);
-//                return true;
-//            }
-//            catch
-//            {
-//                var backupLog = new BackupLog
-//                {
-//                    FilePath = backupFilePath,
-//                    CreatedDate = DateTime.UtcNow,
-//                    BackupStatus = BackupStatus.Failed
+            await _backupLogRepository.AddAsync(log);
+            return true;
+        }
 
-//                };
-
-//                await _backupRepository.AddAsync(backupLog);
-//                return false;
-//            }
-//        }
-
-//        public Task<bool> CreateBackAsync(BackupLogDto dto)
-//        {
-//            throw new NotImplementedException();
-//        }
-
-//        /// <summary>
-//        /// Tüm yedekleme geçmişini DTO olarak getirir.
-//        /// </summary>
-//        public async Task<List<BackupLogDto>> GetBackupHistoryAsync()
-//        {
-//            var history = await _backupRepository.GetAllAsync();
-//            return _mapper.Map<List<BackupLogDto>>(history);
-//        }
-
-//        /// <summary>
-//        /// Verilen yedek dosyasını kullanarak veritabanını geri yükler. Sadece Admin yetkisine izin verilir.
-//        /// </summary>
-//        public async Task<bool> RestoreDatabaseAsync(int userId, string backupFilePath)
-//        {
-//            var user = await _userRepository.GetByIdAsync(userId);
-//            if (user == null || user.Role != UserRole.Admin) // ✅ Yalnızca Admin izinli
-//                throw new UnauthorizedAccessException("Bu işlemi yapma yetkiniz yok!");
-
-//            string query = $"RESTORE DATABASE BilgeHotel FROM DISK = '{backupFilePath}' WITH REPLACE";
-
-//            try
-//            {
-//                using (SqlConnection conn = new SqlConnection(_connectionString))
-//                {
-//                    await conn.OpenAsync();
-//                    using (SqlCommand cmd = new SqlCommand(query, conn))
-//                    {
-//                        await cmd.ExecuteNonQueryAsync();
-//                    }
-//                }
-//                return true;
-//            }
-//            catch
-//            {
-//                return false;
-//            }
-//        }
-
-//        /// <summary>
-//        /// Sistem tarafından otomatik olarak yedekleme planlar (adminId ve yol daha sonra konfigürasyona taşınmalı).
-//        /// </summary>
-//        public async Task ScheduleAutomaticBackupAsync()
-//        {
-//            string backupFolderPath = "C:\\DatabaseBackups";
-//            int adminUserId = 1; // FIXME: Yapılandırmadan alınmalı
-//            await BackupDatabaseAsync(adminUserId, backupFolderPath);
-//        }
-
-//    }
-//}
+        /// <summary>
+        /// (Mock) IP adresi alır — gerçek projede HttpContext üzerinden alınmalı.
+        /// </summary>
+        private string GetIpAddress()
+        {
+            return "127.0.0.1"; // placeholder IP
+        }
+    }
+}

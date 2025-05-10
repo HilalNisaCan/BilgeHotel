@@ -13,7 +13,7 @@ namespace Project.Dal.Repositories.Abstracts
     {
         Task<User> GetUserByEmailAsync(string email); // E-posta ile kullanıcıyı getir
         Task<User> GetUserWithReservationsAsync(int userId); // Kullanıcıyı rezervasyonlarıyla getir
-        Task<List<User>> GetUsersWithRoleAsync(UserRole role); // Belirli bir role sahip kullanıcıları getir
+        Task<List<User>> GetUsersByRoleIdAsync(int roleId); // Belirli bir role sahip kullanıcıları getir
         Task<User> GetAsync(Expression<Func<User, bool>> predicate); // ✅ Kullanıcı sorgulamak için
         Task<User?> GetByUserNameAsync(string username);
 

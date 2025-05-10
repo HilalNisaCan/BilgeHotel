@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,9 @@ using Project.MvcUI.Models.PageVm.User;
 
 namespace Project.MvcUI.Controllers
 {
+
+    //“UserController, giriş yapan kullanıcıların kendi profillerini görüntüleyip düzenleyebildiği,
+    //geçmiş ve aktif rezervasyonlarını takip edebildiği kişisel kontrol panelidir.”
     [Authorize]
     public class UserController : Controller
     {
@@ -18,16 +22,22 @@ namespace Project.MvcUI.Controllers
         private readonly IUserProfileRepository _userProfileRepo;
         private readonly IReservationRepository _reservationRepo;
         private readonly MyContext _context;
+        private readonly IMapper _mapper;
 
         public UserController(UserManager<User> userManager,
                               IUserProfileRepository userProfileRepo,
-                              IReservationRepository reservationRepo,MyContext context)
+                              IReservationRepository reservationRepo,MyContext context,IMapper mapper)
         {
             _userManager = userManager;
             _userProfileRepo = userProfileRepo;
             _reservationRepo = reservationRepo;
             _context = context;
+            _mapper = mapper;
         }
+
+        /// <summary>
+        /// Kullanıcı profil bilgilerini ve rezervasyon geçmişini getirir.
+        /// </summary>
 
         [HttpGet]
         public async Task<IActionResult> Profile()
@@ -64,19 +74,24 @@ namespace Project.MvcUI.Controllers
             }
 
             // ✅ En son onaylanmış rezervasyonu al (gelecek tarihli dahil)
-            Reservation? currentReservation = allReservations
-      .Where(r => r.ReservationStatus == ReservationStatus.Confirmed && r.EndDate >= now)
+            List<Reservation> currentReservations = allReservations
+      .Where(r =>
+          (r.ReservationStatus == ReservationStatus.Waiting || r.ReservationStatus == ReservationStatus.Confirmed) &&
+          r.EndDate >= now)
       .OrderBy(r => r.StartDate)
-      .FirstOrDefault();
+      .ToList();
             // ✅ Geçmiş rezervasyonlar
             List<Reservation> pastReservations = allReservations
-                .Where(r => r.EndDate < now || r.ReservationStatus == ReservationStatus.Completed)
-                .ToList();
+      .Where(r =>
+          r.EndDate < now ||
+          r.ReservationStatus == ReservationStatus.Completed ||
+          r.ReservationStatus == ReservationStatus.Cancelled)
+      .ToList();
 
             UserProfilePageVm vm = new UserProfilePageVm
             {
                 Profile = profile,
-                CurrentReservation = currentReservation,
+                CurrentReservations = currentReservations,
                 PastReservations = pastReservations
             };
 
@@ -116,6 +131,41 @@ namespace Project.MvcUI.Controllers
 
             TempData["Message"] = "Profil bilgileri başarıyla güncellendi.";
             return RedirectToAction("Index", "Home");
+        }
+
+        /// <summary>
+        /// Kullanıcının kendi aktif rezervasyonunu iptal etmesini sağlar.
+        /// Sadece bugünden sonraki onaylanmış rezervasyonlar iptal edilebilir.
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelReservation(int id)
+        {
+            User currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+                return RedirectToAction("Login", "Account");
+
+            Reservation? reservation = await _context.Reservations
+                .FirstOrDefaultAsync(r => r.Id == id && r.UserId == currentUser.Id);
+
+            if (reservation == null)
+            {
+                TempData["Error"] = "Rezervasyon bulunamadı veya size ait değil.";
+                return RedirectToAction("Profile");
+            }
+
+            if (reservation.StartDate <= DateTime.Today)
+            {
+                TempData["Error"] = "Başlamış veya geçmiş rezervasyon iptal edilemez.";
+                return RedirectToAction("Profile");
+            }
+
+            reservation.ReservationStatus = ReservationStatus.Cancelled;
+            reservation.ModifiedDate = DateTime.Now;
+            await _reservationRepo.UpdateAsync(reservation);
+
+            TempData["Message"] = "Rezervasyon başarıyla iptal edildi.";
+            return RedirectToAction("Profile");
         }
     }
 }

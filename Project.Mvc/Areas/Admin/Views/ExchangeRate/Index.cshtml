@@ -1,0 +1,84 @@
+﻿@model List<ExchangeRateResponseModel>
+
+@{
+    ViewData["Title"] = "Döviz Kurları";
+    Layout = "_AdminLayout";
+}
+
+<div class="container mt-5">
+    <!-- 🔹 Sayfa Başlığı -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-dark">
+            <i class="bi bi-currency-exchange me-2 text-info"></i> Döviz Kurları
+        </h3>
+        <a asp-action="Create" class="btn btn-outline-primary rounded-pill px-4">
+            <i class="bi bi-plus-circle me-1"></i> Yeni Kur Ekle
+        </a>
+    </div>
+
+    <!-- 🔔 Bilgilendirme -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success border-0 shadow-sm rounded text-center fw-semibold">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+        </div>
+    }
+
+    <!-- 📊 Tablo -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle text-center">
+                    <thead class="table-light text-dark">
+                        <tr class="align-middle">
+                            <th><i class="bi bi-coin me-1"></i>Para Kodu</th>
+                            <th><i class="bi bi-upload me-1"></i>Kaynak</th>
+                            <th><i class="bi bi-download me-1"></i>Hedef</th>
+                            <th><i class="bi bi-graph-up me-1"></i>Oran</th>
+                            <th><i class="bi bi-calendar-date me-1"></i>Tarih</th>
+                            <th><i class="bi bi-tools me-1"></i>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@item.CurrencyCode</td>
+                                <td>@item.FromCurrency</td>
+                                <td>@item.ToCurrency</td>
+                                <td class="text-success fw-bold">@item.Rate.ToString("N4")</td>
+                                <td>@item.Date.ToString("dd.MM.yyyy")</td>
+                                <td>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <!-- Güncelle -->
+                                        <a asp-area="Admin"
+                                           asp-controller="ExchangeRate"
+                                           asp-action="Update"
+                                           asp-route-id="@item.Id"
+                                           class="btn btn-sm btn-warning px-3"
+                                           title="Güncelle">
+                                            <i class="bi bi-pencil-fill me-1"></i> Güncelle
+                                        </a>
+
+                                        <!-- Sil -->
+                                        <form asp-area="Admin"
+                                              asp-controller="ExchangeRate"
+                                              asp-action="Delete"
+                                              asp-route-id="@item.Id"
+                                              method="post"
+                                              class="d-inline"
+                                              onsubmit="return confirm('Bu kur bilgisini silmek istediğinize emin misiniz?');">
+                                            <button type="submit" class="btn btn-sm btn-danger px-3" title="Sil">
+                                                <i class="bi bi-trash-fill me-1"></i> Sil
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

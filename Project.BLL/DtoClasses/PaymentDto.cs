@@ -10,8 +10,8 @@ namespace Project.BLL.DtoClasses
 {
     public class PaymentDto:BaseDto
     {
-        [Required]
-        public int UserId { get; set; } // Ödemeyi yapan kullanıcının ID'si
+       
+        public int? UserId { get; set; } // Ödemeyi yapan kullanıcının ID'si
 
         [Required]
         public int ReservationId { get; set; } // Ödeme ait olduğu rezervasyonun ID'si

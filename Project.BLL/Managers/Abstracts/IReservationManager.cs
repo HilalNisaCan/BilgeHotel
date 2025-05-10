@@ -14,71 +14,95 @@ namespace Project.BLL.Managers.Abstracts
     public interface IReservationManager : IManager<ReservationDto, Reservation>
     {
         /// <summary>
-        /// Yeni bir rezervasyon oluşturur. Uygunluk kontrolü yapılır, rezervasyon fiyatı kampanya ve erken rezervasyon indirimi dikkate alınarak hesaplanır.
-        /// </summary>
-        /// <param name="customerId">Rezervasyonu yapacak müşteri ID'si</param>
-        /// <param name="roomId">Rezerve edilecek oda ID'si</param>
-        /// <param name="startDate">Konaklama başlangıç tarihi</param>
-        /// <param name="duration">Konaklama süresi (gün)</param>
-        /// <param name="package">Seçilen rezervasyon paketi (örneğin: Tam Pansiyon)</param>
-        /// <returns>Rezervasyon başarıyla yapılırsa true, aksi halde false</returns>
-        Task<bool> MakeReservationAsync(int customerId, int roomId, DateTime startDate, int duration, ReservationPackage package);
-
-        /// <summary>
-        /// Belirli bir odanın belirtilen tarihlerde uygun olup olmadığını kontrol eder.
-        /// </summary>
-        /// <param name="roomId">Kontrol edilecek oda ID'si</param>
-        /// <param name="startDate">İstenen başlangıç tarihi</param>
-        /// <param name="duration">Konaklama süresi (gün)</param>
-        /// <returns>Uygunsa true, doluysa false</returns>
-        Task<bool> CheckAvailabilityAsync(int roomId, DateTime startDate, int duration);
-
-        /// <summary>
-        /// Belirtilen rezervasyonu iptal eder. Odanın durumu 'Available' olarak güncellenir.
-        /// </summary>
-        /// <param name="reservationId">İptal edilecek rezervasyonun ID'si</param>
-        Task CancelReservationAsync(int reservationId);
-
-        /// <summary>
-        /// Rezervasyon süresi ve oda fiyatına göre toplam ücreti hesaplar.
-        /// </summary>
-        /// <param name="reservationId">Fiyatı hesaplanacak rezervasyonun ID'si</param>
-        /// <returns>Toplam fiyat</returns>
-        Task<decimal> CalculateTotalPriceAsync(int reservationId);
-
-        /// <summary>
         /// Belirli bir müşterinin geçmiş ve mevcut tüm rezervasyonlarını getirir.
         /// </summary>
         /// <param name="customerId">Müşteri ID</param>
         /// <returns>Rezervasyon DTO listesi</returns>
+        /// 
+        /// <remarks>
+        /// 📌 Not: Kullanıcı panelinde “rezervasyon geçmişi” gibi ekranlarda kullanılır.
+        /// </remarks>
         Task<List<ReservationDto>> GetCustomerReservationsAsync(int customerId);
 
-        Task<int> CreateAndReturnIdAsync(int customerId, int roomId, DateTime checkIn, int duration, ReservationPackage package, decimal totalPrice);
+        /// <summary>
+        /// Yeni rezervasyon oluşturur ve ID değerini döner.
+        /// </summary>
+        /// <remarks>
+        /// 📌 Not: Customer tablosu üzerinden yapılan işlemlerde çağrılır.
+        /// </remarks>
+        Task<int> CreateAndReturnIdAsync(
+            int customerId,
+            int roomId,
+            DateTime checkIn,
+            int duration,
+            ReservationPackage package,
+            decimal totalPrice);
 
-        Task<int> CreateAndReturnIdAsync(int customerId, int userId, int roomId, DateTime checkIn, int duration, ReservationPackage package, decimal totalPrice);
+        /// <summary>
+        /// Yeni rezervasyon oluşturur ve ID değerini döner (User bilgisiyle birlikte).
+        /// </summary>
+        /// <remarks>
+        /// 📌 Not: Kullanıcı sistemde kayıtlıysa hem user hem customer ID ile çalışılır.
+        /// </remarks>
+        Task<int> CreateAndReturnIdAsync(
+          int customerId,
+          int userId,
+          int roomId,
+          DateTime checkIn,
+          int duration,
+          ReservationPackage package,
+          decimal totalPrice,
+          int numberOfGuests,
+          int? campaignId = null,
+          decimal discountRate = 0,
+         string currencyCode = "TRY");
 
-        Task<ReservationDto> GetByIdWithRoomAsync(int reservationId);
-        Task<bool> UpdateAfterPaymentAsync(int reservationId, int paymentId);
-
-
+        /// <summary>
+        /// Tüm rezervasyonları oda ve müşteri bilgisiyle birlikte getirir.
+        /// </summary>
+        /// <returns>Rezervasyon listesi</returns>
+        /// 
+        /// <remarks>
+        /// 📌 Not: Admin panelde toplu rezervasyon listelemede kullanılır.
+        /// </remarks>
         Task<List<ReservationDto>> GetAllWithRoomAndCustomerAsync();
 
+        /// <summary>
+        /// Belirli rezervasyonun oda ve müşteri bilgisiyle detayını getirir.
+        /// </summary>
+        /// <param name="reservationId">Rezervasyon ID</param>
         Task<ReservationDto> GetByIdWithRoomAndCustomerAsync(int reservationId);
 
+        /// <summary>
+        /// Rezervasyonun durumunu günceller (örn. Onaylandı, İptal edildi).
+        /// </summary>
         Task<bool> UpdateStatusAsync(int reservationId, ReservationStatus status);
 
+        /// <summary>
+        /// Include içeren tüm rezervasyonları filtreleyerek getirir.
+        /// </summary>
         Task<List<Reservation>> GetAllWithIncludeAsync(
-    Expression<Func<Reservation, bool>> predicate,
-    Func<IQueryable<Reservation>, IQueryable<Reservation>> include);
+            Expression<Func<Reservation, bool>> predicate,
+            Func<IQueryable<Reservation>, IQueryable<Reservation>> include);
 
+        /// <summary>
+        /// DTO ile rezervasyon oluşturur ve ID döner.
+        /// </summary>
         Task<int> AddAsync(ReservationDto reservationDto);
 
-        Task<List<ReservationDto>> GetTodayCheckOutsAsync();
+        /// <summary>
+        /// Rezervasyon bilgilerini ilişkili oda ve müşteri bilgisiyle birlikte getirir.
+        /// </summary>
+        /// <param name="reservationId">Rezervasyon ID</param>
+        Task<ReservationDto> GetWithIncludeAsync(int reservationId);
 
-         Task<ReservationDto> GetWithIncludeAsync(int reservationId);
-
+        /// <summary>
+        /// Rezervasyonu tamamlama (örneğin: ödeme sonrası bitirme) işlemi.
+        /// </summary>
+        /// <param name="reservationId">İlgili rezervasyonun ID’si</param>
         Task<bool> CompleteReservationAsync(int reservationId);
 
-       
+        Task<bool> DeleteAsync(int id);
+
     }
 }

@@ -1,4 +1,4 @@
-﻿@model CustomerReportDto
+﻿@model CustomerReportPageVm
 
 @{
     ViewData["Title"] = "Müşteri Detayı";
@@ -33,8 +33,154 @@
             </div>
         </div>
     </div>
+    <div class="card mt-4 shadow border-0">
+        <div class="card-header bg-warning text-dark fw-bold">
+            Şu Anda Konakladığı Rezervasyonlar
+        </div>
+        <div class="card-body">
+            @if (Model.CurrentStays != null && Model.CurrentStays.Any())
+            {
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Oda Tipi</th>
+                            <th>Giriş</th>
+                            <th>Çıkış</th>
+                            <th>Paket</th>
+                            <th>İndirim</th>
+                            <th>Toplam Tutar</th>
+                            <th>Durum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model.CurrentStays)
+                        {
+                            <tr>
+                                <td>@(r.Room?.RoomType.ToString() ?? "-")</td>
+                                <td>@r.StartDate.ToString("dd.MM.yyyy")</td>
+                                <td>@r.EndDate.ToString("dd.MM.yyyy")</td>
+                                <td>@r.Package</td>
+                                <td>%@r.DiscountRate.ToString("N0")</td>
+                                <td>@r.TotalPrice.ToString("C2")</td>
+                                <td>
+                                    <span class="badge bg-warning text-dark">Konaklamada</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="alert alert-info text-center">Şu anda otelde konakladığı rezervasyon bulunmamaktadır.</div>
+            }
+        </div>
+    </div>
+    <div class="card mt-4 shadow border-0">
+        <div class="card-header bg-info text-white fw-bold">
+            Yaklaşan Rezervasyonlar
+        </div>
+        <div class="card-body">
+            @if (Model.UpcomingReservations != null && Model.UpcomingReservations.Any())
+            {
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Oda Tipi</th>
+                            <th>Giriş</th>
+                            <th>Çıkış</th>
+                            <th>Paket</th>
+                            <th>İndirim</th>
+                            <th>Toplam Tutar</th>
+                            <th>Durum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model.UpcomingReservations)
+                        {
+                            <tr>
+                                <td>@(r.Room?.RoomType.ToString() ?? "-")</td>
+                                <td>@r.StartDate.ToString("dd.MM.yyyy")</td>
+                                <td>@r.EndDate.ToString("dd.MM.yyyy")</td>
+                                <td>@r.Package</td>
+                                <td>%@r.DiscountRate</td>
+                                <td>@r.TotalPrice.ToString("C2")</td>
+                                <td>@r.ReservationStatus</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="alert alert-info text-center">Yaklaşan rezervasyon bulunmamaktadır.</div>
+            }
+        </div>
+    </div>
+
+    <div class="card mt-4 shadow border-0">
+        <div class="card-header bg-dark text-white fw-bold">
+            Geçmiş Rezervasyonlar
+        </div>
+        <div class="card-body">
+            @if (Model.PastReservations != null && Model.PastReservations.Any())
+            {
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Oda Tipi</th>
+                            <th>Giriş</th>
+                            <th>Çıkış</th>
+                            <th>Paket</th>
+                            <th>İndirim</th>
+                            <th>Toplam Tutar</th>
+                            <th>Durum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model.PastReservations)
+                        {
+                            <tr>
+                                <td>@(r.Room?.RoomType.ToString() ?? "-")</td>
+                                <td>@r.StartDate.ToString("dd.MM.yyyy")</td>
+                                <td>@r.EndDate.ToString("dd.MM.yyyy")</td>
+                                <td>@r.Package</td>
+                                <td>%@r.DiscountRate.ToString("N0")</td>
+                                <td>@r.TotalPrice.ToString("C2")</td>
+                                <td>
+                                    <span class="badge bg-@GetStatusClass(r.ReservationStatus)">
+                                        @r.ReservationStatus
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            }
+            else
+            {
+                <div class="alert alert-warning text-center">
+                    Bu müşterinin henüz otel rezervasyonu bulunmamaktadır.
+                </div>
+            }
+        </div>
+    </div>
 
     <div class="text-end mt-4">
         <a asp-action="Index" class="btn btn-outline-secondary">Geri Dön</a>
     </div>
 </div>
+
+@functions {
+    string GetStatusClass(ReservationStatus status)
+    {
+        return status switch
+        {
+            ReservationStatus.Confirmed => "success",
+            ReservationStatus.Waiting => "warning",
+            ReservationStatus.Cancelled => "danger",
+            _ => "secondary"
+        };
+    }
+}

@@ -47,6 +47,9 @@ namespace Project.BLL.DtoClasses
 
         public string CurrencyCode { get; set; } // Döviz tipi (örnek: TRY, USD)
 
+        public string? CampaignName { get; set; } // Kampanya adı
+     
+
         public ReservationStatus ReservationStatus { get; set; } // Rezervasyon durumu
 
         public RoomDto Room { get; set; } = null!;

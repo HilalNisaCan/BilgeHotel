@@ -34,7 +34,7 @@ namespace Project.BLL.DependencyResolver
             services.AddScoped<ICustomerManager, CustomerManager>();
             services.AddScoped<IRoomTypePriceManager, RoomTypePriceManager>();
             services.AddScoped<IReportLogManager, ReportLogManager>();
-            services.AddScoped<ICampainManager,CampaignManager>();
+            services.AddScoped<ICampaignManager,CampaignManager>();
             services.AddScoped<IPaymentManager,PaymentManager>();
             services.AddScoped<IExtraExpenseManager, ExtraExpenseManager>();
             services.AddScoped<IComplaintLogManager, ComplaintLogManager>();
@@ -44,17 +44,9 @@ namespace Project.BLL.DependencyResolver
             services.AddScoped<IRoomMaintenanceManager, RoomMaintenanceManager>();
             services.AddScoped<IGuestVisitLogManager,GuestVisitLogManager>();
             services.AddScoped<IReviewManager, ReviewManager>();
-            //services.AddScoped<IBackupLogManager>(provider =>
-            //{
-            //    var repository = provider.GetRequiredService<IBackUpRepository>();
-            //    var userRepo = provider.GetRequiredService<IUserRepository>();
-            //    var mapper = provider.GetRequiredService<IMapper>();
-            //    var config = provider.GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>();
-
-            //    string connStr = config.GetConnectionString("MyConnection");
-
-            //    return new BackupLogManager(repository, userRepo, connStr, mapper);
-            //});
+            services.AddScoped<IExchangeRateManager, ExchangeRateManager>();
+            services.AddScoped<IBackupLogManager, BackupLogManager>();
+           
 
 
 

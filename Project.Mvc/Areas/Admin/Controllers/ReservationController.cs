@@ -7,6 +7,12 @@ using Project.MvcUI.Areas.Admin.Models.PureVm.ResponseModel.Reservation;
 
 namespace Project.MvcUI.Areas.Admin.Controllers
 {
+
+    /*Rezervasyonlar hem oda hem müşteri bilgileriyle birlikte DTO olarak çekilir ve AutoMapper ile AdminResponseModel’e dönüştürülür.
+Yöneticiler bu panel üzerinden rezervasyonları görüntüleyebilir, detaylarını inceleyebilir, onaylama veya iptal işlemleri gerçekleştirebilir.
+Rezervasyon durumu Enum yapısıyla kontrol edilir, böylece sistematik geçişler ve durum takibi yapılabilir.
+Tüm işlemler mimariye uygun şekilde DTO-ViewModel ayrımıyla ve  açık tiplerle geliştirilmiştir."*/
+
     [Area("Admin")]
     [Route("Admin/Reservations")]
     public class ReservationController : Controller
@@ -20,7 +26,10 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             _mapper = mapper;
         }
 
-        // GET: Admin/Reservations
+        /// <summary>
+        /// Tüm rezervasyonları oda ve müşteri bilgileriyle birlikte listeler.
+        /// DTO → ViewModel dönüşümü yapılır.
+        /// </summary>
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
@@ -30,11 +39,14 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             return View(vmList);
         }
 
-        // GET: Admin/Reservations/Approve/5
+        /// <summary>
+        /// Belirli bir rezervasyonu onaylar.
+        /// Eğer zaten onaylanmışsa kullanıcı bilgilendirilir.
+        /// </summary>
         [HttpPost("Approve/{id}")]
         public async Task<IActionResult> Approve(int id)
         {
-            var reservationDto = await _reservationManager.GetByIdWithRoomAndCustomerAsync(id);
+            ReservationDto reservationDto = await _reservationManager.GetByIdWithRoomAndCustomerAsync(id);
             if (reservationDto == null)
                 return NotFound();
 
@@ -51,17 +63,24 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             TempData["MessageType"] = result ? "success" : "danger";
             return RedirectToAction("Index");
         }
-        // GET: Admin/Reservations/Cancel/5
+
+        /// <summary>
+        /// Belirli bir rezervasyonu iptal eder.
+        /// </summary>
         [HttpPost("Cancel/{id}")]
         public async Task<IActionResult> Cancel(int id)
         {
             bool result = await _reservationManager.UpdateStatusAsync(id, ReservationStatus.Cancelled);
+
             TempData["Message"] = result ? "Rezervasyon iptal edildi 🛑" : "İptal işlemi başarısız ❌";
             TempData["MessageType"] = result ? "warning" : "danger";
             return RedirectToAction("Index");
         }
 
-        // GET: Admin/Reservations/Details/5
+        /// <summary>
+        /// Belirli bir rezervasyonun detaylarını gösterir.
+        /// DTO → ViewModel dönüşümü yapılır.
+        /// </summary>
         [HttpGet("Details/{id}")]
         public async Task<IActionResult> Details(int id)
         {
@@ -71,6 +90,18 @@ namespace Project.MvcUI.Areas.Admin.Controllers
 
             ReservationAdminResponseModel vm = _mapper.Map<ReservationAdminResponseModel>(dto);
             return View(vm);
+        }
+        /// <summary>
+        /// Belirli bir rezervasyonu kalıcı olarak siler (admin yetkisiyle).
+        /// </summary>
+        [HttpPost("Delete/{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            bool result = await _reservationManager.DeleteAsync(id);
+
+            TempData["Message"] = result ? "Rezervasyon silindi 🗑️" : "Silme işlemi başarısız ❌";
+            TempData["MessageType"] = result ? "danger" : "warning";
+            return RedirectToAction("Index");
         }
     }
 }

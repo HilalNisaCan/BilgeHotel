@@ -26,6 +26,8 @@ namespace Project.Dal.Repositories.Abstracts
         /// </summary>
         Task<Customer> GetByIdentityNumberAsync(string identityNumber);
 
+        Task<Customer?> GetByIdWithUserAndReservationsAsync(int id);
+        Task<bool> SoftDeleteAsync(int id);
 
     }
 }

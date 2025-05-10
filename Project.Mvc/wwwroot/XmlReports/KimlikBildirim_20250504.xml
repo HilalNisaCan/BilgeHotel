@@ -1,0 +1,10 @@
+<Guests>
+  <Guest>
+    <FirstName>Burak Yavuz</FirstName>
+    <LastName>Acar</LastName>
+    <IdentityNumber>17465319578</IdentityNumber>
+    <CheckInDate>2025-05-04</CheckInDate>
+    <CheckOutDate>2025-05-07</CheckOutDate>
+    <RoomId>226</RoomId>
+  </Guest>
+</Guests>

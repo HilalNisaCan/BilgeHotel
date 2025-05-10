@@ -41,9 +41,10 @@ namespace Project.BLL.DependencyResolver
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserProfileRepository, UserProfileRepository>();
             services.AddScoped<IRoomTypePriceRepository, RoomTypePriceRepository>();
-            services.AddScoped<IRepository<Employee>, EmployeeRepository>(); 
-            
-     
+            services.AddScoped<IRepository<Employee>, EmployeeRepository>();
+            services.AddScoped<IAppRoleRepository, AppRoleRepository>();
+
+
         }
     }
 }

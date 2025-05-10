@@ -6,8 +6,7 @@ namespace Project.MvcUI.Models.PageVm.Reservation
 
     public class ReservationPaymentPageVm
     {
-        public int ReservationId { get; set; }
-
+    
         [Display(Name = "Toplam Tutar")]
         public decimal TotalPrice { get; set; }
 

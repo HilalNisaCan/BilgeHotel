@@ -7,14 +7,13 @@ using Project.MvcUI.Areas.Reservation.Models.PureVm.RequestModel.Login;
 using Project.MvcUI.Areas.Reservation.Models.PureVm.RequestModel.Register;
 using Project.Common;
 
-
-
-
-
-
-
 namespace Project.MvcUI.Areas.Reservation.Controllers
 {
+    /*"Bu controller, rezervasyon alanındaki kullanıcıların giriş yapma, şifre sıfırlama ve hesap yönetimi işlemlerini yönetiyor. 
+     * Tüm işlemler Identity sistemi ile güvenli şekilde gerçekleştirilirken, açık veri tipleriyle sade ve anlaşılır bir yapı kurulmuştur.
+     * Kodda katmanlar arası görev ayrımı net bir şekilde yapılmış, böylece bakım ve genişletilebilirlik kolaylaştırılmıştır."*/
+
+
     [Area("Reservation")]
     [AllowAnonymous]
     public class AccountController : Controller
@@ -28,20 +27,27 @@ namespace Project.MvcUI.Areas.Reservation.Controllers
             _signInManager = signInManager;
         }
 
+        /// <summary>
+        /// Giriş formunu getirir.
+        /// </summary>
         [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
 
+        /// <summary>
+        /// Giriş formu gönderildiğinde kullanıcıyı doğrular.
+        /// Başarılıysa Dashboard'a yönlendirir.
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> Login(LoginRequestModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
-            // giriş denemesi
-            var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
+            Microsoft.AspNetCore.Identity.SignInResult result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
+
             if (result.Succeeded)
                 return RedirectToAction("Index", "Dashboard", new { area = "Reservation" });
 
@@ -49,15 +55,19 @@ namespace Project.MvcUI.Areas.Reservation.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Şifremi unuttum formunu getirir.
+        /// </summary>
         [HttpGet]
-        [AllowAnonymous]
         public IActionResult ForgotPassword()
         {
             return View();
         }
 
+        /// <summary>
+        /// Şifremi unuttum formu gönderildiğinde kullanıcıya şifre sıfırlama linki üretir.
+        /// </summary>
         [HttpPost]
-        [AllowAnonymous]
         public async Task<IActionResult> ForgotPassword(ReservationForgotPasswordViewModel model)
         {
             if (!ModelState.IsValid)
@@ -73,20 +83,25 @@ namespace Project.MvcUI.Areas.Reservation.Controllers
             string token = await _userManager.GeneratePasswordResetTokenAsync(user);
             string resetLink = Url.Action("ResetPassword", "Account", new { area = "Reservation", email = user.Email, token = token }, Request.Scheme);
 
-            // ŞU ANLIK MAIL GÖNDERMİYORUZ, EKRANA BASIYORUZ:
+            // Not: Gerçek sistemde mail gönderilecek. Demo’da sadece link gösteriliyor.
             return Content($"📩 Şifre sıfırlama linki: {resetLink}");
         }
 
 
+
+        /// <summary>
+        /// Şifre sıfırlama formunu getirir.
+        /// </summary>
         [HttpGet]
-        [AllowAnonymous]
         public IActionResult ResetPassword(string email, string token)
         {
             return View(new ResetPasswordViewModel { Email = email, Token = token });
         }
 
+        /// <summary>
+        /// Yeni şifreyi sisteme kaydeder.
+        /// </summary>
         [HttpPost]
-        [AllowAnonymous]
         public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
         {
             if (!ModelState.IsValid)

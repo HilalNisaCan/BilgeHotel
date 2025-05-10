@@ -15,29 +15,15 @@ namespace Project.BLL.Managers.Abstracts
     /// </summary>
     public interface IExchangeRateManager : IManager<ExchangeRateDto, ExchangeRate>
     {
-        /// <summary>
-        /// Manuel olarak döviz kuru ekler (ör. Admin tarafından).
-        /// </summary>
-        Task<bool> AddManualExchangeRatesAsync(List<ExchangeRateDto> rates);
 
         /// <summary>
-        /// API üzerinden en güncel döviz kurlarını çeker (entegre edilirse).
+        /// ID üzerinden döviz kuru kaydını siler.
+        /// (Kontrol yapılmadan doğrudan silme işlemi uygulanır)
         /// </summary>
-        Task<List<ExchangeRateDto>> FetchLatestExchangeRatesAsync(); // TODO: API bağlanırsa entegre edilecek
+        /// Geliştirme durumu ileride ekleniceği için şimdilik manaagerda eklendi 
+        ///  ileride "sadece bugünkü kurlar silinebilir" gibi kurallar eklenicek
+        Task<bool> DeleteAsync(int id);
 
-        /// <summary>
-        /// Kur bilgilerine göre para birimi dönüştürür.
-        /// </summary>
-        Task<decimal> ConvertCurrencyAsync(string fromCurrency, string toCurrency, decimal amount, DateTime date);
 
-        /// <summary>
-        /// Belirli bir tarihteki döviz kurlarını getirir.
-        /// </summary>
-        Task<List<ExchangeRateDto>> GetRatesByDateAsync(DateTime date);
-
-        /// <summary>
-        /// Belirli bir para birimi için kur günceller veya ekler.
-        /// </summary>
-        Task<bool> UpdateExchangeRateAsync(ExchangeRateDto dto);
     }
 }

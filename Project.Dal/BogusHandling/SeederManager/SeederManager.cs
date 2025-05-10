@@ -14,11 +14,13 @@ namespace Project.Dal.BogusHandling.SeederManager
  /// </summary>
     public static class SeederManager
     {
-        public static async Task SeedAllAsync(MyContext context, UserManager<User> userManager)
+        public static async Task SeedAllAsync(MyContext context, UserManager<User> userManager, RoleManager<AppRole> roleManager)
         {
             Console.WriteLine("📦 Seed işlemi başlatıldı...\n");
+
+            await AppRoleSeeder.SeedAsync(roleManager); // 🔥 Roller önce eklenmeli
             await EmployeeSeeder.SeedAsync(context);                     // 1️⃣ Çalışanlar (ilk! çünkü AppUser ile eşleşecek)
-            AppUserSeeder appUserSeeder = new AppUserSeeder(userManager, context);
+            AppUserSeeder appUserSeeder = new AppUserSeeder(userManager, roleManager, context);
             await appUserSeeder.SeedAsync(context.Employees.ToList());   // 2️⃣ AppUser (Yönetici + Resepsiyonist) → Employee.UserId atanıyor
             await CustomerSeeder.SeedAsync(context);                     // 3️⃣ Customer (Customer rolündeki kullanıcılar için)
 
@@ -33,8 +35,7 @@ namespace Project.Dal.BogusHandling.SeederManager
             await PaymentSeeder.SeedAsync(context);                      // 🔟 Ödemeler (Reservation ve Customer bağlı)
 
             await ProductSeeder.SeedAsync(context);                      // 1️⃣1️⃣ Ürünler (minibar, spa vs.)
-            await OrderSeeder.SeedAsync(context);                        // 1️⃣2️⃣ Siparişler (Payment ve Product bağlı)
-
+          
             await RoomCleaningScheduleSeeder.SeedAsync(context);         // 1️⃣3️⃣ Temizlik planı (oda rezervasyonlarına göre)
             await RoomMaintenanceScheduleSeeder.SeedAsync(context);     // 1️⃣4️⃣ Bakım planı
 

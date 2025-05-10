@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace Project.Dal.BogusHandling
 {
-   
 
-  /// <summary>
-/// RoomImageSeeder, her oda için uygun oda tipine göre görselleri RoomImage tablosuna ekler.
-/// Her odada yalnızca bir kapak resmi (IsMain = true) atanır.
-/// </summary>
-public static class RoomImageSeeder
+
+    /// <summary>
+    /// RoomImageSeeder, her oda için uygun oda tipine göre görselleri RoomImage tablosuna ekler.
+    /// Her odada yalnızca bir kapak resmi (IsMain = true) atanır.
+    /// </summary>
+    public static class RoomImageSeeder
     {
         public static async Task SeedAsync(MyContext context)
         {

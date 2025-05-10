@@ -35,6 +35,16 @@ namespace Project.Dal.Repositories.Concretes
 #pragma warning restore CS8603 // Possible null reference return.
         }
 
+        public async Task<Customer?> GetByIdWithUserAndReservationsAsync(int id)
+        {
+            return await _context.Customers
+                .Include(c => c.User)
+                    .ThenInclude(u => u.UserProfile)
+                .Include(c => c.Reservations)
+                    .ThenInclude(r => r.Room) // ⬅ Bu satırı mutlaka ekle
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
+
         public async Task<Customer> GetByUserIdAsync(int userId)
         {
 #pragma warning disable CS8603 // Possible null reference return.
@@ -59,6 +69,18 @@ namespace Project.Dal.Repositories.Concretes
             return await _dbSet
                 .Where(c => c.LoyaltyPoints >= minPoints)
                 .ToListAsync();
+        }
+        public async Task<bool> SoftDeleteAsync(int id)
+        {
+            Customer? customer = await GetByIdAsync(id);
+            if (customer == null)
+                return false;
+
+            customer.Status = Entities.Enums.DataStatus.Deleted;
+            customer.DeletedDate = DateTime.Now;
+
+            await UpdateAsync(customer);
+            return true;
         }
 
         public async Task<List<Customer>> WhereAsync(Expression<Func<Customer, bool>> filter)

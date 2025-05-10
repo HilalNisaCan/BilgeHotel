@@ -15,15 +15,20 @@ namespace Project.BLL.DtoClasses
 
         [Required]
         public int MaintenanceId { get; set; } // İlişkili bakım ID'si
+       
+        public int RoomMaintenanceId { get; set; }
 
         [Required]
-        public int AssignedEmployeeId { get; set; } // Görevli çalışan ID'si
+        public int EmployeeId { get; set; }// Görevli çalışan ID'si
 
         public DateTime AssignedDate { get; set; } // Atama tarihi
 
         public DateTime? CompletedDate { get; set; } // Tamamlanma tarihi (opsiyonel)
 
         public MaintenanceStatus? MaintenanceStatus { get; set; } // Bakımın güncel durumu (opsiyonel)
+
+        public MaintenanceType MaintenanceType { get; set; }
+
 
         public string? AssignedEmployeeFullName { get; set; }
     }

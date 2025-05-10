@@ -7,6 +7,13 @@ using Project.MvcUI.Areas.Admin.Models.PureVm.ResponseModel.Review;
 
 namespace Project.MvcUI.Areas.Admin.Controllers
 {
+
+    /*"ReviewController, onay bekleyen yorumları yöneticinin incelemesi ve işlemesi için kullanılan modüldür.
+Yorumlar DTO olarak çekilir ve AutoMapper aracılığıyla ReviewAdminResponseModel’e dönüştürülür.
+Yorumların onaylanması veya silinmesi doğrudan manager üzerinden yapılır.
+Kod yapısı sade, okunabilir ve mimariye uygun olacak şekilde açık tiplerle geliştirilmiştir."*/
+
+
     [Area("Admin")]
     [Route("Admin/Reviews")]
     public class ReviewController : Controller
@@ -20,25 +27,21 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Onay bekleyen yorumları listeler.
+        /// DTO → ViewModel dönüşümünde AutoMapper kullanılır.
+        /// </summary>
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
             List<ReviewDto> pendingReviews = await _reviewManager.GetPendingReviewsAsync();
-
-            List<ReviewAdminResponseModel> model = pendingReviews.Select(r => new ReviewAdminResponseModel
-            {
-                Id = r.Id,
-                UserFullName = r.UserFirstName + " " + r.UserLastName,
-                Comment = r.Comment,
-                Rating = r.Rating,
-                CommentDate = r.CommentDate,
-                IsApproved = r.IsApproved,
-                RoomType = r.RoomType
-            }).ToList();
-
+            List<ReviewAdminResponseModel> model = _mapper.Map<List<ReviewAdminResponseModel>>(pendingReviews);
             return View(model);
         }
 
+        /// <summary>
+        /// Belirli bir yorumu onaylar.
+        /// </summary>
         [HttpPost("Approve")]
         public async Task<IActionResult> Approve(int id)
         {
@@ -47,6 +50,10 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
+
+        /// <summary>
+        /// Belirli bir yorumu siler.
+        /// </summary>
         [HttpPost("Delete")]
         public async Task<IActionResult> Delete(int id)
         {

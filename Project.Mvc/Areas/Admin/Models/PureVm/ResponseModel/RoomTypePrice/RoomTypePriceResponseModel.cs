@@ -1,4 +1,7 @@
-﻿namespace Project.MvcUI.Areas.Admin.Models.PureVm.ResponseModel.RoomTypePrice
+﻿using Project.Entities.Enums;
+using System.ComponentModel.DataAnnotations;
+
+namespace Project.MvcUI.Areas.Admin.Models.PureVm.ResponseModel.RoomTypePrice
 {
     /// <summary>
     /// Oda tipi fiyatının kullanıcıya gösterilecek versiyonu (string tip açıklama içerir).
@@ -7,14 +10,11 @@
     {
         public int Id { get; set; }
 
-        /// <summary>
-        /// Oda tipi ismi (örneğin: Double, Suite vs.)
-        /// </summary>
-        public string RoomTypeName { get; set; }
+        public RoomType RoomType { get; set; }  // Enum (veritabanı işlemleri için)
 
-        /// <summary>
-        /// Gecelik fiyat
-        /// </summary>
+        public string RoomTypeName { get; set; } = string.Empty; // Görselde gösterim için (ToString)
+
+        [Range(1, 100000, ErrorMessage = "Fiyat 1₺ ile 100000₺ arasında olmalıdır.")]
         public decimal PricePerNight { get; set; }
     }
 }

@@ -2,12 +2,20 @@
     ViewData["Title"] = "Ödeme Başarılı";
 }
 
-<section class="text-center py-5">
+<section class="text-center py-5 animate-fade-in">
     <div class="container">
-        <div class="alert alert-success shadow-sm">
-            <h4 class="fw-bold mb-2">✅ Ödeme Başarılı</h4>
-            <p>@TempData["Message"]</p>
-            <p class="text-muted">5 saniye içinde anasayfaya yönlendiriliyorsunuz...</p>
+        <div class="alert alert-success alert-animated p-4 shadow-lg rounded">
+            <h2 class="fw-bold mb-3">
+                <i class="bi bi-check-circle-fill me-2"></i> Ödeme Başarılı
+            </h2>
+            <p class="fs-5">@TempData["Message"]</p>
+            <p class="fs-5">@TempData["Message"]</p>
+
+            <p class="text-success mt-2">
+                💌 Ödeme bilgileriniz ve fatura detayları e-posta adresinize gönderildi.
+            </p>
+
+            <p class="text-muted mt-3">5 saniye içinde anasayfaya yönlendirileceksiniz...</p>
         </div>
     </div>
 
@@ -17,3 +25,44 @@
         }, 5000);
     </script>
 </section>
+
+@section Styles {
+    <style>
+        .animate-fade-in {
+            animation: fadeInUp 0.9s ease-in-out;
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-animated {
+            animation: bounceFadeIn 1s ease-in-out;
+            font-size: 1.1rem;
+            font-weight: 500;
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
+        }
+
+        @@keyframes bounceFadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+}

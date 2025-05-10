@@ -49,5 +49,16 @@ namespace Project.Dal.Repositories.Concretes
 
             return await query.ToListAsync();
         }
+
+        public async Task<bool> DeleteReservationAsync(int id)
+        {
+
+            Reservation? reservation = await _context.Reservations.FindAsync(id);
+            if (reservation == null)
+                return false;
+
+            _context.Reservations.Remove(reservation);
+            return await _context.SaveChangesAsync() > 0;
+        }
     }
 }

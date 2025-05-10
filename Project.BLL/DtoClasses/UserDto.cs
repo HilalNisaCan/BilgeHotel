@@ -21,7 +21,8 @@ namespace Project.BLL.DtoClasses
 
         public Guid ActivationCode { get; set; } // Hesap aktivasyon kodu
 
-        public UserRole Role { get; set; } // Kullanıcının rolü (Admin, Kullanıcı, vb.)
+        public int? RoleId { get; set; } // AppRole FK'si
+        public string? RoleName { get; set; } // UI için okunabilir ad (opsiyonel)
 
         public bool IsActivated { get; set; }
         public UserProfileDto UserProfile { get; set; }

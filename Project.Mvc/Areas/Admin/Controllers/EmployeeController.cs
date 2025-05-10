@@ -12,6 +12,14 @@ using Project.Entities.Enums;
 
 namespace Project.MvcUI.Areas.Admin.Controllers
 {
+
+
+    /*“EmployeeController, otel bünyesindeki tüm çalışanlara ait işlemleri yöneten yapıdır.
+Controller içerisinde çalışanların listelenmesi, detay görüntüleme, oluşturma, düzenleme ve silme işlemleri tamamen DTO yapıları ve AutoMapper aracılığıyla gerçekleştirilmiştir.
+Katmanlar arası geçişlerde doğrudan entity kullanılmamış, böylece Separation of Concerns, Single Responsibility ve Dependency Inversion prensiplerine uyum sağlanmıştır.
+Enum’lar üzerinden pozisyon ve maaş türleri ViewBag ile View'a aktarılmıştır.”*/
+
+ 
     [Area("Admin")]
     public class EmployeeController : Controller
     {
@@ -24,18 +32,24 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Tüm çalışanları detaylarıyla listeler (DTO → ResponseModel)
+        /// </summary>
         public async Task<IActionResult> Index()
         {
             List<EmployeeDto> employeeDtos = await _employeeManager.GetAllEmployeesWithDetailsAsync();
 
-            // TEST: Telefonu logla
-            foreach (var emp in employeeDtos)
+            // DEBUG: Telefonu logla
+            foreach (EmployeeDto emp in employeeDtos)
                 Console.WriteLine($"[Test] {emp.FirstName} - Tel: {emp.PhoneNumber}");
 
             List<EmployeeResponseModel> response = _mapper.Map<List<EmployeeResponseModel>>(employeeDtos);
             return View(response);
         }
 
+        /// <summary>
+        /// Belirli bir çalışanın detay bilgilerini getirir
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Detail(int id)
         {
@@ -46,46 +60,59 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             return View(vm);
         }
 
+
+        /// <summary>
+        /// Çalışan güncelleme formunu getirir
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var dto = await _employeeManager.GetEmployeeByIdAsync(id);
+            EmployeeDto? dto = await _employeeManager.GetEmployeeByIdAsync(id);
             if (dto == null) return NotFound();
 
-            var vm = _mapper.Map<UpdateEmployeeRequest>(dto);
+            UpdateEmployeeRequest vm = _mapper.Map<UpdateEmployeeRequest>(dto);
             return View(vm);
         }
 
+
+        /// <summary>
+        /// Çalışan güncellemesini işler (POST)
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> Edit(UpdateEmployeeRequest vm)
         {
             if (!ModelState.IsValid)
                 return View(vm);
 
-            var dto = _mapper.Map<EmployeeDto>(vm);
+            EmployeeDto dto = _mapper.Map<EmployeeDto>(vm);
             bool updated = await _employeeManager.UpdateEmployeeAsync(dto);
 
-            if (!updated)
-                TempData["Error"] = "Güncelleme başarısız oldu.";
-            else
-                TempData["Success"] = "Çalışan başarıyla güncellendi.";
+            TempData[updated ? "Success" : "Error"] = updated
+                ? "Çalışan başarıyla güncellendi."
+                : "Güncelleme başarısız oldu.";
 
             return RedirectToAction("Index");
         }
+
+
+        /// <summary>
+        /// Çalışan silme işlemini gerçekleştirir
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await _employeeManager.DeleteEmployeeAsync(id);
+            bool result = await _employeeManager.DeleteEmployeeAsync(id);
 
-            if (!result)
-            {
-                TempData["Error"] = "Silme işlemi başarısız oldu.";
-                return RedirectToAction("Index");
-            }
+            TempData[result ? "Success" : "Error"] = result
+                ? "Çalışan başarıyla silindi."
+                : "Silme işlemi başarısız oldu.";
 
-            TempData["Success"] = "Çalışan başarıyla silindi.";
             return RedirectToAction("Index");
         }
+
+        /// <summary>
+        /// Yeni çalışan ekleme formunu getirir
+        /// </summary>
         [HttpGet]
         public IActionResult Create()
         {
@@ -102,6 +129,9 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Yeni çalışan oluşturur (DTO üzerinden işlem yapılır)
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> Create(EmployeeCreateVm vm)
         {
@@ -122,13 +152,11 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             }
 
             EmployeeDto dto = _mapper.Map<EmployeeDto>(vm);
-
             int result = await _employeeManager.AddEmployeeAsync(dto);
 
-            if (result > 0)
-                TempData["Success"] = "Çalışan başarıyla eklendi.";
-            else
-                TempData["Error"] = "Çalışan eklenirken bir hata oluştu.";
+            TempData[result > 0 ? "Success" : "Error"] = result > 0
+                ? "Çalışan başarıyla eklendi."
+                : "Çalışan eklenirken bir hata oluştu.";
 
             return RedirectToAction("Index");
         }

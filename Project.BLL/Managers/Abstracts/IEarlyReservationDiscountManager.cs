@@ -20,9 +20,5 @@ namespace Project.BLL.Managers.Abstracts
         /// </summary>
         Task<decimal> CalculateDiscountAsync(int customerId, DateTime reservationDate, DateTime checkInDate, decimal basePrice, ReservationPackage package);
 
-        /// <summary>
-        /// Belirli bir rezervasyona uygun indirimi hesaplayıp toplam fiyata uygular.
-        /// </summary>
-        Task<bool> ApplyDiscountToReservationAsync(int reservationId);
     }
 }

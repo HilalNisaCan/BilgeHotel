@@ -5,6 +5,14 @@
 }
 
 <section class="container py-5">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success text-center">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger text-center">@TempData["Error"]</div>
+    }
     <div class="row g-4">
 
         <!-- Oda Galerisi -->

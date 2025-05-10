@@ -5,24 +5,25 @@
 namespace Project.Dal.Migrations
 {
     /// <inheritdoc />
-    public partial class AddWeeklyOffDayToEmployee : Migration
+    public partial class Add_WantsCampaignEmails_To_User : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "WeeklyOffDay",
-                table: "Employees",
-                type: "nvarchar(max)",
-                nullable: true);
+            migrationBuilder.AddColumn<bool>(
+                name: "WantsCampaignEmails",
+                table: "AspNetUsers",
+                type: "bit",
+                nullable: false,
+                defaultValue: false);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "WeeklyOffDay",
-                table: "Employees");
+                name: "WantsCampaignEmails",
+                table: "AspNetUsers");
         }
     }
 }

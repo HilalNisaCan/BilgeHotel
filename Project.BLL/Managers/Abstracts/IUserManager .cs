@@ -27,7 +27,7 @@ namespace Project.BLL.Managers.Abstracts
         /// <summary>
         /// Kullanıcının mevcut rolünü günceller.
         /// </summary>
-        Task<bool> ChangeUserRoleAsync(int userId, UserRole newRole);
+        Task<bool> ChangeUserRoleAsync(int userId, string newRoleName);
 
         /// <summary>
         /// Kullanıcının aktiflik durumunu günceller.
@@ -39,6 +39,7 @@ namespace Project.BLL.Managers.Abstracts
         /// </summary>
         Task<List<UserDto>> GetActiveUsersAsync();
 
+     ///   *
         /// <summary>
         /// Kullanıcı adından kullanıcıyı getirir.
         /// </summary>

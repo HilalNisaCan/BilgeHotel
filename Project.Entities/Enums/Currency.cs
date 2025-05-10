@@ -10,7 +10,7 @@ namespace Project.Entities.Enums
     {
         TRY,    // Türk Lirası
         USD,    // Amerikan Doları
-        EUR,    // Euro
-        GBP     // İngiliz Sterlini
+        EUR   // Euro
+     
     }
 }

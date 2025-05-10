@@ -9,30 +9,25 @@ using System.Threading.Tasks;
 
 namespace Project.BLL.Managers.Abstracts
 {
-    public interface ICampainManager : IManager<CampaignDto, Campaign>
+    /// <summary>
+    /// Kampanya işlemlerini tanımlar.
+    /// </summary>
+    public interface ICampaignManager : IManager<CampaignDto, Campaign>
     {
-        ///// <summary>
-        ///// Yeni kampanya oluşturur ve sistemde aktif olarak ekler.
-        ///// </summary>
-        //Task<int> CreateCampaignAsync(CampaignDto campaignDto); // ✅ Yeni kampanya ekle
-        ///// <summary>
-        ///// Kampanyayı ID'ye göre günceller.
-        ///// </summary>
-        //Task<bool> UpdateCampaignAsync(int campaignId, CampaignDto campaignDto); // ✅ Kampanyayı güncelle
-        ///// <summary>
-        ///// Sadece şu an aktif olan kampanyaları döner.
-        ///// </summary>
-        //Task<List<CampaignDto>> GetActiveCampaignsAsync(); // ✅ Aktif kampanyaları getir
-        ///// <summary>
-        ///// Kampanyayı ID'ye göre getirir.
-        ///// </summary>
-        //Task<CampaignDto> GetCampaignByIdAsync(int campaignId); // ✅ Kampanyayı ID'ye göre getir
+        /// <summary>
+        /// Kampanyayı ID ile siler.
+        /// </summary>
+        Task<bool> DeleteCampaignAsync(int campaignId);
 
         /// <summary>
-        /// Kampanyayı ID'ye göre siler (kalıcı silme).
+        /// Kampanyayı DTO ile siler.
         /// </summary>
-        Task<bool> DeleteCampaignAsync(int campaignId); // ✅ Kampanyayı sil
-
         Task DeleteAsync(CampaignDto dto);
+
+        Task<int?> MatchCampaignAsync(DateTime checkIn, ReservationPackage package);
+
+        Task NotifyUsersAsync(Campaign campaign);
+
+        Task<Campaign> CreateAndReturnAsync(CampaignDto dto);
     }
 }

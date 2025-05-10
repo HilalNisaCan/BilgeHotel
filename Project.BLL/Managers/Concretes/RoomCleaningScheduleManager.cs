@@ -19,76 +19,38 @@ namespace Project.BLL.Managers.Concretes
     public class RoomCleaningScheduleManager : BaseManager<RoomCleaningScheduleDto, RoomCleaningSchedule>, IRoomCleaningScheduleManager
     {
         private readonly IRoomCleaningScheduleRepository _cleaningScheduleRepository;
-        private readonly IRoomRepository _roomRepository;
+     
         private readonly IMapper _mapper;
 
-        public RoomCleaningScheduleManager(IRoomCleaningScheduleRepository cleaningScheduleRepository, IRoomRepository roomRepository, IMapper mapper)
+        public RoomCleaningScheduleManager(IRoomCleaningScheduleRepository cleaningScheduleRepository,  IMapper mapper)
             : base(cleaningScheduleRepository, mapper)
         {
             _cleaningScheduleRepository = cleaningScheduleRepository;
-            _roomRepository = roomRepository;
             _mapper = mapper;
         }
 
-        /// <summary>
-        /// Belirli bir oda için temizlik planı oluşturur.
-        /// </summary>
-        public async Task<int> ScheduleRoomCleaningAsync(int roomId, DateTime cleaningDate)
-        {
-            var room = await _roomRepository.GetByIdAsync(roomId);
-            if (room == null)
-                throw new Exception("Oda bulunamadı!");
 
-            var cleaningSchedule = new RoomCleaningSchedule
-            {
-                RoomId = roomId,
-                ScheduledDate = cleaningDate,
-                CleaningStatus = CleaningStatus.Scheduled // Planlandı
-            };
-
-            await _cleaningScheduleRepository.AddAsync(cleaningSchedule);
-            return cleaningSchedule.Id;
-        }
 
         /// <summary>
-        /// Temizlik tamamlandı olarak işaretlenir ve oda durumu "Boş" yapılır.
+        /// Belirtilen odaya ait en son temizlik planını getirir.
         /// </summary>
-        public async Task<bool> MarkCleaningAsCompletedAsync(int cleaningScheduleId)
-        {
-            var cleaningSchedule = await _cleaningScheduleRepository.GetByIdAsync(cleaningScheduleId);
-            if (cleaningSchedule == null)
-                return false;
-
-            cleaningSchedule.CleaningStatus = CleaningStatus.Completed;
-            await _cleaningScheduleRepository.UpdateAsync(cleaningSchedule);
-
-            // Oda durumunu "Available" olarak güncelle
-            var room = await _roomRepository.GetByIdAsync(cleaningSchedule.RoomId);
-            room.RoomStatus = RoomStatus.Available;
-            await _roomRepository.UpdateAsync(room);
-
-            return true;
-        }
-
-        /// <summary>
-        /// Belirli bir tarihte planlanan temizlik işlemlerini listeler.
-        /// </summary>
-        public async Task<List<RoomCleaningScheduleDto>> GetScheduledCleaningsAsync(DateTime date)
-        {
-            var cleanings = await _cleaningScheduleRepository.GetAllAsync(c => c.ScheduledDate.Date == date.Date);
-            return _mapper.Map<List<RoomCleaningScheduleDto>>(cleanings);
-        }
-
+        /// <param name="roomId">Temizlik geçmişi istenen odanın ID'si</param>
+        /// <returns>Son temizlik planı varsa DTO olarak döner, yoksa null</returns>
+        /// 
+        /// <remarks>
+        /// 📌 Not: Bu metot, bir odada yapılan en güncel temizlik işlemini görmek için kullanılır.  
+        /// Kullanım senaryoları: Oda detay ekranı, temizlik planlama modülü, görevli geçmiş kontrolü.
+        /// </remarks>
         public async Task<RoomCleaningScheduleDto?> GetLatestByRoomIdAsync(int roomId)
         {
-            // RoomId'ye ait aktif temizlik kayıtlarını ve çalışanı dahil ederek getiriyoruz
+            // RoomId'ye ait silinmemiş temizlik kayıtları ve görevli personel bilgisiyle alınır
             List<RoomCleaningSchedule> schedules = (await _cleaningScheduleRepository
                 .GetAllWithIncludeAsync(
-                    predicate: x => x.RoomId == roomId && x.Status != DataStatus.Deleted, // aktif kayıtlar
+                    predicate: x => x.RoomId == roomId && x.Status != DataStatus.Deleted,
                     include: q => q.Include(x => x.AssignedEmployee)
                 )).ToList();
 
-            // Kayıt varsa: oluşturulma tarihine göre en son olanı al
+            // Oluşturulma tarihine göre en güncel kayıt seçilir
             RoomCleaningSchedule? latest = schedules
                 .OrderByDescending(x => x.CreatedDate)
                 .FirstOrDefault();
@@ -98,8 +60,20 @@ namespace Project.BLL.Managers.Concretes
                 : _mapper.Map<RoomCleaningScheduleDto>(latest);
         }
 
-        public async Task<bool> CreateAndConfirmAsync(RoomCleaningSchedule entity)
+
+        /// <summary>
+        /// Yeni bir temizlik planı oluşturur ve aynı anda "tamamlandı" olarak işaretler.
+        /// </summary>
+        /// <param name="dto">Temizlik işlemi DTO verisi</param>
+        /// <returns>Başarılıysa true, aksi halde false</returns>
+        /// 
+        /// <remarks>
+        /// 📌 Not: Bu işlem “tek tıkla temizlik” gibi bir yapıya uygundur.  
+        /// Kat görevlisi sisteme girdiğinde hem temizlik planı yapılır hem de sistem onu otomatik temizlenmiş olarak işaretler.
+        /// </remarks>
+        public async Task<bool> CreateAndConfirmAsync(RoomCleaningScheduleDto dto)
         {
+            RoomCleaningSchedule entity = _mapper.Map<RoomCleaningSchedule>(dto);
             return await _cleaningScheduleRepository.CreateAndConfirmAsync(entity);
         }
     }

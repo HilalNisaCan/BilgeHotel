@@ -3,6 +3,24 @@ using Microsoft.Data.SqlClient;
 
 namespace Project.MvcUI.Areas.Admin.Controllers
 {
+    /*“BackupController, sistemin demo ortamında çalışan yedekleme ve geri yükleme işlemlerini yöneten özel bir controller’dır.
+Bu yapı sayesinde, yönetici paneli üzerinden sahte bir yedek dosyası oluşturulabilir ve istenirse sistem dışından alınan bir .bak veya .txt dosyası yüklenebilir.
+İşlem sonunda dosya fiziksel olarak wwwroot/DatabaseBackups klasörüne kaydedilir.
+Her iki işlem de kullanıcıya TempData üzerinden başarı veya hata mesajı döner.
+Geliştirme sürecinde gerçek veritabanı etkileşimi yerine demo amaçlı dosya operasyonları tercih edilmiştir.
+Ayrıca tüm dosya işlemleri try-catch bloklarıyla sarılarak hata yönetimi sağlanmıştır.”
+
+  Gerçek veri tabanı işlemleri burada yapılmaz. Sahte (mock) dosya sistemi kullanılır.
+
+RestoreDatabase() → sadece yükleme yapar, sistemde değişiklik yaratmaz.
+
+BackupDatabase() → basit bir .txt dosyası üretir. Gerçek .bak gibi davranmaz ama mantığı gösterir.
+
+Geri yükleme işlemi yapılmasa da proje kapsamı gereği UI ile entegrasyonu sağlanmıştır.
+   
+     
+     */
+
     [Area("Admin")]
     [Route("Admin/[controller]/[action]")]
     public class BackupController : Controller
@@ -15,6 +33,9 @@ namespace Project.MvcUI.Areas.Admin.Controllers
         }
 
 
+        /// <summary>
+        /// Tüm mevcut yedek dosyalarını listeler ve view'a gönderir.
+        /// </summary>
         public IActionResult Index()
         {
             string backupFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "DatabaseBackups");
@@ -36,7 +57,9 @@ namespace Project.MvcUI.Areas.Admin.Controllers
 
 
 
-        // ✅ Yedekleme işlemi
+        /// <summary>
+        /// Veritabanı yedeği yükler (sahte geri yükleme mantığı).
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> RestoreDatabase(IFormFile backupFile)
         {
@@ -55,7 +78,7 @@ namespace Project.MvcUI.Areas.Admin.Controllers
 
                 string filePath = Path.Combine(backupFolder, Path.GetFileName(backupFile.FileName));
 
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                using (FileStream stream = new FileStream(filePath, FileMode.Create))
                 {
                     await backupFile.CopyToAsync(stream);
                 }
@@ -69,6 +92,10 @@ namespace Project.MvcUI.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
         }
+
+        /// <summary>
+        /// Veritabanının sahte bir yedeğini oluşturur (demo amaçlı).
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> BackupDatabase()
         {
@@ -79,7 +106,6 @@ namespace Project.MvcUI.Areas.Admin.Controllers
                 if (!Directory.Exists(backupFolder))
                     Directory.CreateDirectory(backupFolder);
 
-                // 📄 Sahte yedek dosyası oluşturuluyor
                 string fileName = $"Demo_BilgeHotelBackup_{DateTime.UtcNow:yyyyMMdd_HHmmss}.txt";
                 string filePath = Path.Combine(backupFolder, fileName);
 
@@ -94,7 +120,5 @@ namespace Project.MvcUI.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
         }
-
-
     }
 }

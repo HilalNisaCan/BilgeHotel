@@ -5,6 +5,7 @@ using Project.Dal.Repositories.Abstracts;
 using Project.Dal.Repositories.Concretes;
 using Project.Entities.Enums;
 using Project.Entities.Models;
+using Project.Common.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,39 +14,49 @@ using System.Threading.Tasks;
 
 namespace Project.BLL.Managers.Concretes
 {
-    public class CampaignManager : BaseManager<CampaignDto, Campaign>, ICampainManager
+    public class CampaignManager : BaseManager<CampaignDto, Campaign>, ICampaignManager
     {
         private readonly ICampaignRepository _campaignRepository;
+        private readonly IUserRepository _userRepository;
+       
         private readonly IMapper _mapper;
 
-        public CampaignManager(ICampaignRepository campaignRepository, IMapper mapper)
+        public CampaignManager(ICampaignRepository campaignRepository, IMapper mapper, IUserRepository userRepository)
             : base(campaignRepository, mapper)
         {
             _campaignRepository = campaignRepository;
             _mapper = mapper;
+            _userRepository = userRepository;
         }
 
-        public async Task<int> CreateCampaignAsync(CampaignDto campaignDto)
+        public async Task<Campaign> CreateAndReturnAsync(CampaignDto dto)
         {
-            var campaign = _mapper.Map<Campaign>(campaignDto);
-            campaign.IsActive = true; // ✅ Varsayılan olarak kampanya aktif eklenir
-            campaign.CreatedDate = DateTime.UtcNow;
+            Campaign entity = _mapper.Map<Campaign>(dto);
+            entity.CreatedDate = DateTime.Now;
+            entity.Status = DataStatus.Inserted;
 
-            await _campaignRepository.AddAsync(campaign);
-            return campaign.Id;
+            await _campaignRepository.CreateAsync(entity);
+            return entity;
         }
 
+
+        /// <summary>
+        /// Kampanyayı DTO üzerinden siler.
+        /// </summary>
         public async Task DeleteAsync(CampaignDto dto)
         {
-            var entity = await _campaignRepository.GetByIdAsync(dto.Id); // EF'in zaten takip ettiği entity'yi al
+            Campaign? entity = await _campaignRepository.GetByIdAsync(dto.Id);
             if (entity == null) return;
 
             await _campaignRepository.DeleteAsync(entity);
         }
 
+        /// <summary>
+        /// Kampanyayı ID üzerinden siler.
+        /// </summary>
         public async Task<bool> DeleteCampaignAsync(int campaignId)
         {
-            var campaign = await _campaignRepository.GetByIdAsync(campaignId);
+            Campaign? campaign = await _campaignRepository.GetByIdAsync(campaignId);
             if (campaign == null)
                 return false;
 
@@ -53,28 +64,68 @@ namespace Project.BLL.Managers.Concretes
             return true;
         }
 
-        public async Task<List<CampaignDto>> GetActiveCampaignsAsync()
+        public async Task<int?> MatchCampaignAsync(DateTime checkIn, ReservationPackage package)
         {
-            var activeCampaigns = await _campaignRepository.GetAllAsync(c => c.IsActive && c.EndDate > DateTime.UtcNow);
-            return _mapper.Map<List<CampaignDto>>(activeCampaigns);
+            int daysBefore = (checkIn - DateTime.Today).Days;
+
+            List<Campaign> campaigns = (await _campaignRepository.GetAllAsync()).ToList();
+
+            if (daysBefore >= 90)
+                return campaigns.FirstOrDefault(c => c.DiscountPercentage == 23)?.Id;
+
+            if (daysBefore >= 30 && package == ReservationPackage.AllInclusive)
+                return campaigns.FirstOrDefault(c => c.DiscountPercentage == 18 && c.Package == ReservationPackage.AllInclusive)?.Id;
+
+            if (daysBefore >= 30 && package == ReservationPackage.Fullboard)
+                return campaigns.FirstOrDefault(c => c.DiscountPercentage == 16 && c.Package == ReservationPackage.Fullboard)?.Id;
+
+            return null;
         }
 
-        public async Task<CampaignDto> GetCampaignByIdAsync(int campaignId)
+        public async Task NotifyUsersAsync(Campaign campaign)
         {
-            var campaign = await _campaignRepository.GetByIdAsync(campaignId);
-            return campaign == null ? null : _mapper.Map<CampaignDto>(campaign);
-        }
+            Console.WriteLine("🔔 NotifyUsersAsync METODU ÇAĞRILDI");
+            Console.WriteLine($"🎯 Kampanya aktif mi? {campaign.IsActive}");
+            Console.WriteLine($"📅 Tarih aralığı: {campaign.StartDate:dd.MM.yyyy} - {campaign.EndDate:dd.MM.yyyy}");
 
-        public async Task<bool> UpdateCampaignAsync(int campaignId, CampaignDto campaignDto)
-        {
-            var existingCampaign = await _campaignRepository.GetByIdAsync(campaignId);
-            if (existingCampaign == null)
-                return false;
+            if (!campaign.IsActive)
+            {
+                Console.WriteLine("❌ Kampanya pasif, e-posta gönderilmedi.");
+                return;
+            }
 
-            _mapper.Map(campaignDto, existingCampaign);
-            await _campaignRepository.UpdateAsync(existingCampaign);
+            // Şu hale getir:
+            if (campaign.EndDate < DateTime.Today)
+                return;
 
-            return true;
+            List<User> users = (await _userRepository.GetAllAsync()).ToList();
+            List<User> recipients = users
+                .Where(u => u.WantsCampaignEmails && !string.IsNullOrWhiteSpace(u.Email))
+                .ToList();
+
+            Console.WriteLine($"📬 E-posta gönderilecek kullanıcı sayısı: {recipients.Count}");
+
+            string subject = "🎉 Yeni Kampanya Sizi Bekliyor!";
+            string formattedDate = $"{campaign.StartDate:dd.MM.yyyy} - {campaign.EndDate:dd.MM.yyyy}";
+
+            foreach (User user in recipients)
+            {
+                string body = $@"
+            <h3>Merhaba {user.UserName},</h3>
+            <p>Yeni bir kampanyamız var!</p>
+    <p><strong>{campaign.Name}</strong> adlı  yeni kampanyamız yayında!</p>
+            <ul>
+                <li><strong>Paket:</strong> {campaign.Package}</li>
+                <li><strong>İndirim:</strong> %{campaign.DiscountPercentage}</li>
+                <li><strong>Tarih:</strong> {formattedDate}</li>
+            </ul>
+            <p>Hemen rezervasyon yapmayı unutma!</p>";
+
+                bool success = EmailService.Send(user.Email, body, subject);
+                Console.WriteLine(success
+                    ? $"📩 Mail gönderildi: {user.Email}"
+                    : $"❌ Mail gönderilemedi: {user.Email}");
+            }
         }
     }
 

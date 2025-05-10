@@ -33,7 +33,7 @@ namespace Project.BLL.Managers.Concretes
             : base(shiftRepository, mapper)
         {
             _shiftRepository = shiftRepository;
-            _assignmentRepository = assignmentRepository;
+           _assignmentRepository = assignmentRepository;
             _employeeRepository = employeeRepository;
             _mapper = mapper;
         }
@@ -43,22 +43,24 @@ namespace Project.BLL.Managers.Concretes
         /// </summary>
         public async Task<bool> AssignShiftAsync(int employeeId, DateTime startDate, DateTime endDate)
         {
-            var employee = await _employeeRepository.GetByIdAsync(employeeId);
+            Employee? employee = await _employeeRepository.GetByIdAsync(employeeId);
             if (employee == null) return false;
 
-            var shift = new EmployeeShift
+            // Yeni vardiya oluştur
+            EmployeeShift shift = new EmployeeShift
             {
                 ShiftDate = startDate.Date,
                 ShiftStart = startDate.TimeOfDay,
                 ShiftEnd = endDate.TimeOfDay,
-                ShiftType = ShiftType.Morning, // Enum'dan mevcut olan kullanıldı
+                ShiftType = ShiftType.Morning,
                 IsDayOff = false,
                 Description = "Otomatik atanan vardiya"
             };
 
             await _shiftRepository.AddAsync(shift);
 
-            var assignment = new EmployeeShiftAssignment
+            // Vardiyayı çalışana ata
+            EmployeeShiftAssignment assignment = new EmployeeShiftAssignment
             {
                 EmployeeId = employeeId,
                 EmployeeShiftId = shift.Id,
@@ -70,79 +72,11 @@ namespace Project.BLL.Managers.Concretes
             return true;
         }
 
-        /// <summary>
-        /// Haftalık toplam saat hesaplama.
-        /// </summary>
-        public async Task<double> CalculateWeeklyHoursAsync(int employeeId, DateTime weekStartDate)
-        {
-            var weekEnd = weekStartDate.AddDays(7);
-            var assignments = await _assignmentRepository.GetAllAsync(x =>
-                x.EmployeeId == employeeId &&
-                x.EmployeeShift.ShiftDate >= weekStartDate &&
-                x.EmployeeShift.ShiftDate <= weekEnd);
 
-            return assignments.Sum(a => (a.EmployeeShift.ShiftEnd - a.EmployeeShift.ShiftStart).TotalHours);
-        }
-
-        ///// <summary>
-        ///// Fazla mesai hesaplama.
-        ///// </summary>
-        //public async Task<double> CalculateOvertimeAsync(int employeeId, DateTime weekStartDate)
-        //{
-        //    var totalHours = await CalculateWeeklyHoursAsync(employeeId, weekStartDate);
-        //    return totalHours > 40 ? totalHours - 40 : 0;
-        //}
-
-        ///// <summary>
-        ///// Aylık maaş hesaplama.
-        ///// </summary>
-        //public async Task<decimal> CalculateSalaryAsync(int employeeId, int month, int year)
-        //{
-        //    var employee = await _employeeRepository.GetByIdAsync(employeeId);
-        //    if (employee == null) return 0;
-
-        //    var assignments = await _assignmentRepository.GetAllAsync(x =>
-        //        x.EmployeeId == employeeId &&
-        //        x.EmployeeShift.ShiftDate.Month == month &&
-        //        x.EmployeeShift.ShiftDate.Year == year);
-
-        //    var totalHours = assignments.Sum(a => (a.EmployeeShift.ShiftEnd - a.EmployeeShift.ShiftStart).TotalHours);
-        //    var overtimeHours = totalHours > 160 ? totalHours - 160 : 0;
-        //    var baseSalary = (decimal)totalHours * employee.HourlyWage;
-        //    var overtimePay = (decimal)overtimeHours * employee.HourlyWage * 1.5m;
-
-        //    return baseSalary + overtimePay;
-        //}
 
         /// <summary>
-        /// Çalışan için izin günü tanımlar.
+        /// Yeni vardiya oluşturur ve ID’yi döner.
         /// </summary>
-        public async Task<bool> SetDayOffAsync(int employeeId, DateTime day)
-        {
-            var shift = new EmployeeShift
-            {
-                ShiftDate = day.Date,
-                ShiftStart = new TimeSpan(0, 0, 0),
-                ShiftEnd = new TimeSpan(0, 0, 0),
-                ShiftType = ShiftType.DayOff,
-                IsDayOff = true,
-                Description = "İzin günü"
-            };
-
-            await _shiftRepository.AddAsync(shift);
-
-            var assignment = new EmployeeShiftAssignment
-            {
-                EmployeeId = employeeId,
-                EmployeeShiftId = shift.Id,
-                AssignedDate = DateTime.UtcNow,
-                ShiftStatus = ShiftStatus.Assigned
-            };
-
-            await _assignmentRepository.AddAsync(assignment);
-            return true;
-        }
-
         public async Task<int> CreateAndReturnIdAsync(EmployeeShiftDto dto)
         {
             EmployeeShift entity = _mapper.Map<EmployeeShift>(dto);
@@ -150,52 +84,60 @@ namespace Project.BLL.Managers.Concretes
             return entity.Id;
         }
 
+        /// <summary>
+        /// Tüm vardiyaları ve atanan çalışanları getirir.
+        /// </summary>
         public async Task<List<EmployeeShiftDto>> GetAllWithAssignmentsAsync()
         {
             List<EmployeeShift> shifts = (await _shiftRepository.GetAllWithIncludeAsync(
-            x => true,
-            q => q.Include(s => s.ShiftAssignments).ThenInclude(a => a.Employee)
+                x => true,
+                q => q.Include(s => s.ShiftAssignments).ThenInclude(a => a.Employee)
             )).ToList();
-            // 🔍 Logla her vardiyayı ve çalışanları
-            foreach (var shift in shifts)
+
+            // Loglama sadece test içindir, sunumda kaldırılabilir
+            foreach (EmployeeShift shift in shifts)
             {
                 Console.WriteLine($"[TEST] Vardiya ID: {shift.Id}, Tarih: {shift.ShiftDate:yyyy-MM-dd}, Atama Sayısı: {shift.ShiftAssignments.Count}");
 
-                foreach (var assignment in shift.ShiftAssignments)
+                foreach (EmployeeShiftAssignment assignment in shift.ShiftAssignments)
                 {
                     string employeeName = assignment.Employee != null
                         ? $"{assignment.Employee.FirstName} {assignment.Employee.LastName}"
                         : "(Employee NULL)";
                     Console.WriteLine($" --> Atanan: {employeeName}, Tarih: {assignment.AssignedDate:yyyy-MM-dd}");
                 }
-
             }
 
-               List<EmployeeShiftDto> shiftDtos = _mapper.Map<List<EmployeeShiftDto>>(shifts);
-
+            List<EmployeeShiftDto> shiftDtos = _mapper.Map<List<EmployeeShiftDto>>(shifts);
             return shiftDtos;
         }
 
+        /// <summary>
+        /// Belirtilen çalışanın belirtilen tarihler arasındaki fazla mesai süresini hesaplar.
+        /// </summary>
         public async Task<double> CalculateOvertimeAsync(int employeeId, DateTime startDate, DateTime endDate)
         {
             List<EmployeeShiftAssignment> shifts = (await _assignmentRepository
-        .GetAllWithIncludeAsync(
-            predicate: x => x.EmployeeId == employeeId &&
-                            x.EmployeeShift.ShiftDate >= startDate &&
-                            x.EmployeeShift.ShiftDate <= endDate,
-            include: x => x.Include(y => y.EmployeeShift)
-        )).ToList();
+                .GetAllWithIncludeAsync(
+                    predicate: x => x.EmployeeId == employeeId &&
+                                    x.EmployeeShift.ShiftDate >= startDate &&
+                                    x.EmployeeShift.ShiftDate <= endDate,
+                    include: x => x.Include(y => y.EmployeeShift)
+                )).ToList();
 
             double overtimeHours = 0;
-            foreach (var shift in shifts)
+
+            foreach (EmployeeShiftAssignment shift in shifts)
             {
                 TimeSpan duration;
+
                 if (shift.EmployeeShift.ShiftEnd > shift.EmployeeShift.ShiftStart)
                     duration = shift.EmployeeShift.ShiftEnd - shift.EmployeeShift.ShiftStart;
                 else
                     duration = (TimeSpan.FromHours(24) - shift.EmployeeShift.ShiftStart) + shift.EmployeeShift.ShiftEnd;
 
                 double worked = duration.TotalHours;
+
                 if (worked > 8)
                     overtimeHours += worked - 8;
             }
@@ -203,44 +145,41 @@ namespace Project.BLL.Managers.Concretes
             return overtimeHours;
         }
 
-       
-
-
-
-
+        /// <summary>
+        /// Belirtilen ID’ye sahip vardiyayı ve ilişkili tüm atamaları siler.
+        /// </summary>
         public async Task<bool> DeleteShiftByIdAsync(int shiftId)
         {
-            // önce vardiyayı bul
             EmployeeShift shift = await _shiftRepository.GetByIdAsync(shiftId);
             if (shift == null)
                 return false;
 
-            // ona bağlı atamaları bul
             List<EmployeeShiftAssignment> assignments = _assignmentRepository
-           .Where(x => x.EmployeeShiftId == shiftId)
-          .ToList();
+                .Where(x => x.EmployeeShiftId == shiftId)
+                .ToList();
 
-            // onları sil
-            foreach (var item in assignments)
+            foreach (EmployeeShiftAssignment item in assignments)
             {
                 await _assignmentRepository.RemoveAsync(item);
             }
 
-            // sonra vardiyayı sil
             await _shiftRepository.RemoveAsync(shift);
-
             return true;
         }
-
+        /// <summary>
+        /// Çalışanın belirtilen tarih aralığında toplam maaşını ve çalışma süresini hesaplar.
+        /// </summary>
         public async Task<(decimal Salary, double TotalWorkedHours)> CalculateSalaryAsync(int employeeId, DateTime startDate, DateTime endDate)
         {
             Employee? employee = await _employeeRepository.GetByIdAsync(employeeId);
             if (employee == null)
                 return (0, 0);
 
+            // Aylık maaşlı personelse saat hesabı yapılmaz
             if (employee.SalaryType == SalaryType.Monthly)
-                return (employee.MonthlySalary, 0); // Aylık maaşta çalışılan saat önemli değil
+                return (employee.MonthlySalary, 0);
 
+            // Saatlik çalışanlar için vardiyaları al
             List<EmployeeShiftAssignment> shifts = (await _assignmentRepository
                 .GetAllWithIncludeAsync(
                     predicate: x => x.EmployeeId == employeeId &&
@@ -251,11 +190,11 @@ namespace Project.BLL.Managers.Concretes
 
             double totalWorkedHours = 0;
 
-            foreach (var shift in shifts)
+            foreach (EmployeeShiftAssignment shift in shifts)
             {
                 TimeSpan duration;
 
-                // 🔁 Gece vardiyası düzeltmesi
+                // Gece vardiyası düzeltmesi
                 if (shift.EmployeeShift.ShiftEnd > shift.EmployeeShift.ShiftStart)
                     duration = shift.EmployeeShift.ShiftEnd - shift.EmployeeShift.ShiftStart;
                 else
@@ -268,16 +207,19 @@ namespace Project.BLL.Managers.Concretes
             return (Math.Round(totalSalary, 2), totalWorkedHours);
         }
 
+        /// <summary>
+        /// Vardiya bilgilerini günceller. Atamaları korur.
+        /// </summary>
         public async Task<bool> UpdateShiftAsync(EmployeeShiftDto dto)
         {
             EmployeeShift? original = await _shiftRepository.GetByIdAsync(dto.Id);
             if (original == null)
                 return false;
 
-            // 🔐 Atamaları kaybetme
-            List<EmployeeShiftAssignment>? currentAssignments = original.ShiftAssignments.ToList();
+            // Atama bilgilerini kaybetmemek için sakla
+            List<EmployeeShiftAssignment> currentAssignments = original.ShiftAssignments.ToList();
 
-            // 🔁 Mapping (ama atamaları silmeden)
+            // Mapping işlemi
             _mapper.Map(dto, original);
             original.ShiftAssignments = currentAssignments;
 

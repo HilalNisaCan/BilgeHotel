@@ -6,7 +6,7 @@ namespace Project.MvcUI.Models.PageVm.User
     {
         public UserProfile Profile { get; set; }
         public List<Project.Entities.Models.Reservation> PastReservations { get; set; }
-        public Project.Entities.Models.Reservation? CurrentReservation { get; set; }
+        public List<Project.Entities.Models.Reservation> CurrentReservations { get; set; }
 
     }
 }

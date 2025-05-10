@@ -4,6 +4,20 @@ using Rotativa.AspNetCore;
 
 namespace Project.MvcUI.Areas.Admin.Controllers
 {
+
+    /*"SystemInfoController, otel sistemine ait teknik altyapı, sunucular, ağ bağlantıları ve yedekleme gibi bilgilerin yönetildiği modüldür.
+Sistem bilgileri sabit bir ViewModel nesnesi üzerinden temsil edilir ve geçici olarak static yapıda tutulur.
+Kullanıcı bu bilgileri görebilir, PDF olarak dışa aktarabilir veya yetkili kişi tarafından güncelleyebilir.
+Export işlemi için Rotativa.AspNetCore kullanılarak sistem bilgileri PDF formatında indirilebilir.
+Bu modülde veri transferi AutoMapper ile değil, doğrudan ViewModel üzerinden yürütülür çünkü veriler sabit ve yapılandırma temellidir."
+
+ * "SistemInfo sayfası, teknik donanım bilgilerini yöneticiye hızlıca sunmak için tasarlanmıştır."
+
+ * "PDF dışa aktarma özelliği sayesinde sistem raporları offline olarak saklanabilir."
+
+ * "Bu yapı, teknik belgelendirme süreçlerinde kullanılabilecek yalın bir gösterim sağlar." */
+
+
     [Area("Admin")]
     public class SystemInfoController : Controller
     {

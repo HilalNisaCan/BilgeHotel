@@ -11,25 +11,46 @@ using QuestPDF.Drawing;
 using QuestPDF.Previewer;
 using Project.MvcUI.Areas.Admin.PdfDocuments;
 using Project.BLL.Managers.Concretes;
+using Project.MvcUI.Areas.Admin.Models.PageVm;
+using AutoMapper;
 
 namespace Project.MvcUI.Areas.Admin.Controllers
 {
+
+    /*“CustomerReportController, otel müşterilerine ait rezervasyon, harcama ve sadakat verilerinin raporlanmasını sağlar.
+Listeleme işlemi doğrudan CustomerReportDto üzerinden yapılır ve bu DTO üzerinden elde edilen veriler, kullanıcıya View'da sunulur.
+Ayrıca raporlar istenirse Excel (ClosedXML) ya da PDF (CustomPdfDocument) formatında dışa aktarılabilir.
+Bu sayede hem dinamik listeleme hem de dış kaynaklara aktarım işlemleri merkezi ve düzenli bir yapı içinde gerçekleştirilmiştir.
+Rapor formatları kullanıcıya dosya olarak indirilmek üzere File() metoduyla döndürülür.
+Tüm işlemler DTO bazlı olup Entity'ler doğrudan bu controller içinde kullanılmaz.”
+
+ CustomerReportDto doğrudan View’a taşınıyor (mapper gerektirmez çünkü DTO zaten temiz model).
+
+PDF export için özel bir sınıf (CustomerReportPdfDocument) kullanılıyor.
+
+Excel export için ClosedXML kütüphanesi tercih edilmiş.
+
+MemoryStream ile dosyalar fiziksel diske yazılmadan bellekte hazırlanıyor → Performans + Temizlik 
+”*/
     [Area("Admin")]
     [Route("Admin/CustomerReports")]
     public class CustomerReportController : Controller
     {
         private readonly ICustomerManager _customerManager;
+        private readonly IMapper _mapper;
 
-        public CustomerReportController(ICustomerManager customerManager)
+        public CustomerReportController(ICustomerManager customerManager,IMapper mapper)
         {
             _customerManager = customerManager;
+            _mapper = mapper;
         }
 
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
             List<CustomerReportDto> reportList = await _customerManager.GetAllCustomerReportsAsync();
-            return View(reportList);
+            List<CustomerReportPageVm> vmList = _mapper.Map<List<CustomerReportPageVm>>(reportList);
+            return View(vmList);
         }
 
         [HttpGet("ExportToExcel")]
@@ -86,13 +107,26 @@ namespace Project.MvcUI.Areas.Admin.Controllers
         [HttpGet("Details/{id}")]
         public async Task<IActionResult> Details(int id)
         {
-            var report = (await _customerManager.GetAllCustomerReportsAsync()).FirstOrDefault(x => x.Id == id);
+            CustomerReportDto? report = await _customerManager.GetCustomerReportWithReservationsAsync(id);
             if (report == null)
                 return NotFound();
 
-            return View(report);
+            CustomerReportPageVm vm = _mapper.Map<CustomerReportPageVm>(report);
+            return View(vm);
+        }
+
+        [HttpPost("Delete/{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            bool result = await _customerManager.DeleteAsync(id);
+            if (result)
+                TempData["Message"] = "Müşteri başarıyla silindi.";
+            else
+                TempData["Message"] = "Müşteri silinirken bir hata oluştu.";
+
+            TempData["MessageType"] = result ? "success" : "danger";
+            return RedirectToAction("Index");
         }
     }
-
 
 }

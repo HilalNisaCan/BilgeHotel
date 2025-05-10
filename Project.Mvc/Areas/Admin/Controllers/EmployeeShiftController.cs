@@ -10,6 +10,13 @@ using Project.MvcUI.Services;
 
 namespace Project.MvcUI.Areas.Admin.Controllers
 {
+
+    /*"EmployeeShiftController, çalışanların vardiya yönetimi, atamaları, fazla mesai hesaplamaları ve maaş takibi gibi operasyonel iş yüklerini yöneten gelişmiş bir yönetim modülüdür.
+Tüm işlemler DTO ve ViewModel katmanları üzerinden yürütülmekte, AutoMapper ile veri dönüşümleri sağlanmakta ve UI bileşenleri (dropdownlar gibi) dinamik olarak servis üzerinden çekilmektedir.
+Fazla mesai çakışma kontrolü, haftalık saat hesaplama, maaş tahmini gibi iş kuralları doğrudan Business Layer içerisinde soyutlanmıştır.
+Böylece controller yalnızca arayüz ile etkileşimde bulunur.”"*/
+
+
     [Area("Admin")]
     [Route("Admin/[controller]/[action]")]
     public class EmployeeShiftController : Controller
@@ -33,19 +40,21 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             _dropdownService = dropdownService;
         }
 
+
         // 🟦 Dashboard
         public IActionResult Index()
         {
             return View();
         }
 
-        // 🟢 Vardiya Oluştur
+        // 🟢 Vardiya Oluştur (GET)
         [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
 
+        // 🟢 Vardiya Oluştur (POST)
         [HttpPost]
         public async Task<IActionResult> Create(EmployeeShiftCreateVm vm)
         {
@@ -55,14 +64,12 @@ namespace Project.MvcUI.Areas.Admin.Controllers
                 return View(vm);
             }
 
-            // Saat Başlangıcı ve Bitişini Kontrol Et
             if (vm.ShiftStart >= vm.ShiftEnd)
             {
                 TempData["Error"] = "Başlangıç saati bitiş saatinden büyük olamaz.";
                 return View(vm);
             }
 
-            // Mapping işlemi
             EmployeeShiftDto dto = _mapper.Map<EmployeeShiftDto>(vm);
             await _shiftManager.CreateAsync(dto);
 
@@ -70,35 +77,27 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
-        // 🟡 Vardiya Atama
+
+        // 🟡 Vardiya Atama (GET)
         [HttpGet]
         public async Task<IActionResult> Assign()
         {
-            // 📥 Dropdown verilerini servisten al
-            var (employees, shifts) = await _dropdownService.GetDropdownsAsync();
-
-            // 🎯 ViewBag'e ata
+            (SelectList employees, SelectList shifts) = await _dropdownService.GetDropdownsAsync();
             ViewBag.Employees = employees;
             ViewBag.Shifts = shifts;
-
             return View();
         }
 
+        // 🟡 Vardiya Atama (POST)
         [HttpPost]
         public async Task<IActionResult> Assign(EmployeeShiftAssignmentCreateVm vm)
         {
             if (!ModelState.IsValid)
             {
-                foreach (var entry in ModelState)
-                {
-                    Console.WriteLine($"Property: {entry.Key}, Error: {string.Join(", ", entry.Value.Errors.Select(e => e.ErrorMessage))}");
-                }
-
                 TempData["Error"] = "Bilgileri kontrol edin.";
                 return RedirectToAction("Assign");
             }
 
-            // 🔍 VARDİYA ÇAKIŞMA KONTROLÜ
             List<EmployeeShiftAssignmentDto> existingAssignments = await _assignmentManager.GetAllAsync();
 
             bool isConflict = existingAssignments.Any(x =>
@@ -111,7 +110,6 @@ namespace Project.MvcUI.Areas.Admin.Controllers
                 return RedirectToAction("Assign");
             }
 
-            // 🟢 UYGUNSA EKLE
             EmployeeShiftAssignmentDto dto = _mapper.Map<EmployeeShiftAssignmentDto>(vm);
             await _assignmentManager.CreateAsync(dto);
 
@@ -119,13 +117,14 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
-        // 🔵 Fazla Mesai Takibi
+
+        // 🔵 Fazla Mesai Takibi (GET)
         [HttpGet]
         public async Task<IActionResult> Overtime()
         {
-            var model = new EmployeeShiftOvertimeQueryVm
+            EmployeeShiftOvertimeQueryVm model = new EmployeeShiftOvertimeQueryVm
             {
-                WeekStartDate = DateTime.Today // 🔥 BUGÜNÜ OTOMATİK ATA
+                WeekStartDate = DateTime.Today
             };
 
             if (TempData["EmployeeId"] != null)
@@ -134,10 +133,12 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             if (TempData["WeekStartDate"] != null)
                 model.WeekStartDate = DateTime.Parse(TempData["WeekStartDate"].ToString());
 
-            ViewBag.Employees = new SelectList(await _employeeManager.GetAllEmployeesAsync(), "Id", "FullName");
-            return View(model); // ❗️Burası önemli: boş değil, model dönüyoruz
+            List<EmployeeDto> employees = await _employeeManager.GetAllEmployeesAsync();
+            ViewBag.Employees = new SelectList(employees, "Id", "FullName");
+            return View(model);
         }
 
+        // 🔵 Fazla Mesai Takibi (POST)
         [HttpPost]
         public async Task<IActionResult> Overtime(EmployeeShiftOvertimeQueryVm vm)
         {
@@ -147,11 +148,9 @@ namespace Project.MvcUI.Areas.Admin.Controllers
                 return RedirectToAction("Overtime");
             }
 
-            // ✅ Mesai hesapla
             DateTime weekEndDate = vm.WeekStartDate.AddDays(6);
             double overtimeHours = await _shiftManager.CalculateOvertimeAsync(vm.EmployeeId, vm.WeekStartDate, weekEndDate);
 
-            // 🧠 Sakla
             TempData["EmployeeId"] = vm.EmployeeId;
             TempData["WeekStartDate"] = vm.WeekStartDate.ToString("yyyy-MM-dd");
 
@@ -161,42 +160,39 @@ namespace Project.MvcUI.Areas.Admin.Controllers
 
 
 
+        /// <summary>
+        /// Seçilen çalışanın belirli bir haftadaki vardiya listesini ve fazla mesaisini getirir.
+        /// DTO → ViewModel dönüşümleri AutoMapper ile yapılır.
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> OvertimeList(int employeeId, DateTime weekStartDate)
         {
+            // 🔍 Gelen parametreleri kontrol için logla (isteğe bağlı)
             Console.WriteLine($"GELEN PARAMETRELER >> employeeId: {employeeId}, weekStartDate: {weekStartDate:yyyy-MM-dd}");
-            ViewBag.Employees = new SelectList(await _employeeManager.GetAllEmployeesAsync(), "Id", "FullName");
 
+            // 📌 Tüm çalışanlar dropdown için
+            List<EmployeeDto> employees = await _employeeManager.GetAllEmployeesAsync();
+            ViewBag.Employees = new SelectList(employees, "Id", "FullName");
+
+            // ❗ Parametre doğrulama
             if (employeeId == 0 || weekStartDate == default)
             {
                 TempData["Error"] = "Lütfen çalışan ve tarih bilgilerini eksiksiz gönderin.";
                 return View(new List<EmployeeShiftOvertimeListVm>());
             }
 
-            var assignments = await _assignmentManager.GetAssignmentsForWeekAsync(employeeId, weekStartDate);
+            // 📥 İlgili tarihteki vardiya atamalarını al
+            List<EmployeeShiftAssignmentDto> assignments = await _assignmentManager.GetAssignmentsForWeekAsync(employeeId, weekStartDate);
 
+            // ❌ Atama yoksa bilgilendir
             if (assignments == null || !assignments.Any())
             {
                 TempData["Error"] = "Bu tarihlerde bu çalışana ait vardiya bulunamadı.";
                 return View(new List<EmployeeShiftOvertimeListVm>());
             }
 
-            var result = assignments.Select(x =>
-            {
-                TimeSpan duration = x.EmployeeShift.ShiftEnd - x.EmployeeShift.ShiftStart;
-                double workedHours = duration.TotalHours;
-                double overtime = workedHours > 8 ? workedHours - 8 : 0;
-
-                return new EmployeeShiftOvertimeListVm
-                {
-                    FirstName = x.Employee.FirstName,
-                    LastName = x.Employee.LastName,
-                    AssignedDate = x.AssignedDate,
-                    ShiftTime = $"{x.EmployeeShift.ShiftStart:hh\\:mm} - {x.EmployeeShift.ShiftEnd:hh\\:mm}",
-                    WorkedHours = workedHours,
-                    OvertimeHours = overtime
-                };
-            }).ToList();
+            // ✅ AutoMapper ile dönüşüm
+            List<EmployeeShiftOvertimeListVm> result = _mapper.Map<List<EmployeeShiftOvertimeListVm>>(assignments);
 
             return View(result);
         }
@@ -209,6 +205,10 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Seçilen çalışan ve tarih aralığına göre maaş hesaplaması yapar.
+        /// AutoMapper ile çalışan bilgileri ViewModel'e dönüştürülür.
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> Salary(EmployeeSalaryQueryVm vm)
         {
@@ -218,26 +218,28 @@ namespace Project.MvcUI.Areas.Admin.Controllers
                 return RedirectToAction("Salary");
             }
 
+            // 1️⃣ Çalışan DTO'sunu getir
             EmployeeDto employee = await _employeeManager.GetByIdAsync(vm.EmployeeId);
 
-            // 👉 Artık hem maaş hem toplam saat geliyor
-            (decimal salary, double totalWorkedHours) = await _shiftManager.CalculateSalaryAsync(vm.EmployeeId, vm.StartDate, vm.EndDate);
+            // 2️⃣ DTO → ViewModel dönüşümünü yap
+            EmployeeSalaryResultVm result = _mapper.Map<EmployeeSalaryResultVm>(employee);
 
+            // 3️⃣ Maaş ve mesai hesaplamaları
+            (decimal salary, double totalWorkedHours) = await _shiftManager.CalculateSalaryAsync(vm.EmployeeId, vm.StartDate, vm.EndDate);
             double overtime = await _shiftManager.CalculateOvertimeAsync(vm.EmployeeId, vm.StartDate, vm.EndDate);
 
-            EmployeeSalaryResultVm result = new EmployeeSalaryResultVm
-            {
-                EmployeeFullName = $"{employee.FirstName} {employee.LastName}",
-                Year = vm.StartDate.Year,
-                Month = vm.StartDate.Month,
-                OvertimeHours = overtime,
-                TotalWorkedHours = totalWorkedHours,
-                SalaryAmount = salary
-            };
+            // 4️⃣ ViewModel'e hesaplama sonuçlarını ekle
+            result.Year = vm.StartDate.Year;
+            result.Month = vm.StartDate.Month;
+            result.OvertimeHours = overtime;
+            result.TotalWorkedHours = totalWorkedHours;
+            result.SalaryAmount = salary;
 
+            // 5️⃣ Sonuç ekranına gönder
             return View("SalaryResult", result);
         }
 
+        // 📅 Vardiya Listesi
         [HttpGet]
         public async Task<IActionResult> List(DateTime? date)
         {
@@ -246,50 +248,46 @@ namespace Project.MvcUI.Areas.Admin.Controllers
             if (date.HasValue)
                 shiftList = shiftList.Where(x => x.ShiftDate.Date == date.Value.Date).ToList();
 
-            // Test çıktısı (istersen sil)
-            foreach (var shift in shiftList)
-            {
-                Console.WriteLine($"[TEST] {shift.ShiftDate:yyyy-MM-dd} → {shift.AssignedEmployees.Count} atama");
-            }
-
             List<EmployeeShiftResponseVm> vmList = _mapper.Map<List<EmployeeShiftResponseVm>>(shiftList);
             ViewBag.FilterDate = date?.ToString("yyyy-MM-dd");
             return View(vmList);
         }
+
+        // 📝 Vardiya Düzenle (GET)
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var dto = await _shiftManager.GetByIdAsync(id);
+            EmployeeShiftDto? dto = await _shiftManager.GetByIdAsync(id);
             if (dto == null)
                 return NotFound();
 
-            var vm = _mapper.Map<EmployeeShiftUpdateVm>(dto); // ViewModel'ini oluşturduysan
+            EmployeeShiftUpdateVm vm = _mapper.Map<EmployeeShiftUpdateVm>(dto);
             return View(vm);
         }
 
+        // 📝 Vardiya Düzenle (POST)
         [HttpPost]
         public async Task<IActionResult> Edit(EmployeeShiftUpdateVm vm)
         {
             if (!ModelState.IsValid)
                 return View(vm);
 
-            var dto = _mapper.Map<EmployeeShiftDto>(vm);
+            EmployeeShiftDto dto = _mapper.Map<EmployeeShiftDto>(vm);
             await _shiftManager.UpdateShiftAsync(dto);
 
             TempData["Success"] = "Vardiya güncellendi.";
             return RedirectToAction("List");
         }
 
+        // ❌ Vardiya Sil
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-
             bool isDeleted = await _shiftManager.DeleteShiftByIdAsync(id);
 
-            if (!isDeleted)
-                TempData["Error"] = "Vardiya silinirken hata oluştu.";
-            else
-                TempData["Success"] = "Vardiya başarıyla silindi.";
+            TempData[isDeleted ? "Success" : "Error"] = isDeleted
+                ? "Vardiya başarıyla silindi."
+                : "Vardiya silinirken hata oluştu.";
 
             return RedirectToAction("List");
         }

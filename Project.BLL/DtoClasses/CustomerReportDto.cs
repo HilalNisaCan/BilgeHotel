@@ -13,54 +13,24 @@ namespace Project.BLL.DtoClasses
     /// </summary>
     public class CustomerReportDto:BaseDto
     {
-        /// <summary>
-        /// Müşteri ID'si
-        /// </summary>
         public int Id { get; set; }
-
-        /// <summary>
-        /// Müşterinin tam adı (Ad + Soyad)
-        /// </summary>
         public string FullName { get; set; } = null!;
-
-        /// <summary>
-        /// TC Kimlik Numarası
-        /// </summary>
-        public string IdentityNumber { get; set; }= null!;
-
-        /// <summary>
-        /// Telefon numarası
-        /// </summary>
-        public string PhoneNumber { get; set; } = null!;    
-
-        /// <summary>
-        /// Toplam yaptığı rezervasyon sayısı
-        /// </summary>
+        public string IdentityNumber { get; set; } = null!;
+        public string PhoneNumber { get; set; } = null!;
         public int TotalReservationCount { get; set; }
-
-        /// <summary>
-        /// Tüm rezervasyonlardan elde edilen toplam harcama tutarı
-        /// </summary>
         public decimal TotalSpent { get; set; }
-
-        /// <summary>
-        /// Müşterinin sahip olduğu sadakat puanı
-        /// </summary>
         public int LoyaltyPoints { get; set; }
-
-        /// <summary>
-        /// Müşterinin yaptığı en son rezervasyonun bitiş tarihi
-        /// </summary>
-        public DateTime? LastReservationDate { get; set; } 
-
-        /// <summary>
-        /// Kaç rezervasyonda kampanya kullanılmış
-        /// </summary>
+        public DateTime? LastReservationDate { get; set; }
         public int CampaignUsageCount { get; set; }
+        public int ReservationCount { get; set; }
+        public int CampaignCount { get; set; }
+        public List<ReservationDto> PastReservations { get; set; } = new();
 
-        public int ReservationCount { get; set; } // ✅ EKLENECEK
-
-        public int CampaignCount { get; set; } // ✅ EKLENECEK
+        // ✅ Eklenen alanlar
+        public string? UserId { get; set; }
+        public bool HasUser => !string.IsNullOrEmpty(UserId);
+        public List<ReservationDto> UpcomingReservations { get; set; } = new();
+        public List<ReservationDto> CurrentStays { get; set; } = new();
 
     }
 }

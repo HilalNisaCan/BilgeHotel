@@ -30,6 +30,9 @@ namespace Project.BLL.DtoClasses
         public bool HasHairDryer { get; set; } = true; // Saç kurutma makinesi var mı?
 
         public bool HasWirelessInternet { get; set; } = true; // Kablosuz internet var mı?
+      
+        public int Capacity { get; set; }
+
 
         [Range(0, 10000)]
         public decimal PricePerNight { get; set; } // Gecelik fiyat

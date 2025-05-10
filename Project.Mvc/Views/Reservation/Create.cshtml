@@ -1,4 +1,5 @@
 ﻿@model ReservationRequestModel
+
 @{
     ViewData["Title"] = "Rezervasyon Yap";
     Layout = "_Layout";
@@ -74,7 +75,7 @@
 
                         <div class="col-md-6">
                             <label asp-for="GuestCount" class="form-label">Kişi Sayısı</label>
-                            <input asp-for="GuestCount" type="number" min="1" max="10" class="form-control" id="GuestCount" />
+                          <input asp-for="GuestCount" type="number" min="1" max="10" class="form-control" id="GuestCount" readonly />
                         </div>
                         <div class="col-md-6">
                             <label asp-for="FullName" class="form-label">Ad Soyad</label>
@@ -162,7 +163,12 @@
                 else if (packageType === 'Fullboard') discountRate = 16;
             }
 
-            const total = pricePerNight * duration * (1 - discountRate / 100);
+            let adjustedPrice = pricePerNight;
+            if (discountRate === 0 && packageType === 'AllInclusive') {
+                adjustedPrice += 1000;
+            }
+            const total = adjustedPrice * duration * (1 - discountRate / 100);
+            priceInput.value = adjustedPrice;
 
             // 🧪 Debug logları:
             console.log("🎯 Oda Tipi:", roomType);
@@ -183,20 +189,49 @@
             document.querySelector("input[name='TotalPrice']").value = total.toFixed(2);
         }
 
-        document.addEventListener("DOMContentLoaded", function () {
-            updatePrices(); // sayfa açıldığında bir kere
+    document.addEventListener("DOMContentLoaded", function () {
+    updatePrices(); // sayfa açıldığında fiyatları hesapla
 
-            ["RoomType", "Package", "CheckIn", "CheckOut", "GuestCount"].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    ["change", "input"].forEach(evt => {
-                        el.addEventListener(evt, () => {
-                            setTimeout(updatePrices, 50);
-                        });
-                    });
-                }
-            });
+    // Oda tipi değişince kişi sayısını otomatik ayarla
+    const roomCapacities = {
+        "Single": 1,
+        "DoubleBed": 2,
+        "TwinBed": 2,
+        "Triple": 3,
+        "Quad": 4,
+        "KingSuite": 2
+    };
+
+    const roomTypeSelect = document.getElementById("RoomType");
+    const guestCountInput = document.getElementById("GuestCount");
+
+    if (roomTypeSelect && guestCountInput) {
+        // Sayfa açıldığında ilk değer ata
+        const selected = roomTypeSelect.value;
+        const capacity = roomCapacities[selected] || 1;
+        guestCountInput.value = capacity;
+
+        roomTypeSelect.addEventListener("change", function () {
+            const selected = this.value;
+            const capacity = roomCapacities[selected] || 1;
+            guestCountInput.value = capacity;
+            setTimeout(updatePrices, 50); // kişi sayısı değişince tekrar hesaplama yap
         });
+    }
+
+    ["Package", "CheckIn", "CheckOut", "GuestCount"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            ["change", "input"].forEach(evt => {
+                el.addEventListener(evt, () => {
+                    setTimeout(updatePrices, 50);
+                });
+            });
+        }
+    });
+});
+
+           
     </script>
 
     <style>
@@ -229,4 +264,7 @@
     label {
         font-weight: 500;
     }
+
+
 }
+</style>

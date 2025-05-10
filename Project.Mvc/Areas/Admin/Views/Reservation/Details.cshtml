@@ -45,12 +45,18 @@
                 <h5 class="fw-bold text-primary">Tarih Bilgileri</h5>
                 <p><strong>Giriş:</strong> @Model.StartDate.ToString("dd.MM.yyyy")</p>
                 <p><strong>Çıkış:</strong> @Model.EndDate.ToString("dd.MM.yyyy")</p>
-                <p><strong>Giriş Saati:</strong> @(Model.CheckInTime.HasValue ? Model.CheckInTime.Value.ToString(@"hh\:mm") : "-")</p>
+                <p><strong>Giriş Saati:</strong> 14:00</p>
+                <p><strong>Çıkış Saati:</strong> 10:00</p>
             </div>
             <div class="col-md-6">
                 <h5 class="fw-bold text-primary">Ödeme & Kampanya</h5>
                 <p><strong>Tutar:</strong> @Model.TotalPrice.ToString("C2")</p>
-                <p><strong>İndirim Oranı:</strong> %@(Model.DiscountRate * 100)</p>
+
+                @if (Model.DiscountRate > 0)
+                {
+                    <p><strong>İndirim Oranı:</strong> @($"%{Model.DiscountRate:N0}")</p>
+                }
+
                 <p><strong>Döviz:</strong> @Model.CurrencyCode</p>
                 <p><strong>Kampanya:</strong> @(Model.CampaignName ?? "Yok")</p>
             </div>

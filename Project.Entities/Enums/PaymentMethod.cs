@@ -10,6 +10,7 @@ namespace Project.Entities.Enums
     {
         CreditCard=0,   // Kredi Kartı
         BankTransfer=1, // Havale/EFT
-        Cash=2         // Nakit
+        Cash=2,         // Nakit
+        HotelInternal = 3 // Otel içinden alınan ödeme
     }
 }

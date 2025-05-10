@@ -1,4 +1,5 @@
 ﻿using Bogus;
+using Microsoft.EntityFrameworkCore;
 using Project.Dal.ContextClasses;
 using Project.Entities.Enums;
 using Project.Entities.Models;
@@ -30,7 +31,8 @@ namespace Project.Dal.BogusHandling
             if (!context.Customers.Any())
             {
                 List<int> customerUserIds = context.Users
-                                                   .Where(u => u.Role == UserRole.Customer)
+                                                   .Include(u => u.AppRole) // Rol bilgisiyle beraber çek
+                                                   .Where(u => u.AppRole.Name == "Customer")
                                                    .Select(u => u.Id)
                                                    .ToList();
 

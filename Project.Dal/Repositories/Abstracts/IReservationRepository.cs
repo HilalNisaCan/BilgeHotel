@@ -20,6 +20,9 @@ namespace Project.Dal.Repositories.Abstracts
     Expression<Func<Reservation, bool>> predicate,
     Func<IQueryable<Reservation>, IQueryable<Reservation>> include);
 
+        Task<bool> DeleteReservationAsync(int id);
+
+
 
     }
 }

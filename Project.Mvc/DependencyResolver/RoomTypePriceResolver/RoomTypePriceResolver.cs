@@ -5,9 +5,34 @@ using Project.MvcUI.Areas.Admin.Models.PureVm.ResponseModel.Room;
 
 namespace Project.MvcUI.DependencyResolver.RoomTypePriceResolver
 {
-    public class RoomTypePriceResolver
-     : IValueResolver<RoomDto, RoomAdminResponseModel, decimal>
+    /// <summary>
+    /// 🧠 RoomTypePriceResolver
+    /// 
+    /// AutoMapper içinde özel fiyat eşlemesi yapan resolver'dır.
+    /// RoomDto → RoomAdminResponseModel dönüşümünde RoomType’a göre fiyat atanmasını sağlar.
+    /// 
+    /// 🎯 Amaç:
+    /// - Oda tipiyle eşleşen fiyatın ViewModel’e yansımasını sağlamak
+    /// - API'den gelen fiyat listesini mapping sırasında kullanmak
+    /// 
+    /// 💡 Kullanım Yeri:
+    /// - Admin panelindeki oda listesi ekranı
+    /// - RoomController → AutoMapper.Map sırasında context üzerinden fiyat setleme
+    /// 
+    /// ⚙️ Çalışma Şekli:
+    /// - `ResolutionContext.Items["RoomTypePrices"]` ile dışarıdan fiyat listesi alınır
+    /// - RoomType’a göre fiyat eşlemesi yapılır
+    /// </summary>
+    public class RoomTypePriceResolver : IValueResolver<RoomDto, RoomAdminResponseModel, decimal>
     {
+        /// <summary>
+        /// RoomDto → RoomAdminResponseModel dönüşümünde gecelik fiyatı hesaplar.
+        /// </summary>
+        /// <param name="source">RoomDto kaynağı</param>
+        /// <param name="destination">Hedef ViewModel</param>
+        /// <param name="destMember">Dönüştürülecek alan</param>
+        /// <param name="context">AutoMapper çözümleme bağlamı</param>
+        /// <returns>RoomType’a göre eşleşen fiyat, yoksa 0</returns>
         public decimal Resolve(
             RoomDto source,
             RoomAdminResponseModel destination,
@@ -16,10 +41,14 @@ namespace Project.MvcUI.DependencyResolver.RoomTypePriceResolver
         {
             if (context.Items.TryGetValue("RoomTypePrices", out object priceListObj))
             {
-                var priceList = priceListObj as List<RoomTypePriceDto>;
+                List<RoomTypePriceDto>? priceList = priceListObj as List<RoomTypePriceDto>;
+
                 if (priceList != null)
                 {
-                    return priceList.FirstOrDefault(p => p.RoomType == source.RoomType)?.PricePerNight ?? 0;
+                    RoomTypePriceDto? matchedPrice = priceList
+                        .FirstOrDefault(p => p.RoomType == source.RoomType);
+
+                    return matchedPrice?.PricePerNight ?? 0;
                 }
             }
 

@@ -73,6 +73,11 @@
                             <button class="btn btn-outline-danger btn-sm">İptal Et</button>
                         </form>
                         <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">Detay</a>
+                        <form method="post" asp-action="Delete" asp-route-id="@item.Id" class="d-inline"
+                              onsubmit="return confirm('Bu rezervasyonu silmek istediğinizden emin misiniz?');">
+                            <button class="btn btn-outline-dark btn-sm">Sil</button>
+                        </form>
+         
                     </td>
                 </tr>
             }

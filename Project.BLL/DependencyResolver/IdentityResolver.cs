@@ -14,7 +14,7 @@ namespace Project.BLL.DependencyResolver
     {
         public static void AddIdentityService(this IServiceCollection services)
         {
-            services.AddIdentity<User, IdentityRole<int>>(x =>
+            services.AddIdentity<User, AppRole>(x =>
             {
                 x.Password.RequireDigit = false;
                 x.Password.RequiredLength = 3;
@@ -22,11 +22,10 @@ namespace Project.BLL.DependencyResolver
                 x.Password.RequireUppercase = false;
                 x.SignIn.RequireConfirmedEmail = true;
                 x.Password.RequireNonAlphanumeric = false;
-            }).AddEntityFrameworkStores<MyContext>()
+            })
+          .AddEntityFrameworkStores<MyContext>()
           .AddDefaultTokenProviders();
-            // .AddRoles<IdentityRole<int>>();// 💥 BU SATIRI EKLE
 
-            // Not: AddDefaultTokenProviders eklenmezse şifre sıfırlama, mail onayı gibi işlemler çalışmaz
         }
     }
 }

@@ -27,73 +27,14 @@ namespace Project.BLL.Managers.Concretes
             _mapper = mapper;
         }
 
-        /// <summary>
-        /// Yeni bir ürün ekler ve ID döner.
-        /// </summary>
-        public async Task<int> AddProductAsync(ProductDto dto)
-        {
-            var entity = _mapper.Map<Product>(dto);
-            await _productRepository.AddAsync(entity);
-            return entity.Id;
-        }
-
-        /// <summary>
-        /// Mevcut bir ürünü günceller.
-        /// </summary>
-        public async Task<bool> UpdateProductAsync(ProductDto dto)
-        {
-            var entity = await _productRepository.GetByIdAsync(dto.Id);
-            if (entity == null) return false;
-
-            _mapper.Map(dto, entity);
-            await _productRepository.UpdateAsync(entity);
-            return true;
-        }
-
-        /// <summary>
-        /// Belirli bir ürün ID'sine göre ürün bilgisini getirir.
-        /// </summary>
-        public async Task<ProductDto> GetProductByIdAsync(int id)
-        {
-            var entity = await _productRepository.GetByIdAsync(id);
-            return _mapper.Map<ProductDto>(entity);
-        }
-
-        /// <summary>
-        /// Sistemdeki tüm ürünleri getirir.
-        /// </summary>
-        public async Task<List<ProductDto>> GetAllProductsAsync()
-        {
-            var list = await _productRepository.GetAllAsync();
-            return _mapper.Map<List<ProductDto>>(list);
-        }
-
-        /// <summary>
-        /// Belirli bir kategoriye ait ürünleri getirir.
-        /// </summary>
-        public async Task<List<ProductDto>> GetProductsByCategoryAsync(ProductCategory category)
-        {
-            var list = await _productRepository.GetAllAsync(x => x.Category == category);
-            return _mapper.Map<List<ProductDto>>(list);
-        }
-
-        /// <summary>
-        /// Belirli bir ürünü sistemden kaldırır.
-        /// </summary>
-        public async Task<bool> DeleteProductAsync(int id)
-        {
-            var entity = await _productRepository.GetByIdAsync(id);
-            if (entity == null) return false;
-
-            await _productRepository.RemoveAsync(entity);
-            return true;
-
-        }
-
         public async Task<List<ProductDto>> GetByCategoryAsync(ProductCategory category)
         {
-            List<Product> products = (await _productRepository.GetAllAsync(p => p.Category == category)).ToList();
+            List<Product> products = (List<Product>)await _productRepository.GetAllAsync(p => p.Category == category);
             return _mapper.Map<List<ProductDto>>(products);
         }
+
+
+
+      
     }
 }
