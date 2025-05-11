@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 namespace Project.BLL.Services.abstracts
 {
+    // Not: Bu servis yapısı dış sistemle haberleştiği için idealde Common'a taşınabilir.
+    // Ancak DTO ve iş akışı bağımlılıkları nedeniyle BLL içinde bırakılmıştır.
     /// <summary>
     /// Kimlik doğrulama işlemlerini gerçekleştiren servis arayüzü.
     /// </summary>
