@@ -136,6 +136,8 @@ Mailinize gelen link'e tıklayarak hesabınızı aktif edebilirsiniz.Şifre değ
 
 ---
 
+⚠️ Not: Projede kullanılan kişisel veriler (T.C. kimlik numarası, telefon numarası, e-posta vs gibi) veri güvenliği amacıyla ilk birkaç hanesi bırakılarak maskelenmiştir. Gerçek veriler tam haliyle paylaşılmamıştır.
+
 ---
 
 ## 👩‍💻 Geliştirici Bilgileri
