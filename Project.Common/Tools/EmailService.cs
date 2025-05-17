@@ -20,10 +20,10 @@ Statik yapıda tutulduğu için hızlı erişim ve kolay entegrasyon sağlar."*/
     */
     public static class EmailService
     {
-        private static readonly string _smtpServer = Environment.GetEnvironmentVariable("SMTP_SERVER") ?? "smtp.gmail.com";
-        private static readonly int _smtpPort = int.TryParse(Environment.GetEnvironmentVariable("SMTP_PORT"), out int port) ? port : 587;
-        private static readonly string _senderEmail = Environment.GetEnvironmentVariable("SENDER_EMAIL");
-        private static readonly string _senderPassword = Environment.GetEnvironmentVariable("SENDER_PASSWORD");
+        private static readonly string _smtpServer = "smtp.gmail.com";
+        private static readonly int _smtpPort = 587;
+        private static readonly string _senderEmail = "bilgehoteltest@gmail.com";
+        private static readonly string _senderPassword = "hudoiiowpkpjmrgm"; // GİZLİ TUTULMALI
 
         public static bool Send(string toEmail, string body, string subject)
         {

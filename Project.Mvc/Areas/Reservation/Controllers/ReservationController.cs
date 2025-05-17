@@ -104,16 +104,16 @@ namespace Project.MvcUI.Areas.Reservation.Controllers
             }
 
             //// 2️⃣ T.C. Kimlik doğrulama yapılır
-            //KimlikBilgisiDto kimlik = _mapper.Map<KimlikBilgisiDto>(model);
-            //bool isIdentityVerified = await _customerManager.VerifyCustomerIdentityAsync(kimlik);
+            KimlikBilgisiDto kimlik = _mapper.Map<KimlikBilgisiDto>(model);
+            bool isIdentityVerified = await _customerManager.VerifyCustomerIdentityAsync(kimlik);
 
-            //if (!isIdentityVerified)
-            //{
-            //    Console.WriteLine("❌ TC doğrulama başarısız.");
-            //    ModelState.AddModelError("IdentityNumber", "T.C. Kimlik numarası doğrulanamadı.");
-            //    await PopulateRoomListAsync(model);
-            //    return View(model);
-            //}
+            if (!isIdentityVerified)
+            {
+               Console.WriteLine("❌ TC doğrulama başarısız.");
+                ModelState.AddModelError("IdentityNumber", "T.C. Kimlik numarası doğrulanamadı.");
+                await PopulateRoomListAsync(model);
+                return View(model);
+            }
 
             try
             {
